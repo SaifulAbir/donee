@@ -70,3 +70,4 @@ class Profile(models.Model):
     is_approved= models.BooleanField(default=False)
     view_count= models.PositiveIntegerField(default=0)
     plan_id= models.ForeignKey(Plan,on_delete=models.CASCADE)
+    created_at= models.DateTimeField(auto_now_add=True)

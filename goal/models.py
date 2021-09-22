@@ -22,6 +22,8 @@ class Goal(models.Model):
     total_amount = models.FloatField()
     sdgs = models.CharField(max_length=1000)
     status = models.CharField(max_length=20, default=CHOICES[0][0])
+    created_at= models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     profile_id = models.ForeignKey(Profile,on_delete=models.CASCADE)
 
 
