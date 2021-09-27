@@ -3,8 +3,8 @@ from .views import *
 from django.views.decorators.csrf import csrf_exempt
 
 urlpatterns = [
-    path('reguserapi/', csrf_exempt(UserRegApi.as_view())),
-    path('userprofileupdate/', csrf_exempt(UserProfileUpdateView.as_view())),
-    path('profilecreate/', csrf_exempt(DoneeAndNgoProfileView.as_view())),
+    path('create-user/', csrf_exempt(UserRegApi.as_view())),
+    path('update-user/', csrf_exempt(UserProfileUpdateView.as_view())),
+    path('profile-create/', csrf_exempt(DoneeAndNgoProfileView.as_view())),
     ]
 

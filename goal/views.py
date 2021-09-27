@@ -9,8 +9,6 @@ from rest_framework.exceptions import ValidationError
 
 
 
-
-
 class DoneeAndNgoProfileView(ListCreateAPIView):
 
     serializer_class = GoalSerializer
