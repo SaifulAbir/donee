@@ -26,11 +26,10 @@ class UserRegSerializer(serializers.ModelSerializer):
         return user
 
 
-
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'full_name','location','phone_number','bio','image']
+        fields = ['username', 'full_name', 'location', 'phone_number', 'bio', 'image']
 
 
 

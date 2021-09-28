@@ -13,8 +13,7 @@ from django.dispatch import receiver
 
 class User(AbstractBaseUser,PermissionsMixin):
     username_validator = UnicodeUsernameValidator()
-   
-    username = models.CharField(max_length=200,validators=[username_validator],error_messages={'unique': _("A user with that username already exists."),},)
+    username = models.CharField(max_length=200, validators=[username_validator],error_messages={'unique': _("A user with that username already exists."),},)
     full_name = models.CharField(max_length=100,null=True,blank=True)
     email = models.EmailField(unique=True,blank=False,null=False)
     location = models.CharField(max_length=100,null=True,blank=True)
