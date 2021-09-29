@@ -14,20 +14,3 @@ class UserRegApi(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegSerializer
     permission_classes = [AllowAny]
-
-        
-
-
-
-class DoneeAndNgoProfileView(ListCreateAPIView):
-
-    serializer_class = DoneeAndNgoProfileSerializer
-    permission_classes = [IsAuthenticated]
-
-
-    def get_queryset(self) :
-        # print(Profile.objects.filter(user__email=self.request.user).query)
-        return Profile.objects.filter(user__email=self.request.user)
-       
-
-    # have to handle post method here

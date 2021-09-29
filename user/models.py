@@ -5,9 +5,6 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from django.core.validators import RegexValidator
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 
 
@@ -41,6 +38,12 @@ class User(AbstractBaseUser,PermissionsMixin):
 class ProfileType(models.Model):
     title = models.CharField(max_length=100,null=False,blank=False)
 
+    class Meta:
+        db_table = 'profile_types'
+
+    def __str__(self):
+        return self.title
+
 
 
 class Plan(models.Model):
@@ -51,22 +54,38 @@ class Plan(models.Model):
     extra_goal_cost = models.FloatField(default=0)
 
 
+class Country(models.Model):
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'countries'
+
+    def __str__(self):
+        return self.name
+
 
 class Profile(models.Model):
-    user = models.OneToOneField(User,on_delete=models.CASCADE)
-    profile_types = models.ForeignKey(ProfileType, on_delete=models.CASCADE)
-    ngo_profile_id = models.CharField(max_length=100,null=True,blank=True,default='null')
-    profile_name = models.CharField(max_length=100,null=False,blank=False,default='') 
-    full_name = models.CharField(max_length=100,null=True,blank=True,default='')
-    description = models.CharField(max_length=1000,default='')
-    country = models.CharField(max_length=30,null=False,blank=False,default='')
-    email = models.CharField(max_length=100,null=False,blank=False,default='')
-    phone = models.CharField(max_length=20,null=False,blank=False,default='')
+    user = models.OneToOneField(User,on_delete=models.PROTECT)
+    profile_type = models.ForeignKey(ProfileType, on_delete=models.PROTECT)
+    ngo_profile_id = models.CharField(max_length=100, null=True, blank=True)
+    profile_name = models.CharField(max_length=100, unique=True)
+    full_name = models.CharField(max_length=100,null=True,blank=True)
+    bio = models.TextField()
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, db_column='country')
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=20)
+    image = models.ImageField(default='profile_pics/demo.png', upload_to='ngo_and_donee_profile_pics')
     rut_path = models.FileField(null=True,blank=True)
     cdc_path= models.FileField(null=True,blank=True)
     id_front= models.FileField(null=True,blank=True)
     id_back= models.FileField(null=True,blank=True)
     is_approved= models.BooleanField(default=False)
     view_count= models.PositiveIntegerField(default=0)
-    plan_id= models.ForeignKey(Plan,on_delete=models.CASCADE)
+    plan_id= models.ForeignKey(Plan, on_delete=models.PROTECT, null=True, blank=True)
     created_at= models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'profiles'
+
+    def __str__(self):
+        return self.profile_name

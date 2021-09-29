@@ -1,10 +1,6 @@
 from rest_framework import serializers
 from .models import *
 from rest_framework.validators import UniqueValidator
-from rest_framework.parsers import MultiPartParser, FormParser
-
-
-
 
 
 class UserRegSerializer(serializers.ModelSerializer):
@@ -32,13 +28,20 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         fields = ['username', 'full_name', 'location', 'phone_number', 'bio', 'image']
 
 
+class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
 
-
-class DoneeAndNgoProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = '__all__'
-        read_only_fields = ('user','profile_types','plan_id','view_count','is_approved')
+        read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved')
+
+    def create(self, validated_data):
+        profile_instance = Profile.objects.create(**validated_data, user=self.context['request'].user)
+        return profile_instance
+
+    def update(self, instance, validated_data):
+        validated_data.update({"user": self.context['request'].user})
+        return super().update(instance, validated_data)
         
 
 
