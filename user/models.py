@@ -1,7 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import UserManager,PermissionsMixin
+from django.contrib.auth.models import PermissionsMixin
 from django.db import models
-from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -15,6 +15,48 @@ class Country(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class UserManager(BaseUserManager):
+    def create_user(self, email, password=None):
+        """
+        Creates and saves a User with the given email and password.
+        """
+        if not email:
+            raise ValueError('Users must have an email address')
+
+        user = self.model(
+            email=self.normalize_email(email),
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_staffuser(self, email, password):
+        """
+        Creates and saves a staff user with the given email and password.
+        """
+        user = self.create_user(
+            email,
+            password=password,
+        )
+        user.staff = True
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password):
+        """
+        Creates and saves a superuser with the given email and password.
+        """
+        user = self.create_user(
+            email,
+            password=password,
+        )
+        user.staff = True
+        user.admin = True
+        user.save(using=self._db)
+        return user
 
 
 class User(AbstractBaseUser,PermissionsMixin):
@@ -73,10 +115,10 @@ class Profile(models.Model):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
     image = models.ImageField(default='images/demo.png', upload_to='images/ngo_and_donee_profile_pictures')
-    rut_path = models.FileField(null=True,blank=True)
-    cdc_path= models.FileField(null=True,blank=True)
-    id_front= models.FileField(null=True,blank=True)
-    id_back= models.FileField(null=True,blank=True)
+    rut_path = models.FileField(null=True,blank=True, upload_to='images')
+    cdc_path= models.FileField(null=True,blank=True, upload_to='images')
+    id_front= models.FileField(null=True,blank=True, upload_to='images')
+    id_back= models.FileField(null=True,blank=True, upload_to='images')
     is_approved= models.BooleanField(default=False)
     view_count= models.PositiveIntegerField(default=0)
     plan_id= models.ForeignKey(Plan, on_delete=models.PROTECT, null=True, blank=True)
