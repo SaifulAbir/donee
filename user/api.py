@@ -8,7 +8,6 @@ from user.serializers import UserProfileUpdateSerializer, \
 
 class UserUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = UserProfileUpdateSerializer
-    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
