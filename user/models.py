@@ -7,17 +7,26 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
 
+class Country(models.Model):
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'countries'
+
+    def __str__(self):
+        return self.name
+
 
 class User(AbstractBaseUser,PermissionsMixin):
     username_validator = UnicodeUsernameValidator()
     username = models.CharField(max_length=200, validators=[username_validator],error_messages={'unique': _("A user with that username already exists."),},)
     full_name = models.CharField(max_length=100,null=True,blank=True)
     email = models.EmailField(unique=True,blank=False,null=False)
-    location = models.CharField(max_length=100,null=True,blank=True)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True, db_column='country')
     phone_number = models.CharField(max_length=100,null=True,blank=True)
     bio = models.CharField(max_length=100,null=True,blank=True)
     status = models.CharField(max_length=100,null=True,blank=True)
-    image = models.ImageField(default='profile_pics/demo.png', upload_to='profile_pics')
+    image = models.ImageField(default='images/demo.png', upload_to='images/user_profile_pictures')
     is_staff = models.BooleanField(_('staff status'),default=False,)
     is_active = models.BooleanField(_('active'),default=True,)
     is_superuser = models.BooleanField(default=False)
@@ -45,23 +54,12 @@ class ProfileType(models.Model):
         return self.title
 
 
-
 class Plan(models.Model):
     title = models.CharField(max_length=100,null=False,blank=False)
     amount = models.FloatField(default=0)
     goal_amount = models.FloatField(default=0)
     blog_amount = models.FloatField(default=0)
     extra_goal_cost = models.FloatField(default=0)
-
-
-class Country(models.Model):
-    name = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = 'countries'
-
-    def __str__(self):
-        return self.name
 
 
 class Profile(models.Model):
@@ -71,10 +69,10 @@ class Profile(models.Model):
     profile_name = models.CharField(max_length=100, unique=True)
     full_name = models.CharField(max_length=100,null=True,blank=True)
     bio = models.TextField()
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, db_column='country')
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True, db_column='country')
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
-    image = models.ImageField(default='profile_pics/demo.png', upload_to='ngo_and_donee_profile_pics')
+    image = models.ImageField(default='images/demo.png', upload_to='images/ngo_and_donee_profile_pictures')
     rut_path = models.FileField(null=True,blank=True)
     cdc_path= models.FileField(null=True,blank=True)
     id_front= models.FileField(null=True,blank=True)
