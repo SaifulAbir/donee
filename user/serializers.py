@@ -25,7 +25,7 @@ class UserRegSerializer(serializers.ModelSerializer):
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'full_name', 'location', 'phone_number', 'bio', 'image']
+        fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image']
 
 
 class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
