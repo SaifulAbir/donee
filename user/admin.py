@@ -4,7 +4,6 @@ from .models import *
 
 
 admin.site.register(User)
-admin.site.register(ProfileType)
 admin.site.register(Plan)
 admin.site.register(Profile)
 admin.site.register(Country)
