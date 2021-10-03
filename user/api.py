@@ -13,7 +13,7 @@ class UserUpdateAPIView(RetrieveUpdateAPIView):
         return self.request.user
 
     def put(self, request, *args, **kwargs):
-        user = User.objects.filter(username=request.data["username"])
+        user = User.objects.filter(username=request.data["username"]).exclude(id=request.user.id)
         if user:
             raise serializers.ValidationError('Username must be unique.')
         return self.update(request, *args, **kwargs)

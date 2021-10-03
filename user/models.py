@@ -84,7 +84,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     class Meta:
         verbose_name = _('alluser')
         verbose_name_plural = _('allusers')
-        
+
 
 
 class ProfileType(models.Model):
@@ -140,7 +140,7 @@ class Notification(DoneeModel):
     new_followers = models.BooleanField(default=False)
     NGO_role_assign = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT, db_column='user', related_name='user_notification')
-    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, db_column='profile', related_name='profile_notification')
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, db_column='profile', related_name='profile_notification')
 
     class Meta:
         verbose_name = 'Notification'
