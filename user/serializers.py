@@ -73,18 +73,56 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
 
 class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
+    donee_notification = serializers.BooleanField(write_only=True)
+    account_activity = serializers.BooleanField(write_only=True)
+    donee_activity = serializers.BooleanField(write_only=True)
+    achieved_goals = serializers.BooleanField(write_only=True)
+    new_followers = serializers.BooleanField(write_only=True)
+    NGO_role_assign = serializers.BooleanField(write_only=True)
+    profile_notification = NotificationSerializer(many=True, read_only=True)
 
     class Meta:
         model = Profile
         fields = '__all__'
+        extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
+                        'NGO_role_assign']
         read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved')
 
     def create(self, validated_data):
+        donee_notification = validated_data.pop('donee_notification')
+        account_activity = validated_data.pop('account_activity')
+        donee_activity = validated_data.pop('donee_activity')
+        achieved_goals = validated_data.pop('achieved_goals')
+        new_followers = validated_data.pop('new_followers')
+        NGO_role_assign = validated_data.pop('NGO_role_assign')
         profile_instance = Profile.objects.create(**validated_data, user=self.context['request'].user)
+        Notification.objects.create(donee_notification=donee_notification,
+                                    account_activity=account_activity,
+                                    donee_activity=donee_activity,
+                                    achieved_goals=achieved_goals,
+                                    new_followers=new_followers,
+                                    NGO_role_assign=NGO_role_assign,
+                                    user=self.context['request'].user,
+                                    profile=profile_instance,
+                                    created_by=self.context['request'].user.id)
         return profile_instance
 
     def update(self, instance, validated_data):
+        donee_notification = validated_data.pop('donee_notification')
+        account_activity = validated_data.pop('account_activity')
+        donee_activity = validated_data.pop('donee_activity')
+        achieved_goals = validated_data.pop('achieved_goals')
+        new_followers = validated_data.pop('new_followers')
+        NGO_role_assign = validated_data.pop('NGO_role_assign')
         validated_data.update({"user": self.context['request'].user})
+        Notification.objects.filter(profile=instance).update(donee_notification=donee_notification,
+                                account_activity=account_activity,
+                                donee_activity=donee_activity,
+                                achieved_goals=achieved_goals,
+                                new_followers=new_followers,
+                                NGO_role_assign=NGO_role_assign,
+                                modified_by=self.context['request'].user.id,
+                                modified_at=timezone.now())
         return super().update(instance, validated_data)
 
 

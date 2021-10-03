@@ -1,4 +1,3 @@
-from django.db import models
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -86,17 +85,6 @@ class User(AbstractBaseUser,PermissionsMixin):
         verbose_name_plural = _('allusers')
 
 
-
-class ProfileType(models.Model):
-    title = models.CharField(max_length=100,null=False,blank=False)
-
-    class Meta:
-        db_table = 'profile_types'
-
-    def __str__(self):
-        return self.title
-
-
 class Plan(models.Model):
     title = models.CharField(max_length=100,null=False,blank=False)
     amount = models.FloatField(default=0)
@@ -106,8 +94,14 @@ class Plan(models.Model):
 
 
 class Profile(models.Model):
+    PROFILE_TYPES = (
+        ('NGO', 'NGO'),
+        ('DONEE', 'DONEE'),
+    )
+
     user = models.OneToOneField(User,on_delete=models.PROTECT)
-    profile_type = models.ForeignKey(ProfileType, on_delete=models.PROTECT)
+    profile_type = models.CharField(max_length=20, blank=False, null=False,
+                                     choices=PROFILE_TYPES)
     ngo_profile_id = models.CharField(max_length=100, null=True, blank=True)
     profile_name = models.CharField(max_length=100, unique=True)
     full_name = models.CharField(max_length=100,null=True,blank=True)

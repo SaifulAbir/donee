@@ -24,10 +24,7 @@ class DoneeAndNgoProfileCreateAPIView(CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        try:
-            profile = Profile.objects.filter(profile_name=request.data["profile_name"])
-        except KeyError:
-            profile = None
+        profile = Profile.objects.filter(profile_name=request.data["profile_name"])
         if profile:
             raise serializers.ValidationError('Profile name must be unique.')
         return super(DoneeAndNgoProfileCreateAPIView, self).post(request, *args, **kwargs)
