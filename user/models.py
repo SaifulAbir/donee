@@ -5,6 +5,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from Donee.models import DoneeModel
 
 
 class Country(models.Model):
@@ -129,3 +130,22 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.profile_name
+
+
+class Notification(DoneeModel):
+    donee_notification = models.BooleanField(default=False)
+    account_activity = models.BooleanField(default=False)
+    donee_activity = models.BooleanField(default=False)
+    achieved_goals = models.BooleanField(default=False)
+    new_followers = models.BooleanField(default=False)
+    NGO_role_assign = models.BooleanField(default=False)
+    user = models.ForeignKey(User, on_delete=models.PROTECT, db_column='user', related_name='user_notification')
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, db_column='profile', related_name='profile_notification')
+
+    class Meta:
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+        db_table = 'notifications'
+
+    def __str__(self):
+        return self.user
