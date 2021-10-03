@@ -42,6 +42,12 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         validated_data.update({"user": self.context['request'].user})
         return super().update(instance, validated_data)
+
+
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ('id', 'name')
         
 
 

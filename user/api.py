@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
-from user.models import User, Profile
+from user.models import User, Profile, Country
 from user.serializers import UserProfileUpdateSerializer, \
-    DoneeAndNgoProfileCreateUpdateSerializer
+    DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer
 
 
 class UserUpdateAPIView(RetrieveUpdateAPIView):
@@ -48,3 +48,8 @@ class DoneeAndNgoProfileUpdateAPIView(RetrieveUpdateAPIView):
         if profile:
             raise serializers.ValidationError('Profile name must be unique.')
         return self.update(request, *args, **kwargs)
+
+
+class CountryListAPI(ListAPIView):
+    queryset = Country.objects.filter()
+    serializer_class = CountrySerializer
