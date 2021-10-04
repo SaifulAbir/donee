@@ -93,6 +93,11 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
                         'NGO_role_assign']
         read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved')
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['country'] = CountrySerializer(instance.country).data
+        return rep
+
     def create(self, validated_data):
         donee_notification = validated_data.pop('donee_notification')
         account_activity = validated_data.pop('account_activity')
