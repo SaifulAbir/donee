@@ -103,12 +103,12 @@ class Profile(models.Model):
     profile_type = models.CharField(max_length=20, blank=False, null=False,
                                      choices=PROFILE_TYPES)
     ngo_profile_id = models.CharField(max_length=100, null=True, blank=True)
-    profile_name = models.CharField(max_length=100, unique=True)
+    username = models.CharField(max_length=100, unique=True)
     full_name = models.CharField(max_length=100,null=True,blank=True)
     bio = models.TextField()
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True, db_column='country')
     email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=20)
+    phone_number = models.CharField(max_length=20)
     image = models.ImageField(default='images/demo.png', upload_to='images/ngo_and_donee_profile_pictures')
     rut_path = models.FileField(null=True,blank=True, upload_to='images')
     cdc_path= models.FileField(null=True,blank=True, upload_to='images')
@@ -123,7 +123,7 @@ class Profile(models.Model):
         db_table = 'profiles'
 
     def __str__(self):
-        return self.profile_name
+        return self.username
 
 
 class Notification(DoneeModel):
