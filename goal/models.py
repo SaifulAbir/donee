@@ -1,5 +1,4 @@
 from django.db import models
-
 from Donee.models import DoneeModel
 from user.models import Profile
 
@@ -21,7 +20,7 @@ class Goal(DoneeModel):
     platform_amount = models.DecimalField(max_digits=19, decimal_places=2)
     total_amount = models.DecimalField(max_digits=19, decimal_places=2)
     status = models.CharField(max_length=20, choices=GOAL_STATUSES, default=GOAL_STATUSES[0][0])
-    profile_id = models.ForeignKey(Profile,on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
 
     class Meta:
         verbose_name = 'Goal'
@@ -63,7 +62,7 @@ class Media(models.Model):
 class SDGS(DoneeModel):
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    thumbnail = models.ImageField(upload_to='images/sdgs_thumbnail')
+    thumbnail = models.ImageField(upload_to='images/sdgs_thumbnail', blank=True, null=True)
     status = models.BooleanField(default=False)
 
     class Meta:
@@ -92,3 +91,21 @@ class GoalSDGS(DoneeModel):
         verbose_name = 'GoalSDGS'
         verbose_name_plural = 'GoalSDGS'
         db_table = 'goal_sdgs'
+
+
+class Setting(DoneeModel):
+    SETTING_TYPES = [
+        ('PGW', 'PGW'),
+        ('NGO', 'NGO'),
+        ('PLATFORM', 'Platform'),
+    ]
+    type = models.CharField(max_length=50, choices=SETTING_TYPES)
+    value = models.IntegerField()
+
+    class Meta:
+        verbose_name = 'Setting'
+        verbose_name_plural = 'Settings'
+        db_table = 'settings'
+
+    def __str__(self):
+        return self.type
