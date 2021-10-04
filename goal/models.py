@@ -1,9 +1,9 @@
 from django.db import models
 from Donee.models import DoneeModel
-from user.models import Profile
 
 
 class Goal(DoneeModel):
+    from user.models import Profile
     GOAL_STATUSES = [
         ('DRAFT', 'Draft'),
         ('PUBLISH', 'Publish'),]

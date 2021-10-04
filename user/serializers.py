@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from goal.models import SDGS
 from .models import *
 from rest_framework.validators import UniqueValidator
 
@@ -26,6 +27,13 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers', 'NGO_role_assign']
+
+
+class ProfileSDGSSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source="sdgs.title")
+    class Meta:
+        model = ProfileSDGS
+        fields = ('title', )
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
@@ -85,12 +93,14 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     new_followers = serializers.BooleanField(write_only=True)
     NGO_role_assign = serializers.BooleanField(write_only=True)
     profile_notification = NotificationSerializer(many=True, read_only=True)
+    profile_sdgs = ProfileSDGSSerializer(many=True, read_only=True)
+    sdgs = serializers.PrimaryKeyRelatedField(queryset=SDGS.objects.all(), many=True, write_only=True)
 
     class Meta:
         model = Profile
         fields = '__all__'
         extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
-                        'NGO_role_assign']
+                        'NGO_role_assign', 'sdgs']
         read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved')
 
     def to_representation(self, instance):
@@ -105,7 +115,11 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
         achieved_goals = validated_data.pop('achieved_goals')
         new_followers = validated_data.pop('new_followers')
         NGO_role_assign = validated_data.pop('NGO_role_assign')
+        sdgs = validated_data.pop('sdgs')
         profile_instance = Profile.objects.create(**validated_data, user=self.context['request'].user)
+        if sdgs:
+            for sdgs_id in sdgs:
+                ProfileSDGS.objects.create(sdgs=sdgs_id, profile=profile_instance, created_by=self.context['request'].user.id)
         Notification.objects.create(donee_notification=donee_notification,
                                     account_activity=account_activity,
                                     donee_activity=donee_activity,
@@ -140,7 +154,9 @@ class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
         fields = ('id', 'name')
-        
+
+
+
 
 
 

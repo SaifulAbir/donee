@@ -143,3 +143,23 @@ class Notification(DoneeModel):
 
     def __str__(self):
         return self.user
+
+
+class ProfileSDGS(DoneeModel):
+    """
+        sdgs: one to many relation
+    """
+    from goal.models import SDGS
+    sdgs = models.ForeignKey(
+        SDGS, related_name='sdgs_profile', on_delete=models.PROTECT,
+        verbose_name='SDGS'
+    )
+    profile = models.ForeignKey(
+        Profile, related_name='profile_sdgs', on_delete=models.PROTECT,
+        verbose_name='Profile'
+    )
+
+    class Meta:
+        verbose_name = 'ProfileSDGS'
+        verbose_name_plural = 'ProfileSDGS'
+        db_table = 'profile_sdgs'
