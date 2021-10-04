@@ -35,13 +35,18 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     achieved_goals = serializers.BooleanField(write_only=True)
     new_followers = serializers.BooleanField(write_only=True)
     NGO_role_assign = serializers.BooleanField(write_only=True)
-    user_notification = NotificationSerializer(many=True)
+    user_notification = NotificationSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
         model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image', 'user_notification']
         extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers', 'NGO_role_assign']
         fields = model_fields + extra_fields
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['country'] = CountrySerializer(instance.country).data
+        return rep
 
     def update(self, instance, validated_data):
         donee_notification = validated_data.pop('donee_notification')
