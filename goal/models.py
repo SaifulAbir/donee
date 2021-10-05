@@ -38,8 +38,8 @@ class Media(models.Model):
         ('COMPLETE', 'Complete'),]
 
     MEDIA_TYPES = [
-        (1, 'Image'),
-        (2, 'Video'),
+        ('image', 'Image'),
+        ('video', 'Video'),
     ]
 
     VIDEO_TYPES = [
@@ -94,18 +94,11 @@ class GoalSDGS(DoneeModel):
 
 
 class Setting(DoneeModel):
-    SETTING_TYPES = [
-        ('PGW', 'PGW'),
-        ('NGO', 'NGO'),
-        ('PLATFORM', 'Platform'),
-    ]
-    type = models.CharField(max_length=50, choices=SETTING_TYPES)
-    value = models.IntegerField()
+    pgw = models.IntegerField(default=0)
+    ngo = models.IntegerField(default=0)
+    platform = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = 'Setting'
         verbose_name_plural = 'Settings'
         db_table = 'settings'
-
-    def __str__(self):
-        return self.type
