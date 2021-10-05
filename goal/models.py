@@ -31,7 +31,7 @@ class Goal(DoneeModel):
         return self.title
 
 
-class Media(models.Model):
+class Media(DoneeModel):
     CHOICES = [
         ('IN_QUEUE', 'In_Queue'),
         ('IN_PROCESSING', 'In_Processing'),

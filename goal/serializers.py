@@ -40,5 +40,6 @@ class GoalSerializer(serializers.ModelSerializer):
         if media:
             for media_file in media:
                 file_type = media_file.content_type.split('/')[0]
-                Media.objects.create(goal=goal_instance, type=file_type, file=media_file, status="COMPLETE")
+                Media.objects.create(goal=goal_instance, type=file_type, file=media_file, status="COMPLETE",
+                                     created_by=self.context['request'].user.id)
         return goal_instance
