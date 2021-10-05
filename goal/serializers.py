@@ -14,7 +14,7 @@ class GoalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Goal
-        fields = ['title', 'short_description', 'full_description', 'buying_item', 'online_source_url',
+        fields = ['title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image',
                   'unit_cost', 'total_unit', 'total_amount', 'profile', 'status', 'pgw_amount',
                   'ngo_amount', 'platform_amount', 'sdgs', 'media']
         read_only_fields = ('total_amount', 'status', 'pgw_amount', 'ngo_amount', 'platform_amount')

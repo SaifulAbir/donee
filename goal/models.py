@@ -13,6 +13,7 @@ class Goal(DoneeModel):
     full_description = models.TextField()
     buying_item = models.CharField(max_length=200)
     online_source_url =models.URLField(max_length=400)
+    image = models.ImageField(upload_to='images/goal_images')
     unit_cost = models.DecimalField(max_digits=19, decimal_places=2)
     total_unit = models.IntegerField(default=1)
     pgw_amount = models.DecimalField(max_digits=19, decimal_places=2)
