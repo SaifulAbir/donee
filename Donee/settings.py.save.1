@@ -14,17 +14,19 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-dotenv_path = os.path.join(BASE_DIR, '.env')
-load_dotenv(dotenv_path)
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
+# SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = 'django-insecure-w(=24106r##0#k@)34bo6#i4m2#@flf!sv&8u)2sykp)@2zn6t'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -45,7 +47,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    'storages',
     'user.apps.UserConfig',
     'goal.apps.GoalConfig',
 ]
@@ -80,7 +81,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Donee.wsgi.application'
-CORS_ORIGIN_ALLOW_ALL = True
 
 
 # Database
@@ -99,8 +99,8 @@ DATABASES = {
         'PORT': 5432,
         'HOST': '127.0.0.1',
         'NAME': 'donee',
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'USER': 'postgres',
+        'PASSWORD': 'm,
     }
 }
 
@@ -141,13 +141,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-USE_S3 = os.getenv('USE_S3') == 'TRUE'
+USE_S3 = 'TRUE'
 
 if USE_S3:
     # aws settings
-    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+    AWS_ACCESS_KEY_ID = 'AKIAQ4XP34NHHZR3LQ7D'
+    AWS_SECRET_ACCESS_KEY = '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'
+    AWS_STORAGE_BUCKET_NAME = 'donee'
     AWS_DEFAULT_ACL = None
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
@@ -209,6 +209,7 @@ REST_FRAMEWORK = {
 
 }
 
+CORS_ORIGIN_ALLOW_ALL = True
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
