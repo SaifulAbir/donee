@@ -48,7 +48,7 @@ class Media(DoneeModel):
         ('THANK_YOU', 'Thank you'),
     ]
 
-    goal = models.ForeignKey(Goal, on_delete=models.PROTECT)
+    goal = models.ForeignKey(Goal, on_delete=models.PROTECT, related_name='goal_media')
     type = models.CharField(max_length=10, choices=MEDIA_TYPES)
     file = models.FileField(upload_to='goals')
     status = models.CharField(max_length=20, choices=CHOICES)

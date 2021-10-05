@@ -8,15 +8,30 @@ class SDGSSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'thumbnail', 'status')
 
 
+class GoalSDGSSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source="sdgs.title")
+    class Meta:
+        model = GoalSDGS
+        fields = ('title', )
+
+
+class MediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Media
+        fields = ['type', 'file', 'status']
+
+
 class GoalSerializer(serializers.ModelSerializer):
     sdgs = serializers.PrimaryKeyRelatedField(queryset=SDGS.objects.all(), many=True, write_only=True)
     media = serializers.ListField(child=serializers.FileField(), write_only=True)
+    goal_sdgs = GoalSDGSSerializer(many=True, read_only=True)
+    goal_media = MediaSerializer(many=True, read_only=True)
 
     class Meta:
         model = Goal
         fields = ['title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image',
                   'unit_cost', 'total_unit', 'total_amount', 'profile', 'status', 'pgw_amount',
-                  'ngo_amount', 'platform_amount', 'sdgs', 'media']
+                  'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media']
         read_only_fields = ('total_amount', 'status', 'pgw_amount', 'ngo_amount', 'platform_amount')
 
     def create(self, validated_data):
