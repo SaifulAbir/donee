@@ -6,7 +6,7 @@ class Goal(DoneeModel):
     from user.models import Profile
     GOAL_STATUSES = [
         ('DRAFT', 'Draft'),
-        ('PUBLISH', 'Publish'),]
+        ('PUBLISHED', 'Published'),]
 
     title = models.CharField(max_length=500)
     short_description = models.CharField(max_length=800)

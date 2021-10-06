@@ -73,6 +73,8 @@ class User(AbstractBaseUser,PermissionsMixin):
     is_active = models.BooleanField(_('active'),default=True,)
     is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+    modified_at = models.DateTimeField(null=True)
+    is_modified = models.BooleanField(default=False)
 
     objects = UserManager()
 
