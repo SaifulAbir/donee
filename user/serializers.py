@@ -101,7 +101,7 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
                         'NGO_role_assign', 'sdgs']
-        read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved')
+        read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved','invitation_id')
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
