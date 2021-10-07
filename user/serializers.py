@@ -82,6 +82,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
                                     NGO_role_assign = NGO_role_assign,
                                     user = self.context['request'].user,
                                     created_by=self.context['request'].user.id)
+        validated_data.update({"modified_at": timezone.now(), "is_modified": True})
         return super().update(instance, validated_data)
 
 
@@ -154,6 +155,12 @@ class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
         fields = ('id', 'name')
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('username', 'image')
 
 
 

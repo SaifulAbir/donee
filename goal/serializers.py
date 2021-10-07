@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from user.serializers import ProfileSerializer
 from .models import *
 
 
@@ -19,6 +21,14 @@ class MediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Media
         fields = ['type', 'file', 'status']
+
+
+class GoalListSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
+    class Meta:
+        model = Goal
+        fields = ['id', 'title', 'short_description', 'buying_item', 'online_source_url', 'image',
+                  'total_amount', 'profile', 'status']
 
 
 class GoalSerializer(serializers.ModelSerializer):
@@ -42,7 +52,7 @@ class GoalSerializer(serializers.ModelSerializer):
         pgw_amount = (setting_obj.pgw * total_cost) / 100
         ngo_amount = (setting_obj.ngo * total_cost) / 100
         platform_amount = (setting_obj.platform * total_cost) / 100
-        total_amount = pgw_amount + ngo_amount + platform_amount
+        total_amount = pgw_amount + ngo_amount + platform_amount + total_cost
         goal_instance = Goal.objects.create(**validated_data, pgw_amount=pgw_amount,
                                             created_by=self.context['request'].user.id,
                                             ngo_amount=ngo_amount,

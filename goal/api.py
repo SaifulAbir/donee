@@ -1,6 +1,6 @@
-from rest_framework.generics import ListAPIView, CreateAPIView
-from goal.models import SDGS
-from goal.serializers import SDGSSerializer, GoalSerializer
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView
+from goal.models import SDGS, Goal
+from goal.serializers import SDGSSerializer, GoalSerializer, GoalListSerializer
 
 
 class SDGSListAPI(ListAPIView):
@@ -13,3 +13,18 @@ class GoalCreateAPIView(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         return super(GoalCreateAPIView, self).post(request, *args, **kwargs)
+
+
+class GoalRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    serializer_class = GoalSerializer
+
+    def get_queryset(self):
+        return Goal.objects.filter(status='PUBLISHED')
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+
+class GoalListAPI(ListAPIView):
+    queryset = Goal.objects.filter(status='PUBLISHED').order_by('-created_at')
+    serializer_class = GoalListSerializer
