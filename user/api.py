@@ -1,9 +1,15 @@
 from rest_framework import serializers
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView
 from user.models import User, Profile, Country
 from user.serializers import UserProfileUpdateSerializer, \
-    DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer
+    DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    # Replace the serializer with your custom
+    serializer_class = CustomTokenObtainPairSerializer
 
 
 class UserUpdateAPIView(RetrieveUpdateAPIView):
