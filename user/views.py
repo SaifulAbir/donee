@@ -22,10 +22,23 @@ class UserRegApi(CreateAPIView):
 class VerifyInvitationView(views.APIView):
     permission_classes = [AllowAny]
 
-    def post(self, request,*args, **kwargs):
-        check_id = Profile.objects.filter(invitation_id=self.request.data['check_id'])
+
+    def get(self, request, *args, **kwargs):
+        getpath = request.get_full_path()
        
+        slug = getpath.split("/")[-1]
+        check_id = Profile.objects.filter(invitation_id=slug)
         if check_id.exists():
             return Response({'success':'200 invitation code found.'})
         else:
             return Response({'error':'400 invitation not code found.'})
+        
+        
+
+    # def post(self, request,*args, **kwargs):
+    #     check_id = Profile.objects.filter(invitation_id=self.request.data['check_id'])
+       
+    #     if check_id.exists():
+    #         return Response({'success':'200 invitation code found.'})
+    #     else:
+    #         return Response({'error':'400 invitation not code found.'})
