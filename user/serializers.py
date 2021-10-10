@@ -160,4 +160,11 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 
+
+
+
+class VerifyInvitationSerializer(serializers.Serializer):
+   
+   check_id = serializers.CharField(max_length=10)
+   
     
