@@ -13,5 +13,6 @@ urlpatterns = [
     path('create-profile/', DoneeAndNgoProfileCreateAPIView.as_view()),
     path('update-profile/', DoneeAndNgoProfileUpdateAPIView.as_view()),
     path('country-list/', CountryListAPI.as_view()),
+    path('verify-invitation/<str:invitation>',VerifyInvitationView.as_view()),
 ]
 

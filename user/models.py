@@ -5,7 +5,8 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from Donee.models import DoneeModel
-
+import random
+import string
 
 class Country(models.Model):
     name = models.CharField(max_length=255)
@@ -112,6 +113,7 @@ class Profile(models.Model):
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=20)
     image = models.ImageField(default='images/demo.png', upload_to='images/ngo_and_donee_profile_pictures')
+    invitation_id = models.CharField(default='null',max_length=40)
     rut_path = models.FileField(null=True,blank=True, upload_to='images')
     cdc_path= models.FileField(null=True,blank=True, upload_to='images')
     id_front= models.FileField(null=True,blank=True, upload_to='images')
@@ -126,6 +128,22 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.username
+    
+    def invitation_id_generator(self,size=8, chars=string.ascii_uppercase + string.digits):
+        result_str = ''.join(random.choice(chars) for i in range(size))
+        return result_str
+    
+
+    def save(self, *args, **kwargs):
+        super(Profile,self).save(*args, **kwargs)
+        if self.profile_type == 'NGO' and self.invitation_id == 'null':
+            inv_id = self.invitation_id_generator()
+            self.invitation_id = inv_id
+            self.save()
+        
+           
+    
+
 
 
 class Notification(DoneeModel):
