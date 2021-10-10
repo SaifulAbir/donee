@@ -17,8 +17,6 @@ class GoalCreateAPIView(CreateAPIView):
 
 class GoalRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = GoalSerializer
-    lookup_field = 'slug'
-    lookup_url_kwarg = "slug"
 
     def get_queryset(self):
         return Goal.objects.filter(status='PUBLISHED')

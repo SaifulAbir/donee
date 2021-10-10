@@ -1,7 +1,5 @@
 from django.db import models
 from Donee.models import DoneeModel
-from django.db.models.signals import pre_save
-from .utils import unique_slug_generator
 
 
 class Goal(DoneeModel):
@@ -11,7 +9,6 @@ class Goal(DoneeModel):
         ('PUBLISHED', 'Published'),]
 
     title = models.CharField(max_length=500)
-    slug = models.SlugField(null=False, blank=False, allow_unicode=True)
     short_description = models.CharField(max_length=800)
     full_description = models.TextField()
     buying_item = models.CharField(max_length=200)
@@ -33,14 +30,6 @@ class Goal(DoneeModel):
 
     def __str__(self):
         return self.title
-
-def pre_save_receiver_goal(sender, instance, *args, **kwargs):
-    if not instance.slug:
-        instance.slug = unique_slug_generator(instance)
-
-pre_save.connect(pre_save_receiver_goal, sender=Goal)
-
-
 
 
 class Media(DoneeModel):
