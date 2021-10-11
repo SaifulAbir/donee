@@ -2,10 +2,28 @@ from django.db import models
 from Donee.models import DoneeModel
 from django.db.models.signals import pre_save
 from .utils import unique_slug_generator
+from user.models import Profile
+
+
+
+
+class Setting(DoneeModel):
+    pgw = models.IntegerField(default=0)
+    ngo = models.IntegerField(default=0)
+    platform = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Setting'
+        verbose_name_plural = 'Settings'
+        db_table = 'settings'
+
+
+
+
 
 
 class Goal(DoneeModel):
-    from user.models import Profile
+    
     GOAL_STATUSES = [
         ('DRAFT', 'Draft'),
         ('PUBLISHED', 'Published'),]
@@ -22,6 +40,9 @@ class Goal(DoneeModel):
     pgw_amount = models.DecimalField(max_digits=19, decimal_places=2)
     ngo_amount = models.DecimalField(max_digits=19, decimal_places=2)
     platform_amount = models.DecimalField(max_digits=19, decimal_places=2)
+    pgw_percentage = models.DecimalField(max_digits=19, decimal_places=2,default=0)
+    ngo_percentage = models.DecimalField(max_digits=19, decimal_places=2,default=0)
+    platform_percentage = models.DecimalField(max_digits=19, decimal_places=2,default=0)
     total_amount = models.DecimalField(max_digits=19, decimal_places=2)
     status = models.CharField(max_length=20, choices=GOAL_STATUSES, default=GOAL_STATUSES[0][0])
     profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
@@ -33,6 +54,17 @@ class Goal(DoneeModel):
 
     def __str__(self):
         return self.title
+
+    def save(self,*args, **kwargs):
+        super(Goal,self).save(*args, **kwargs)
+        a = Setting.objects.first()
+        if self.pgw_percentage == 0:
+            self.pgw_percentage = a.pgw
+            self.ngo_percentage = a.ngo
+            self.platform_percentage = a.platform
+            self.save()
+       
+       
 
 def pre_save_receiver_goal(sender, instance, *args, **kwargs):
     if not instance.slug:
@@ -104,13 +136,3 @@ class GoalSDGS(DoneeModel):
         verbose_name_plural = 'GoalSDGS'
         db_table = 'goal_sdgs'
 
-
-class Setting(DoneeModel):
-    pgw = models.IntegerField(default=0)
-    ngo = models.IntegerField(default=0)
-    platform = models.IntegerField(default=0)
-
-    class Meta:
-        verbose_name = 'Setting'
-        verbose_name_plural = 'Settings'
-        db_table = 'settings'
