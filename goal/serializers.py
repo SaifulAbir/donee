@@ -27,7 +27,7 @@ class GoalListSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
     class Meta:
         model = Goal
-        fields = ['id', 'title', 'short_description', 'buying_item', 'online_source_url', 'image',
+        fields = ['title','slug', 'short_description', 'buying_item', 'online_source_url', 'image',
                   'total_amount', 'profile', 'status']
 
 
@@ -42,7 +42,7 @@ class GoalSerializer(serializers.ModelSerializer):
         fields = ['title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image',
                   'unit_cost', 'total_unit', 'total_amount', 'profile', 'status', 'pgw_amount',
                   'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media']
-        read_only_fields = ('total_amount', 'status', 'pgw_amount', 'ngo_amount', 'platform_amount','slug')
+        read_only_fields = ('total_amount', 'status', 'pgw_amount', 'ngo_amount', 'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage')
 
     def create(self, validated_data):
         sdgs = validated_data.pop('sdgs')
@@ -68,3 +68,19 @@ class GoalSerializer(serializers.ModelSerializer):
                 Media.objects.create(goal=goal_instance, type=file_type, file=media_file, status="COMPLETE",
                                      created_by=self.context['request'].user.id)
         return goal_instance
+
+
+
+class SingleCatagorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GoalSDGS
+        fields ='__all__'
+        
+    def to_representation(self, instance):
+        rep = super(SingleCatagorySerializer, self).to_representation(instance)
+        rep['sdgs-title'] = instance.sdgs.title
+        rep['goal-title'] = instance.goal.title
+        rep['slug'] = instance.goal.slug
+        rep['image'] = instance.goal.image.url
+        rep['profile'] = instance.goal.profile.username
+        return rep
