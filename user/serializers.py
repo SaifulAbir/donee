@@ -37,6 +37,13 @@ class ProfileSDGSSerializer(serializers.ModelSerializer):
         fields = ('title', )
 
 
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('username', 'image', 'profile_type')
+
+
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     donee_notification = serializers.BooleanField(write_only=True)
     account_activity = serializers.BooleanField(write_only=True)
@@ -45,11 +52,13 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     new_followers = serializers.BooleanField(write_only=True)
     NGO_role_assign = serializers.BooleanField(write_only=True)
     user_notification = NotificationSerializer(many=True, read_only=True)
+    user_profile = ProfileSerializer(read_only=True)
 
     class Meta:
         model = User
         model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image', 'user_notification']
-        extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers', 'NGO_role_assign']
+        extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
+                        'NGO_role_assign', 'user_profile']
         fields = model_fields + extra_fields
 
     def to_representation(self, instance):
@@ -156,12 +165,6 @@ class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
         fields = ('id', 'name')
-
-
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ('username', 'image')
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
