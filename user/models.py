@@ -102,7 +102,7 @@ class Profile(models.Model):
         ('DONEE', 'DONEE'),
     )
 
-    user = models.OneToOneField(User,on_delete=models.PROTECT)
+    user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='user_profile')
     profile_type = models.CharField(max_length=20, blank=False, null=False,
                                      choices=PROFILE_TYPES)
     ngo_profile_id = models.CharField(max_length=100, null=True, blank=True)
