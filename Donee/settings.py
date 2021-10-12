@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'storages',
     'user.apps.UserConfig',
     'goal.apps.GoalConfig',
+    'payment.apps.PaymentConfig',
 ]
 
 MIDDLEWARE = [
