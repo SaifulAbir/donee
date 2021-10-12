@@ -21,4 +21,4 @@ class Transaction(DoneeModel):
         db_table = 'transactions'
 
     def __str__(self):
-        return self.title
+        return str(self.amount)

@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/',include('user.urls')),
     path('api/',include('goal.urls')),
+    path('api/',include('payment.urls')),
     path('docs/', include_docs_urls(title="API for Donee", permission_classes=[])),
 ]
 
