@@ -40,12 +40,12 @@ class ProfileSDGSSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     user_username = serializers.CharField(source="user.username")
-    ngo_username = serializers.CharField(source="username")
+    profile_username = serializers.CharField(source="username")
     user_image = serializers.ImageField(source="user.image")
 
     class Meta:
         model = Profile
-        fields = ('ngo_username', 'user_image', 'profile_type', 'user_username')
+        fields = ('profile_username', 'user_image', 'profile_type', 'user_username')
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):

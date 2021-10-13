@@ -38,16 +38,16 @@ class GoalSerializer(serializers.ModelSerializer):
     goal_sdgs = GoalSDGSSerializer(many=True, read_only=True)
     goal_media = MediaSerializer(many=True, read_only=True)
     user_username = serializers.CharField(source="profile.user.username",read_only=True)
-    ngo_username = serializers.CharField(source="profile.username",read_only=True)
+    profile_username = serializers.CharField(source="profile.username",read_only=True)
     user_image = serializers.ImageField(source="profile.user.image",read_only=True)
 
 
     class Meta:
         model = Goal
         fields = ['title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image',
-                  'unit_cost', 'total_unit', 'total_amount', 'profile','user_username','ngo_username', 'user_image','status', 'pgw_amount',
+                  'unit_cost', 'total_unit', 'total_amount', 'profile','user_username','profile_username', 'user_image','status', 'pgw_amount',
                   'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media']
-        read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'ngo_amount', 'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage','user_username','user_image')
+        read_only_fields = ('profile_username','total_amount', 'status', 'pgw_amount', 'ngo_amount', 'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage','user_username','user_image')
 
     def create(self, validated_data):
         sdgs = validated_data.pop('sdgs')
