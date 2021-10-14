@@ -41,11 +41,11 @@ class ProfileSDGSSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     user_username = serializers.CharField(source="user.username")
     profile_username = serializers.CharField(source="username")
-    user_image = serializers.ImageField(source="user.image")
+    profile_image = serializers.ImageField(source="image")
     ngo_username = serializers.SerializerMethodField()
     class Meta:
         model = Profile
-        fields = ('profile_username', 'user_image', 'profile_type', 'user_username')
+        fields = ('profile_username', 'profile_image', 'profile_type', 'user_username','ngo_username')
 
     def get_ngo_username(self, obj):
         if obj.profile_type == 'DONEE':
