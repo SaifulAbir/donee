@@ -27,7 +27,7 @@ class UserRegSerializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers', 'NGO_role_assign']
+        fields = ['id','donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers', 'NGO_role_assign','user']
 
 
 class ProfileSDGSSerializer(serializers.ModelSerializer):
@@ -42,10 +42,17 @@ class ProfileSerializer(serializers.ModelSerializer):
     user_username = serializers.CharField(source="user.username")
     profile_username = serializers.CharField(source="username")
     user_image = serializers.ImageField(source="user.image")
-
+    ngo_username = serializers.SerializerMethodField()
     class Meta:
         model = Profile
         fields = ('profile_username', 'user_image', 'profile_type', 'user_username')
+
+    def get_ngo_username(self, obj):
+        if obj.profile_type == 'DONEE':
+            get_ngo=Profile.objects.get(id= obj.ngo_profile_id)
+            return get_ngo.username
+        else :
+            return obj.username
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
@@ -57,6 +64,8 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     NGO_role_assign = serializers.BooleanField(write_only=True)
     user_notification = NotificationSerializer(many=True, read_only=True)
     user_profile = ProfileSerializer(read_only=True)
+   
+
 
     class Meta:
         model = User
@@ -69,6 +78,8 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         rep = super().to_representation(instance)
         rep['country'] = CountrySerializer(instance.country).data
         return rep
+
+   
 
     def update(self, instance, validated_data):
         donee_notification = validated_data.pop('donee_notification')

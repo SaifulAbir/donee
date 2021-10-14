@@ -37,17 +37,27 @@ class GoalSerializer(serializers.ModelSerializer):
     media = serializers.ListField(child=serializers.FileField(), write_only=True)
     goal_sdgs = GoalSDGSSerializer(many=True, read_only=True)
     goal_media = MediaSerializer(many=True, read_only=True)
-    user_username = serializers.CharField(source="profile.user.username",read_only=True)
     profile_username = serializers.CharField(source="profile.username",read_only=True)
-    user_image = serializers.ImageField(source="profile.user.image",read_only=True)
+    #ngo_username = serializers.CharField(source="profile",read_only=True)
+    profile_image = serializers.ImageField(source="profile.image",read_only=True)
+    ngo_username = serializers.SerializerMethodField()
 
 
     class Meta:
         model = Goal
         fields = ['title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image',
-                  'unit_cost', 'total_unit', 'total_amount', 'profile','user_username','profile_username', 'user_image','status', 'pgw_amount',
+                  'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username', 'profile_image','status', 'pgw_amount',
                   'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media']
-        read_only_fields = ('profile_username','total_amount', 'status', 'pgw_amount', 'ngo_amount', 'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage','user_username','user_image')
+        read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'ngo_amount', 'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage','profile_username','profile_image')
+
+
+    def get_ngo_username(self, obj):
+        if obj.profile.profile_type == 'DONEE':
+            get_ngo=Profile.objects.get(id= obj.profile.ngo_profile_id)
+            return get_ngo.username
+        else :
+            return obj.profile.username
+
 
     def create(self, validated_data):
         sdgs = validated_data.pop('sdgs')
@@ -77,15 +87,24 @@ class GoalSerializer(serializers.ModelSerializer):
 
 
 class SingleCatagorySerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(source='goal.image',read_only=True)
+    ngo_username = serializers.SerializerMethodField()
+    profile_username = serializers.CharField(source='goal.profile',read_only=True)
+    profile_image = serializers.ImageField(source="goal.profile.image",read_only=True)
     class Meta:
         model = GoalSDGS
         fields ='__all__'
+
+    def get_ngo_username(self, obj):
+        if obj.goal.profile.profile_type == 'DONEE':
+            get_ngo=Profile.objects.get(id= obj.goal.profile.ngo_profile_id)
+            return get_ngo.username
+        else :
+            return obj.goal.profile.username
         
     def to_representation(self, instance):
         rep = super(SingleCatagorySerializer, self).to_representation(instance)
         rep['sdgs-title'] = instance.sdgs.title
         rep['goal-title'] = instance.goal.title
         rep['slug'] = instance.goal.slug
-        rep['image'] = instance.goal.image.url
-        rep['profile'] = instance.goal.profile.username
         return rep
