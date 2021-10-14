@@ -1,8 +1,9 @@
+from django.db.models.query import Prefetch
 from rest_framework import serializers
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
-from user.models import User, Profile, Country
+from user.models import User, Profile, Country,Notification
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer
 
@@ -16,7 +17,8 @@ class UserUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = UserProfileUpdateSerializer
 
     def get_object(self):
-        return self.request.user
+        user = User.objects.filter(id=self.request.user.id).prefetch_related(Prefetch('user_notification',queryset = Notification.objects.filter(profile__isnull=True)))
+        return user.first()
 
     def put(self, request, *args, **kwargs):
         user = User.objects.filter(username=request.data["username"]).exclude(id=request.user.id)
