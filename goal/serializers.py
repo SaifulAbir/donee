@@ -104,7 +104,7 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         rep = super(SingleCatagorySerializer, self).to_representation(instance)
-        rep['sdgs-title'] = instance.sdgs.title
-        rep['goal-title'] = instance.goal.title
+        rep['sdgs_title'] = instance.sdgs.title
+        rep['goal_title'] = instance.goal.title
         rep['slug'] = instance.goal.slug
         return rep

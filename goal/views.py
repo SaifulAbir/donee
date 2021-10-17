@@ -13,5 +13,5 @@ class SingleCatagoryView(ListAPIView):
     serializer_class = SingleCatagorySerializer
 
     def get_queryset(self):
-         geturl = self.kwargs['title']
-         return GoalSDGS.objects.filter(sdgs__title=geturl,goal__status='PUBLISHED')
+         geturl = self.kwargs['id']
+         return GoalSDGS.objects.filter(sdgs__id=geturl,goal__status='PUBLISHED')
