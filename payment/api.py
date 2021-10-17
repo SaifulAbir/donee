@@ -3,5 +3,5 @@ from .serializers import *
 
 
 
-class TransactionCreateAPIView(CreateAPIView):
-    serializer_class = TransactionSerializer
+class PaymentCreateAPIView(CreateAPIView):
+    serializer_class = PaymentSerializer

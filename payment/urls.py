@@ -3,7 +3,7 @@ from .api import *
 
 
 urlpatterns = [
-    path('donate/', TransactionCreateAPIView.as_view()),
+    path('donate/', PaymentCreateAPIView.as_view()),
   
 ]
 
