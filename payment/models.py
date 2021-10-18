@@ -24,21 +24,21 @@ class Payment(DoneeModel):
 
 
 class Transaction(DoneeModel):
-    payment = models.ForeignKey(
+    payment = models.OneToOneField(
         Payment, related_name='payment_transaction', on_delete=models.PROTECT,
         verbose_name='payment'
     )
     order_id = models.CharField(max_length=100, unique=True)
     order_status = models.CharField(max_length=100)
     payer_email = models.EmailField()
-    payer_id = models.CharField(max_length=100, null=True, blank=True)
-    payer_name = models.CharField(max_length=100, null=True, blank=True)
-    payee_email = models.EmailField(null=True, blank=True)
-    merchant_id = models.CharField(max_length=100, null=True, blank=True)
-    order_created_at = models.DateTimeField(null=True, blank=True)
+    payer_id = models.CharField(max_length=100)
+    payer_name = models.CharField(max_length=100)
+    payee_email = models.EmailField()
+    merchant_id = models.CharField(max_length=100)
     order_updated_at = models.DateTimeField(null=True, blank=True)
-    pay_id = models.CharField(max_length=100, null=True, blank=True)
-    payment_status = models.CharField(max_length=100, null=True, blank=True)
+    pay_id = models.CharField(max_length=100)
+    payment_status = models.CharField(max_length=100)
+    previous_paid_amount = models.DecimalField(max_digits=19, decimal_places=2, null=True, blank=True)
     paid_amount = models.DecimalField(max_digits=19, decimal_places=2)
     currency_code = models.CharField(max_length=50)
     payment_created_at = models.DateTimeField(null=True, blank=True)

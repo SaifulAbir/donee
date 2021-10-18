@@ -20,20 +20,9 @@ def paypal_token():
     return token.json()
 
 
-def payment(token, amount):
+def payment(token, id):
     headers = {"Content-Type": "application/json", "Authorization": 'Bearer ' + token}
-    url = "https://api.sandbox.paypal.com/v2/checkout/orders"
-    data = {
-        "intent": "CAPTURE",
-        "purchase_units": [
-            {
-                "amount": {
-                    "currency_code": "USD",
-                    "value": "100.00"
-                }
-            }
-        ]
-    }
+    url = "https://api.sandbox.paypal.com/v2/checkout/orders/{0}".format(id)
 
-    result = requests.post(url, headers=headers, json=data)
+    result = requests.get(url, headers=headers)
     return result.json()
