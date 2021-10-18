@@ -28,7 +28,7 @@ class GoalListSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
     class Meta:
         model = Goal
-        fields = ['title','slug', 'short_description', 'buying_item', 'online_source_url', 'image',
+        fields = ['id', 'title','slug', 'short_description', 'buying_item', 'online_source_url', 'image',
                   'total_amount', 'profile', 'status']
 
 
@@ -45,7 +45,7 @@ class GoalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Goal
-        fields = ['title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
+        fields = ['id', 'title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
                   'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
                   'profile_image','status', 'pgw_amount',
                   'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media']

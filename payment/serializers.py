@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
 from .models import *
 from .utils import paypal_token, payment
 
@@ -39,6 +41,9 @@ class TransactionSerializer(serializers.ModelSerializer):
         currency_code = payment_resp["purchase_units"][0]["payments"]["captures"][0]["amount"]["currency_code"]
         payment_created_at = payment_resp["purchase_units"][0]["payments"]["captures"][0]["create_time"]
         payment_updated_at = payment_resp["purchase_units"][0]["payments"]["captures"][0]["update_time"]
+
+        if payment_status != "COMPLETED":
+            raise ValidationError('Payment is not completed yet.')
 
         payment_obj = Payment.objects.filter(id=validated_data["payment"].id)
         goal_obj = Goal.objects.filter(id=payment_obj.first().goal.id)

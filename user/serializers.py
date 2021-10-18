@@ -32,9 +32,10 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 class ProfileSDGSSerializer(serializers.ModelSerializer):
     title = serializers.CharField(source="sdgs.title")
+    sdgs_id = serializers.CharField(source="sdgs.id")
     class Meta:
         model = ProfileSDGS
-        fields = ('title', )
+        fields = ('sdgs_id', 'title')
 
 
 
