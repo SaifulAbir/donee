@@ -5,7 +5,7 @@ from .models import *
 
 
 class SDGSSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = SDGS
         fields = ('id', 'title', 'thumbnail', 'status',)
@@ -45,10 +45,13 @@ class GoalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Goal
-        fields = ['title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image',
-                  'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username', 'profile_image','status', 'pgw_amount',
+        fields = ['title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
+                  'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
+                  'profile_image','status', 'pgw_amount',
                   'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media']
-        read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'ngo_amount', 'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage','profile_username','profile_image')
+        read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'slug', 'ngo_amount',
+                            'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',
+                            'profile_username','profile_image')
 
 
     def get_ngo_username(self, obj):
@@ -101,7 +104,7 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
             return get_ngo.username
         else :
             return obj.goal.profile.username
-        
+
     def to_representation(self, instance):
         rep = super(SingleCatagorySerializer, self).to_representation(instance)
         rep['sdgs_title'] = instance.sdgs.title

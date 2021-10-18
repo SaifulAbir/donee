@@ -188,16 +188,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # The default result (access/refresh tokens)
         data = super(CustomTokenObtainPairSerializer, self).validate(attrs)
         # Custom data you want to include
-        data.update({'is_profile_created': self.user.is_modified})
+        data.update({'is_account_created': self.user.is_modified, 'user_profile': ProfileSerializer(self.user.user_profile).data})
         # and everything else you want to send in the response
         return data
-
-
-
-
-
-
-
 
 
 class VerifyInvitationSerializer(serializers.Serializer):
