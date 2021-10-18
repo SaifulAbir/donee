@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'storages',
     'user.apps.UserConfig',
     'goal.apps.GoalConfig',
+    'payment.apps.PaymentConfig',
 ]
 
 MIDDLEWARE = [
@@ -198,3 +199,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
 }
+
+# paypal settings
+CLIENT_ID = os.environ.get('CLIENT_ID')
+CLIENT_SECRET = os.environ.get('CLIENT_SECRET')

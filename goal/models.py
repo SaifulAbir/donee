@@ -44,6 +44,7 @@ class Goal(DoneeModel):
     ngo_percentage = models.IntegerField(default=0)
     platform_percentage = models.IntegerField(default=0)
     total_amount = models.DecimalField(max_digits=19, decimal_places=2)
+    paid_amount = models.DecimalField(max_digits=19, decimal_places=2,null=True, blank=True)
     status = models.CharField(max_length=20, choices=GOAL_STATUSES, default=GOAL_STATUSES[0][0])
     profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
 
