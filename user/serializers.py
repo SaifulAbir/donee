@@ -33,9 +33,10 @@ class NotificationSerializer(serializers.ModelSerializer):
 class ProfileSDGSSerializer(serializers.ModelSerializer):
     title = serializers.CharField(source="sdgs.title")
     sdgs_id = serializers.CharField(source="sdgs.id")
+    thumbnail = serializers.ImageField(source="sdgs.thumbnail")
     class Meta:
         model = ProfileSDGS
-        fields = ('sdgs_id', 'title')
+        fields = ('sdgs_id', 'title', 'thumbnail')
 
 
 
