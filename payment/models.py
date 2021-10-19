@@ -92,6 +92,7 @@ class Distribution(DoneeModel):
     def __str__(self):
         return str(self.total_paid_amount)
 
+
 class DedicationInfo(DoneeModel):
     DEDICATION_TYPES = [
         ('DEDICATED', 'Dedication'),

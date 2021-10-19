@@ -5,14 +5,43 @@ from .models import *
 from .utils import paypal_token, payment
 
 
+class DedicationInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DedicationInfo
+        fields = '__all__'
+
+
 class PaymentSerializer(serializers.ModelSerializer):
+    is_dedicated = serializers.BooleanField(write_only=True)
+    dedicated_message = serializers.CharField(write_only=True, required=False)
+    is_gift_dedicated = serializers.BooleanField(write_only=True)
+    dedicated_gift_message = serializers.CharField(write_only=True, required=False)
+    payment_dedication = DedicationInfoSerializer(many=True, read_only=True)
     class Meta:
         model = Payment
-        fields = ('id', 'amount', 'goal', 'status')
+        fields = ('id', 'amount', 'goal', 'status', 'is_dedicated', 'dedicated_message', 'is_gift_dedicated',
+                  'dedicated_gift_message', 'payment_dedication')
         read_only_fields = ('status', )
 
     def create(self, validated_data):
-        payment_instance = Payment.objects.create(**validated_data,user=self.context['request'].user,created_by=self.context['request'].user.id)
+        is_dedicated = validated_data.pop('is_dedicated')
+        try:
+            dedicated_message = validated_data.pop('dedicated_message')
+        except KeyError:
+            dedicated_message = None
+        is_gift_dedicated = validated_data.pop('is_gift_dedicated')
+        try:
+            dedicated_gift_message = validated_data.pop('dedicated_gift_message')
+        except KeyError:
+            dedicated_gift_message = None
+        payment_instance = Payment.objects.create(**validated_data, user=self.context['request'].user,
+                                                  created_by=self.context['request'].user.id)
+        if is_dedicated:
+            DedicationInfo.objects.create(type="DEDICATED", payment=payment_instance, is_dedicated=True,
+                                          message=dedicated_message, created_by=self.context['request'].user.id)
+        if is_gift_dedicated:
+            DedicationInfo.objects.create(type="GIFT", payment=payment_instance, is_dedicated=True,
+                                          message=dedicated_gift_message, created_by=self.context['request'].user.id)
         return payment_instance
 
 
