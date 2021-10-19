@@ -54,8 +54,15 @@ class Transaction(DoneeModel):
 
 
 class Wallet(DoneeModel):
+    WALLET_TYPES = [
+        ('NGO', 'NGO'),
+        ('DONEE', 'Donee'),
+        ('PLATFORM', 'Platform'),
+        ('PGW', 'PGW'),
+    ]
     amount = models.DecimalField(max_digits=19, decimal_places=2)
-    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True)
+    type = models.CharField(max_length=30, choices=WALLET_TYPES)
 
     class Meta:
         verbose_name = 'Wallet'
@@ -64,3 +71,23 @@ class Wallet(DoneeModel):
 
     def __str__(self):
         return str(self.amount)
+
+
+class Distribution(DoneeModel):
+    transaction = models.OneToOneField(
+        Transaction, related_name='transaction_distribution', on_delete=models.PROTECT,
+        verbose_name='transaction'
+    )
+    total_paid_amount = models.DecimalField(max_digits=19, decimal_places=2)
+    pgw_amount = models.DecimalField(max_digits=19, decimal_places=2)
+    ngo_amount = models.DecimalField(max_digits=19, decimal_places=2)
+    donee_amount = models.DecimalField(max_digits=19, decimal_places=2, null=True, blank=True)
+    platform_amount = models.DecimalField(max_digits=19, decimal_places=2)
+
+    class Meta:
+        verbose_name = 'Distribution'
+        verbose_name_plural = 'Distributions'
+        db_table = 'distributions'
+
+    def __str__(self):
+        return str(self.total_paid_amount)
