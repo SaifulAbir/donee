@@ -1,7 +1,7 @@
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView
 from Donee.pagination import CustomPagination
-from goal.models import SDGS, Goal
-from goal.serializers import SDGSSerializer, GoalSerializer, GoalListSerializer
+from goal.models import SDGS, Goal, GoalSDGS
+from goal.serializers import SDGSSerializer, GoalSerializer, GoalListSerializer, SingleCatagorySerializer
 
 
 class SDGSListAPI(ListAPIView):
@@ -32,3 +32,12 @@ class GoalListAPI(ListAPIView):
     queryset = Goal.objects.filter(status='PUBLISHED').order_by('-created_at')
     serializer_class = GoalListSerializer
     pagination_class = CustomPagination
+
+
+class SingleCatagoryView(ListAPIView):
+    serializer_class = SingleCatagorySerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+         geturl = self.kwargs['id']
+         return GoalSDGS.objects.filter(sdgs__id=geturl,goal__status='PUBLISHED')
