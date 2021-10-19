@@ -1,7 +1,7 @@
 from django.db import models
 from Donee.models import DoneeModel
 from goal.models import Goal
-from user.models import User
+from user.models import User, Profile
 
 
 class Payment(DoneeModel):
@@ -51,3 +51,16 @@ class Transaction(DoneeModel):
 
     def __str__(self):
         return str(self.order_id)
+
+
+class Wallet(DoneeModel):
+    amount = models.DecimalField(max_digits=19, decimal_places=2)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+
+    class Meta:
+        verbose_name = 'Wallet'
+        verbose_name_plural = 'Wallets'
+        db_table = 'wallets'
+
+    def __str__(self):
+        return str(self.amount)
