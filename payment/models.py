@@ -91,3 +91,24 @@ class Distribution(DoneeModel):
 
     def __str__(self):
         return str(self.total_paid_amount)
+
+class DedicationInfo(DoneeModel):
+    DEDICATION_TYPES = [
+        ('DEDICATED', 'Dedication'),
+        ('GIFT', 'Gift'),
+    ]
+    payment = models.ForeignKey(
+        Payment, related_name='payment_dedication', on_delete=models.PROTECT,
+        verbose_name='payment'
+    )
+    type = models.CharField(max_length=30, choices=DEDICATION_TYPES)
+    is_dedicated = models.BooleanField(default=False)
+    message = models.TextField()
+
+    class Meta:
+        verbose_name = 'Dedication Info'
+        verbose_name_plural = 'Dedication Infos'
+        db_table = 'dedication_infos'
+
+    def __str__(self):
+        return str(self.message)
