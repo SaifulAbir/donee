@@ -190,7 +190,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # The default result (access/refresh tokens)
         data = super(CustomTokenObtainPairSerializer, self).validate(attrs)
         # Custom data you want to include
-        data.update({'is_account_created': self.user.is_modified, 'user_profile': ProfileSerializer(self.user.user_profile).data})
+        try:
+            user_profile = ProfileSerializer(self.user.user_profile).data
+        except User.user_profile.RelatedObjectDoesNotExist:
+            user_profile = None
+        data.update({'is_account_created': self.user.is_modified, 'user_profile': user_profile})
         # and everything else you want to send in the response
         return data
 
