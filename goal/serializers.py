@@ -41,12 +41,11 @@ class GoalSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(source="profile.image",read_only=True)
     ngo_username = serializers.SerializerMethodField()
 
-
     class Meta:
         model = Goal
         fields = ['id', 'title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
                   'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
-                  'profile_image','status', 'pgw_amount',
+                  'profile_image','status', 'pgw_amount', 'paid_amount',
                   'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media']
         read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'slug', 'ngo_amount',
                             'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',

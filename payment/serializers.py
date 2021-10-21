@@ -130,12 +130,13 @@ class TransactionSerializer(serializers.ModelSerializer):
                 ngo_wallet = Wallet.objects.create(amount=ngo_amount, type="NGO", profile=goal_obj.first().profile,
                                       created_by = self.context['request'].user.id)
         else:
-            ngo_wallet = Wallet.objects.filter(type="NGO", profile=goal_obj.first().profile.ngo_profile_id)
+            ngo_profile = Profile.objects.get(id = goal_obj.first().profile.ngo_profile_id)
+            ngo_wallet = Wallet.objects.filter(type="NGO", profile=ngo_profile)
             if ngo_wallet.exists():
                 total_ngo_amount = ngo_amount + ngo_wallet.first().amount
                 ngo_wallet.update(amount=total_ngo_amount)
             else:
-                ngo_wallet = Wallet.objects.create(amount=ngo_amount, type="NGO", profile=goal_obj.first().profile.ngo_profile_id,
+                ngo_wallet = Wallet.objects.create(amount=ngo_amount, type="NGO", profile=ngo_profile,
                                       created_by = self.context['request'].user.id)
 
             donee_wallet = Wallet.objects.filter(type="DONEE", profile=goal_obj.first().profile)
