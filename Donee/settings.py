@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'storages',
+    'drf_yasg',
     'user.apps.UserConfig',
     'goal.apps.GoalConfig',
     'payment.apps.PaymentConfig',
@@ -203,3 +204,13 @@ SIMPLE_JWT = {
 # paypal settings
 CLIENT_ID = os.environ.get('CLIENT_ID')
 CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
+
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+      }
+   }
+}

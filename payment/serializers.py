@@ -87,8 +87,76 @@ class TransactionSerializer(serializers.ModelSerializer):
                                                           previous_paid_amount=goal_obj.first().paid_amount,
                                                           created_by=self.context['request'].user.id)
         payment_obj.update(status="PAID")
+
+        # Distribution Start
+        pgw_amount = round((goal_obj.first().pgw_percentage * float(paid_amount)) / 100, 2)
+        platform_amount = round((goal_obj.first().platform_percentage * float(paid_amount)) / 100, 2)
+        if goal_obj.first().profile.profile_type == "DONEE":
+            ngo_amount = round((goal_obj.first().ngo_percentage * float(paid_amount)) / 100, 2)
+            donee_amount = float(paid_amount) - (pgw_amount + platform_amount + ngo_amount)
+        else:
+            ngo_amount = float(paid_amount) - (pgw_amount + platform_amount)
+            donee_amount = None
+
+        distribution = Distribution.objects.create(total_paid_amount=paid_amount, pgw_amount=pgw_amount, platform_amount=platform_amount,
+                                    transaction=transaction_instance, ngo_amount=ngo_amount, donee_amount=donee_amount,
+                                    created_by = self.context['request'].user.id)
+        # Distribution End
+
+        # Platform Wallet Start
+        platform_wallet = Wallet.objects.filter(type="PLATFORM")
+        if platform_wallet.exists():
+            total_platform_amount = platform_amount + platform_wallet.first().amount
+            platform_wallet.update(amount = total_platform_amount)
+        else:
+            platform_wallet = Wallet.objects.create(amount=platform_amount, type="PLATFORM", created_by = self.context['request'].user.id)
+        # Platform Wallet End
+
+        # PGW Wallet Start
+        pgw_wallet = Wallet.objects.filter(type="PGW")
+        if pgw_wallet.exists():
+            total_pgw_amount = pgw_amount + pgw_wallet.first().amount
+            pgw_wallet.update(amount=total_pgw_amount)
+        else:
+            pgw_wallet = Wallet.objects.create(amount=pgw_amount, type="PGW", created_by = self.context['request'].user.id)
+        # PGW Wallet End
+
+        if goal_obj.first().profile.profile_type == "NGO":
+            ngo_wallet = Wallet.objects.filter(type="NGO", profile=goal_obj.first().profile)
+            if ngo_wallet.exists():
+                total_ngo_amount = ngo_amount + ngo_wallet.first().amount
+                ngo_wallet.update(amount=total_ngo_amount)
+            else:
+                ngo_wallet = Wallet.objects.create(amount=ngo_amount, type="NGO", profile=goal_obj.first().profile,
+                                      created_by = self.context['request'].user.id)
+        else:
+            ngo_wallet = Wallet.objects.filter(type="NGO", profile=goal_obj.first().profile.ngo_profile_id)
+            if ngo_wallet.exists():
+                total_ngo_amount = ngo_amount + ngo_wallet.first().amount
+                ngo_wallet.update(amount=total_ngo_amount)
+            else:
+                ngo_wallet = Wallet.objects.create(amount=ngo_amount, type="NGO", profile=goal_obj.first().profile.ngo_profile_id,
+                                      created_by = self.context['request'].user.id)
+
+            donee_wallet = Wallet.objects.filter(type="DONEE", profile=goal_obj.first().profile)
+            if donee_wallet.exists():
+                total_donee_amount = donee_amount + donee_wallet.first().amount
+                donee_wallet.update(amount=total_donee_amount)
+            else:
+                donee_wallet = Wallet.objects.create(amount=donee_amount, type="DONEE", profile=goal_obj.first().profile,
+                                      created_by = self.context['request'].user.id)
+
+        WalletDistribution.objects.create(distribution=distribution, wallet=platform_wallet,
+                                          created_by = self.context['request'].user.id)
+        WalletDistribution.objects.create(distribution=distribution, wallet=pgw_wallet,
+                                          created_by = self.context['request'].user.id)
+        WalletDistribution.objects.create(distribution=distribution, wallet=ngo_wallet,
+                                          created_by = self.context['request'].user.id)
+        if goal_obj.first().profile.profile_type == "DONEE":
+            WalletDistribution.objects.create(distribution=distribution, wallet=donee_wallet,
+                                              created_by = self.context['request'].user.id)
         goal_paid_amount = goal_obj.first().paid_amount
         if goal_paid_amount:
-            paid_amount = goal_paid_amount + paid_amount
+            paid_amount = goal_paid_amount + float(paid_amount)
         goal_obj.update(paid_amount=paid_amount)
         return transaction_instance

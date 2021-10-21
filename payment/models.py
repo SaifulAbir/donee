@@ -113,3 +113,22 @@ class DedicationInfo(DoneeModel):
 
     def __str__(self):
         return str(self.message)
+
+
+class WalletDistribution(DoneeModel):
+    """
+        distribution: one to many relation
+    """
+    distribution = models.ForeignKey(
+        Distribution, related_name='distribution_wallet', on_delete=models.PROTECT,
+        verbose_name='Distribution'
+    )
+    wallet = models.ForeignKey(
+        Wallet, related_name='wallet_distribution', on_delete=models.PROTECT,
+        verbose_name='Wallet'
+    )
+
+    class Meta:
+        verbose_name = 'WalletDistribution'
+        verbose_name_plural = 'WalletDistributions'
+        db_table = 'wallet_distribution'

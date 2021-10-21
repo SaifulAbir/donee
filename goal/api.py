@@ -1,10 +1,13 @@
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.permissions import AllowAny
+
 from Donee.pagination import CustomPagination
 from goal.models import SDGS, Goal, GoalSDGS
 from goal.serializers import SDGSSerializer, GoalSerializer, GoalListSerializer, SingleCatagorySerializer
 
 
 class SDGSListAPI(ListAPIView):
+    permission_classes = (AllowAny,)
     queryset = SDGS.objects.filter(status=True)
     serializer_class = SDGSSerializer
 
@@ -17,6 +20,7 @@ class GoalCreateAPIView(CreateAPIView):
 
 
 class GoalRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = GoalSerializer
     lookup_field = 'slug'
     lookup_url_kwarg = "slug"
@@ -29,12 +33,14 @@ class GoalRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 
 class GoalListAPI(ListAPIView):
+    permission_classes = (AllowAny,)
     queryset = Goal.objects.filter(status='PUBLISHED').order_by('-created_at')
     serializer_class = GoalListSerializer
     pagination_class = CustomPagination
 
 
 class SingleCatagoryView(ListAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = SingleCatagorySerializer
     pagination_class = CustomPagination
 
