@@ -1,3 +1,5 @@
+import decimal
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -106,8 +108,9 @@ class TransactionSerializer(serializers.ModelSerializer):
         # Platform Wallet Start
         platform_wallet = Wallet.objects.filter(type="PLATFORM")
         if platform_wallet.exists():
-            total_platform_amount = platform_amount + platform_wallet.first().amount
+            total_platform_amount = decimal.Decimal(platform_amount) + platform_wallet.first().amount
             platform_wallet.update(amount = total_platform_amount)
+            platform_wallet = platform_wallet.first()
         else:
             platform_wallet = Wallet.objects.create(amount=platform_amount, type="PLATFORM", created_by = self.context['request'].user.id)
         # Platform Wallet End
@@ -115,8 +118,9 @@ class TransactionSerializer(serializers.ModelSerializer):
         # PGW Wallet Start
         pgw_wallet = Wallet.objects.filter(type="PGW")
         if pgw_wallet.exists():
-            total_pgw_amount = pgw_amount + pgw_wallet.first().amount
+            total_pgw_amount = decimal.Decimal(pgw_amount) + pgw_wallet.first().amount
             pgw_wallet.update(amount=total_pgw_amount)
+            pgw_wallet = pgw_wallet.first()
         else:
             pgw_wallet = Wallet.objects.create(amount=pgw_amount, type="PGW", created_by = self.context['request'].user.id)
         # PGW Wallet End
@@ -124,8 +128,9 @@ class TransactionSerializer(serializers.ModelSerializer):
         if goal_obj.first().profile.profile_type == "NGO":
             ngo_wallet = Wallet.objects.filter(type="NGO", profile=goal_obj.first().profile)
             if ngo_wallet.exists():
-                total_ngo_amount = ngo_amount + ngo_wallet.first().amount
+                total_ngo_amount = decimal.Decimal(ngo_amount) + ngo_wallet.first().amount
                 ngo_wallet.update(amount=total_ngo_amount)
+                ngo_wallet = ngo_wallet.first()
             else:
                 ngo_wallet = Wallet.objects.create(amount=ngo_amount, type="NGO", profile=goal_obj.first().profile,
                                       created_by = self.context['request'].user.id)
@@ -133,16 +138,18 @@ class TransactionSerializer(serializers.ModelSerializer):
             ngo_profile = Profile.objects.get(id = goal_obj.first().profile.ngo_profile_id)
             ngo_wallet = Wallet.objects.filter(type="NGO", profile=ngo_profile)
             if ngo_wallet.exists():
-                total_ngo_amount = ngo_amount + ngo_wallet.first().amount
+                total_ngo_amount = decimal.Decimal(ngo_amount) + ngo_wallet.first().amount
                 ngo_wallet.update(amount=total_ngo_amount)
+                ngo_wallet = ngo_wallet.first()
             else:
                 ngo_wallet = Wallet.objects.create(amount=ngo_amount, type="NGO", profile=ngo_profile,
                                       created_by = self.context['request'].user.id)
 
             donee_wallet = Wallet.objects.filter(type="DONEE", profile=goal_obj.first().profile)
             if donee_wallet.exists():
-                total_donee_amount = donee_amount + donee_wallet.first().amount
+                total_donee_amount = decimal.Decimal(donee_amount) + donee_wallet.first().amount
                 donee_wallet.update(amount=total_donee_amount)
+                donee_wallet = donee_wallet.first()
             else:
                 donee_wallet = Wallet.objects.create(amount=donee_amount, type="DONEE", profile=goal_obj.first().profile,
                                       created_by = self.context['request'].user.id)
@@ -158,6 +165,6 @@ class TransactionSerializer(serializers.ModelSerializer):
                                               created_by = self.context['request'].user.id)
         goal_paid_amount = goal_obj.first().paid_amount
         if goal_paid_amount:
-            paid_amount = goal_paid_amount + float(paid_amount)
+            paid_amount = goal_paid_amount + decimal.Decimal(paid_amount)
         goal_obj.update(paid_amount=paid_amount)
         return transaction_instance
