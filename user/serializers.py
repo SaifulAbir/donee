@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from goal.models import SDGS
+from payment.models import Wallet
 from .models import *
 from rest_framework.validators import UniqueValidator
 
@@ -57,6 +58,12 @@ class ProfileSerializer(serializers.ModelSerializer):
             return obj.username
 
 
+class WalletSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wallet
+        fields = ('amount', 'profile', 'type')
+
+
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     donee_notification = serializers.BooleanField(write_only=True)
     account_activity = serializers.BooleanField(write_only=True)
@@ -66,8 +73,6 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     NGO_role_assign = serializers.BooleanField(write_only=True)
     user_notification = NotificationSerializer(many=True, read_only=True)
     user_profile = ProfileSerializer(read_only=True)
-   
-
 
     class Meta:
         model = User
@@ -121,6 +126,7 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     new_followers = serializers.BooleanField(write_only=True)
     NGO_role_assign = serializers.BooleanField(write_only=True)
     profile_notification = NotificationSerializer(many=True, read_only=True)
+    profile_wallet = WalletSerializer(many=True, read_only=True)
     profile_sdgs = ProfileSDGSSerializer(many=True, read_only=True)
     sdgs = serializers.PrimaryKeyRelatedField(queryset=SDGS.objects.all(), many=True, write_only=True)
 
@@ -129,7 +135,7 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
                         'NGO_role_assign', 'sdgs']
-        read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved','invitation_id')
+        read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved', 'invitation_id', 'profile_wallet')
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)

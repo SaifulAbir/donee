@@ -61,7 +61,7 @@ class Wallet(DoneeModel):
         ('PGW', 'PGW'),
     ]
     amount = models.DecimalField(max_digits=19, decimal_places=2)
-    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, related_name="profile_wallet")
     type = models.CharField(max_length=30, choices=WALLET_TYPES)
 
     class Meta:
