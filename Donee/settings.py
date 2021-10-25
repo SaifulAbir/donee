@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'storages',
     'drf_yasg',
+    'phonenumber_field',
     'user.apps.UserConfig',
     'goal.apps.GoalConfig',
     'payment.apps.PaymentConfig',

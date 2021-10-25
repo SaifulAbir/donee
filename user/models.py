@@ -4,6 +4,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from phonenumber_field.modelfields import PhoneNumberField
 from Donee.models import DoneeModel
 import random
 import string
@@ -66,7 +67,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     full_name = models.CharField(max_length=100,null=True,blank=True)
     email = models.EmailField(unique=True,blank=False,null=False)
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True, db_column='country')
-    phone_number = models.CharField(max_length=100,null=True,blank=True)
+    phone_number = PhoneNumberField(null=True,blank=True)
     bio = models.CharField(max_length=100,null=True,blank=True)
     status = models.CharField(max_length=100,null=True,blank=True)
     image = models.ImageField(default='images/demo.png', upload_to='images/user_profile_pictures')
@@ -111,7 +112,7 @@ class Profile(models.Model):
     bio = models.TextField()
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True, db_column='country')
     email = models.EmailField(unique=True)
-    phone_number = models.CharField(max_length=20)
+    phone_number = PhoneNumberField()
     image = models.ImageField(default='images/demo.png', upload_to='images/ngo_and_donee_profile_pictures')
     invitation_id = models.CharField(default='null',max_length=40)
     rut_path = models.FileField(null=True,blank=True, upload_to='images')

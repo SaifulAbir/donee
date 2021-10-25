@@ -21,10 +21,13 @@ class UserUpdateAPIView(RetrieveUpdateAPIView):
         return user.first()
 
     def put(self, request, *args, **kwargs):
-        user = User.objects.filter(username=request.data["username"]).exclude(id=request.user.id)
-        if user:
-            raise serializers.ValidationError('Username must be unique.')
-        return self.update(request, *args, **kwargs)
+        try:
+            user = User.objects.filter(username=request.data["username"]).exclude(id=request.user.id)
+            if user:
+                raise serializers.ValidationError('Username must be unique.')
+            return self.update(request, *args, **kwargs)
+        except KeyError:
+            return self.update(request, *args, **kwargs)
 
 
 class DoneeAndNgoProfileCreateAPIView(CreateAPIView):
