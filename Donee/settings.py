@@ -208,7 +208,7 @@ CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
 SWAGGER_SETTINGS = {
    'SECURITY_DEFINITIONS': {
       'Bearer': {
-            'type': 'accessToken',
+            'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
       }
