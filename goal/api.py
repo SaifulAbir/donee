@@ -55,7 +55,7 @@ class GoalLikeAPI(CreateAPIView):
     serializer_class = GoalLikeSerializer
     queryset = Like.objects.all()
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
         user = User.objects.get(id = self.request.user.id)
         goal = Goal.objects.get(id = self.request.data['goal'])
         check_like = Like.objects.filter(user = self.request.user.id,goal = self.request.data['goal'])
@@ -67,7 +67,7 @@ class GoalLikeAPI(CreateAPIView):
             goal_obj = goal
             goal_obj.total_like_count -=1
             goal_obj.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":False,}, status=status.HTTP_200_OK)
         if check_like.exists() and check_like.first().is_like == False:
             obj = check_like.first()
             obj.is_like = True
@@ -75,20 +75,24 @@ class GoalLikeAPI(CreateAPIView):
             goal_obj = goal
             goal_obj.total_like_count +=1
             goal_obj.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_200_OK)
         else:
             if check_profile.exists():
                 profile_obj = check_profile.first()
                 goal_obj = goal
                 goal_obj.total_like_count +=1
                 goal_obj.save()
-                serializer.save(user = user,goal = goal,is_like = True,created_by =user.username,has_profile=profile_obj)
+                likeobj =  Like(user = user,goal = goal,is_like = True,created_by =user.username,has_profile=profile_obj)
+                likeobj.save()
+                return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_201_CREATED)
             else:
                 goal_obj = goal
                 goal_obj.total_like_count +=1
                 goal_obj.save()
-                serializer.save(user = user,goal = goal,is_like = True,created_by =user.username)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+                likeobj= Like(user = user,goal = goal,is_like = True,created_by =user.username)
+                likeobj.save()
+                return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_201_CREATED)
+        # return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 
 
@@ -97,20 +101,23 @@ class GoalCommentAPI(CreateAPIView):
     serializer_class = GoalCommentSerializer
     queryset = Comment.objects.all()
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
         user = User.objects.get(id = self.request.user.id)
         goal = Goal.objects.get(id = self.request.data['goal'])
         check_profile = Profile.objects.filter(user = self.request.user.id)
         
         if check_profile.exists():
             profile_obj = check_profile.first()
-            serializer.save(user = user,goal = goal,created_by =user.username,has_profile =profile_obj)
+            comment_obj = Comment(user = user,goal = goal,created_by =user.username,has_profile =profile_obj)
+            comment_obj.save()
             goal_obj = goal
             goal_obj.total_comment_count +=1
             goal_obj.save()
+            return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"text":self.request.data["text"]}, status=status.HTTP_201_CREATED)
         else:
-            serializer.save(user = user,goal = goal,created_by =user.username)
+            comment_obj = Comment(user = user,goal = goal,created_by =user.username)
+            comment_obj.save()
             goal_obj = goal
             goal_obj.total_comment_count +=1
             goal_obj.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"text":self.request.data["text"]}, status=status.HTTP_201_CREATED)
