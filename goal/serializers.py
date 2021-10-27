@@ -28,7 +28,25 @@ class GoalListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
         fields = ['id', 'title','slug', 'short_description', 'buying_item', 'online_source_url', 'image',
-                  'total_amount', 'profile', 'status']
+                  'total_amount', 'profile', 'status','total_like_count','total_comment_count']
+
+
+
+
+
+class GoalLikeSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = Like
+        fields = ['goal']
+
+
+class GoalCommentSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = Comment
+        fields = ['goal','text']
+
 
 
 class GoalSerializer(serializers.ModelSerializer):
@@ -40,16 +58,20 @@ class GoalSerializer(serializers.ModelSerializer):
     #ngo_username = serializers.CharField(source="profile",read_only=True)
     profile_image = serializers.ImageField(source="profile.image",read_only=True)
     ngo_username = serializers.SerializerMethodField()
+    goal_comment = GoalCommentSerializer(many=True,read_only=True)
+    goal_likes = serializers.SerializerMethodField()
+    
+    
 
     class Meta:
         model = Goal
         fields = ['id', 'title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
                   'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
                   'profile_image','status', 'pgw_amount', 'paid_amount',
-                  'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media']
+                  'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media','goal_likes','goal_comment']
         read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'slug', 'ngo_amount',
                             'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',
-                            'profile_username','profile_image')
+                            'profile_username','profile_image','total_like_count','total_comment_count')
 
 
     def get_ngo_username(self, obj):
@@ -58,6 +80,10 @@ class GoalSerializer(serializers.ModelSerializer):
             return get_ngo.username
         else :
             return obj.profile.username
+
+    def get_goal_likes(self,obj):
+       likes = Like.objects.filter(goal = obj,is_like = True).count()
+       return likes
 
 
     def create(self, validated_data):
@@ -108,4 +134,8 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
         rep['sdgs_title'] = instance.sdgs.title
         rep['goal_title'] = instance.goal.title
         rep['slug'] = instance.goal.slug
+        rep['total_like_count'] = instance.goal.total_like_count
+        rep['total_comment_count'] = instance.goal.total_comment_count
         return rep
+
+
