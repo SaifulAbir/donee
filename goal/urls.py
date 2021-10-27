@@ -7,5 +7,7 @@ urlpatterns = [
     path('goal-list/', GoalListAPI.as_view()),
     path('single-catagory/<int:id>', SingleCatagoryView.as_view()),
     path('retrieve-goal/<str:slug>/', GoalRetrieveUpdateAPIView.as_view()),
+    path('goal-like/', GoalLikeAPI.as_view()),
+    path('goal-comment/', GoalCommentAPI.as_view()),
 ]
 

@@ -2,7 +2,7 @@ from django.db import models
 from Donee.models import DoneeModel
 from django.db.models.signals import pre_save
 from .utils import unique_slug_generator
-from user.models import Profile
+from user.models import Profile,User
 
 
 
@@ -47,6 +47,8 @@ class Goal(DoneeModel):
     paid_amount = models.DecimalField(max_digits=19, decimal_places=2, default=0)
     status = models.CharField(max_length=20, choices=GOAL_STATUSES, default=GOAL_STATUSES[0][0])
     profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+    total_like_count = models.IntegerField(default=0)
+    total_comment_count = models.IntegerField(default=0)
 
     class Meta:
         verbose_name = 'Goal'
@@ -136,4 +138,40 @@ class GoalSDGS(DoneeModel):
         verbose_name = 'GoalSDGS'
         verbose_name_plural = 'GoalSDGS'
         db_table = 'goal_sdgs'
+
+
+
+
+class Like(DoneeModel):
+    user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='goal_user')
+    goal = models.ForeignKey(Goal, on_delete=models.PROTECT, related_name = 'goal_like')
+    is_like = models.BooleanField(default=False)
+    has_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name ='like_has_profile',null=True,blank=True)
+
+
+    class Meta:
+        verbose_name = 'Like'
+        verbose_name_plural = 'Likes'
+        db_table = 'like'
+
+    def __str__(self):
+        return self.goal.title
+
+
+class Comment(DoneeModel):
+    user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='comment_user')
+    goal = models.ForeignKey(Goal, on_delete=models.PROTECT, related_name = 'goal_comment')
+    text = models.TextField()
+    has_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name ='comment_has_profile',null=True,blank=True)
+
+
+    class Meta:
+        verbose_name = 'Comment'
+        verbose_name_plural = 'Comments'
+        db_table = 'comment'
+
+    def __str__(self):
+        return self.goal.title
+
+
 
