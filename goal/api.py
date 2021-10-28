@@ -1,5 +1,5 @@
 from itertools import chain
-from django.db.models import FilteredRelation, Q, Count, Value, F, CharField
+from django.db.models import FilteredRelation, Q, Count, Value, F, CharField, Prefetch
 from django.db.models.functions import Concat
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
@@ -8,6 +8,7 @@ from Donee.pagination import CustomPagination
 from Donee.settings import MEDIA_URL
 from goal.serializers import PopularGoalSerializer, SearchSerializer
 from goal.models import SDGS, Goal, GoalSDGS,Like,Comment
+from payment.models import Payment
 from user.models import User, Profile
 from goal.serializers import GoalCommentSerializer, GoalLikeSerializer, SDGSSerializer, GoalSerializer, GoalListSerializer, SingleCatagorySerializer
 from rest_framework.response import Response
@@ -60,13 +61,21 @@ class SingleCatagoryView(ListAPIView):
 class PopularGoalAPI(ListAPIView):
     permission_classes = (AllowAny,)
     queryset = Goal.objects.annotate(
-        payment = FilteredRelation(
-            'goal_payment', condition=Q(goal_payment__status='PAID')
+        payment_count=Count(
+            Concat('goal_payment__goal', 'goal_payment__user'),
+            filter=Q(goal_payment__status='PAID'),
+            distinct=True
         )
-    ).annotate(
-        payment_count=Count('payment')
     ).filter(status='PUBLISHED').order_by('-payment_count')[:5]
     serializer_class = PopularGoalSerializer
+
+
+class SupportedGoalAPI(ListAPIView):
+    serializer_class = PopularGoalSerializer
+
+    def get_queryset(self):
+        queryset = Goal.objects.filter(goal_payment__user=self.request.user, goal_payment__status="PAID").distinct()
+        return queryset
 
 
 class SearchAPIView(APIView):
