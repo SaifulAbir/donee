@@ -31,6 +31,15 @@ class GoalListSerializer(serializers.ModelSerializer):
                   'total_amount', 'profile', 'status']
 
 
+class PopularGoalSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
+    payment_count = serializers.CharField(read_only=True)
+    class Meta:
+        model = Goal
+        fields = ['id', 'title','slug', 'short_description', 'image',
+                  'profile', 'status', 'payment_count']
+
+
 class GoalSerializer(serializers.ModelSerializer):
     sdgs = serializers.PrimaryKeyRelatedField(queryset=SDGS.objects.all(), many=True, write_only=True)
     media = serializers.ListField(child=serializers.FileField(), write_only=True)
@@ -109,3 +118,10 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
         rep['goal_title'] = instance.goal.title
         rep['slug'] = instance.goal.slug
         return rep
+
+
+class SearchSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    title = serializers.CharField()
+    type = serializers.CharField()
+    img = serializers.CharField(required=False)

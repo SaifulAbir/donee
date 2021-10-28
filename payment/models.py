@@ -11,7 +11,7 @@ class Payment(DoneeModel):
 
     amount = models.DecimalField(max_digits=19, decimal_places=2)
     status = models.CharField(max_length=20, choices=PAYMENT_STATUSES, default=PAYMENT_STATUSES[0][0])
-    goal = models.ForeignKey(Goal, on_delete=models.PROTECT)
+    goal = models.ForeignKey(Goal, on_delete=models.PROTECT, related_name="goal_payment")
     user = models.ForeignKey(User, on_delete=models.PROTECT)
 
     class Meta:
