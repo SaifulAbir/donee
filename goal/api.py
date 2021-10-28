@@ -1,24 +1,18 @@
 from itertools import chain
-
 from django.db.models import FilteredRelation, Q, Count, Value, F, CharField
 from django.db.models.functions import Concat
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from Donee.pagination import CustomPagination
 from Donee.settings import MEDIA_URL
-from goal.models import SDGS, Goal, GoalSDGS
-from goal.serializers import SDGSSerializer, GoalSerializer, GoalListSerializer, SingleCatagorySerializer, \
-    PopularGoalSerializer, SearchSerializer
-from user.models import Profile, User
-
+from goal.serializers import PopularGoalSerializer, SearchSerializer
 from goal.models import SDGS, Goal, GoalSDGS,Like,Comment
 from user.models import User, Profile
 from goal.serializers import GoalCommentSerializer, GoalLikeSerializer, SDGSSerializer, GoalSerializer, GoalListSerializer, SingleCatagorySerializer
 from rest_framework.response import Response
 from rest_framework import status
+
 
 class SDGSListAPI(ListAPIView):
     permission_classes = (AllowAny,)
@@ -97,9 +91,6 @@ class SearchAPIView(APIView):
             search_result = []
         serializer = SearchSerializer(search_result, many=True)
         return Response({"search_result": serializer.data})
-         geturl = self.kwargs['id']
-         return GoalSDGS.objects.filter(sdgs__id=geturl,goal__status='PUBLISHED')
-
 
 
 class GoalLikeAPI(CreateAPIView):
@@ -144,8 +135,6 @@ class GoalLikeAPI(CreateAPIView):
                 likeobj.save()
                 return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_201_CREATED)
         # return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
 
 
 class GoalCommentAPI(CreateAPIView):
