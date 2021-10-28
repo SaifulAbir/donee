@@ -48,6 +48,16 @@ class GoalCommentSerializer(serializers.ModelSerializer):
         fields = ['goal','text']
 
 
+class GoalCommentGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['user','goal','text']
+
+    def to_representation(self, instance):
+        rep = super(GoalCommentGetSerializer, self).to_representation(instance)
+        rep['user'] = instance.user.username
+        return rep
+
 
 class GoalSerializer(serializers.ModelSerializer):
     sdgs = serializers.PrimaryKeyRelatedField(queryset=SDGS.objects.all(), many=True, write_only=True)
@@ -58,7 +68,7 @@ class GoalSerializer(serializers.ModelSerializer):
     #ngo_username = serializers.CharField(source="profile",read_only=True)
     profile_image = serializers.ImageField(source="profile.image",read_only=True)
     ngo_username = serializers.SerializerMethodField()
-    goal_comment = GoalCommentSerializer(many=True,read_only=True)
+    goal_comment = GoalCommentGetSerializer(many=True,read_only=True)
     goal_likes = serializers.SerializerMethodField()
     
     
