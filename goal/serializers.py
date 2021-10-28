@@ -35,14 +35,14 @@ class GoalListSerializer(serializers.ModelSerializer):
 
 
 class GoalLikeSerializer(serializers.ModelSerializer):
-   
+
     class Meta:
         model = Like
         fields = ['goal']
 
 
 class GoalCommentSerializer(serializers.ModelSerializer):
-   
+
     class Meta:
         model = Comment
         fields = ['goal','text']
@@ -59,6 +59,15 @@ class GoalCommentGetSerializer(serializers.ModelSerializer):
         return rep
 
 
+class PopularGoalSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
+    payment_count = serializers.CharField(read_only=True)
+    class Meta:
+        model = Goal
+        fields = ['id', 'title','slug', 'short_description', 'image',
+                  'profile', 'status', 'payment_count']
+
+
 class GoalSerializer(serializers.ModelSerializer):
     sdgs = serializers.PrimaryKeyRelatedField(queryset=SDGS.objects.all(), many=True, write_only=True)
     media = serializers.ListField(child=serializers.FileField(), write_only=True)
@@ -70,8 +79,8 @@ class GoalSerializer(serializers.ModelSerializer):
     ngo_username = serializers.SerializerMethodField()
     goal_comment = GoalCommentGetSerializer(many=True,read_only=True)
     goal_likes = serializers.SerializerMethodField()
-    
-    
+
+
 
     class Meta:
         model = Goal
@@ -149,3 +158,8 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
         return rep
 
 
+class SearchSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    title = serializers.CharField()
+    type = serializers.CharField()
+    img = serializers.CharField(required=False)
