@@ -1,5 +1,5 @@
 from itertools import chain
-from django.db.models import FilteredRelation, Q, Count, Value, F, CharField, Prefetch
+from django.db.models import Q, Count, Value, F, CharField, Prefetch
 from django.db.models.functions import Concat
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
@@ -7,8 +7,7 @@ from rest_framework.views import APIView
 from Donee.pagination import CustomPagination
 from Donee.settings import MEDIA_URL
 from goal.serializers import PopularGoalSerializer, SearchSerializer
-from goal.models import SDGS, Goal, GoalSDGS,Like,Comment
-from payment.models import Payment
+from goal.models import SDGS, Goal, GoalSDGS, Like, Comment
 from user.models import User, Profile
 from goal.serializers import GoalCommentSerializer, GoalLikeSerializer, SDGSSerializer, GoalSerializer, GoalListSerializer, SingleCatagorySerializer
 from rest_framework.response import Response
