@@ -25,12 +25,31 @@ class MediaSerializer(serializers.ModelSerializer):
 
 class GoalListSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
+    is_liked = serializers.SerializerMethodField()
+    is_saved = serializers.SerializerMethodField()
     class Meta:
         model = Goal
         fields = ['id', 'title','slug', 'short_description', 'buying_item', 'online_source_url', 'image',
-                  'total_amount', 'profile', 'status','total_like_count','total_comment_count']
+                  'total_amount', 'profile', 'status','is_liked','total_like_count','total_comment_count','is_saved']
 
-
+    def get_is_liked(self,obj):
+        if self.context['request'].user.is_anonymous :
+            return False
+        else:
+            likes = Like.objects.filter(goal = obj,is_like = True,user=self.context['request'].user.id)
+            if likes.exists():
+                return True
+            else:
+                return False
+    def get_is_saved(self,obj):
+        if self.context['request'].user.is_anonymous :
+            return False
+        else:
+            saves = GoalSave.objects.filter(goal = obj,is_saved = True,user=self.context['request'].user.id)
+            if saves.exists():
+                return True
+            else:
+                return False
 
 
 
@@ -49,14 +68,25 @@ class GoalCommentSerializer(serializers.ModelSerializer):
 
 
 class GoalCommentGetSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(source='user.image')
     class Meta:
         model = Comment
-        fields = ['user','goal','text']
+        fields = ['user','text','profile_image','created_at']
 
     def to_representation(self, instance):
         rep = super(GoalCommentGetSerializer, self).to_representation(instance)
-        rep['user'] = instance.user.username
+        rep['user'] = instance.user.full_name
         return rep
+
+
+
+
+class GoalSaveSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model = GoalSave
+        fields = ['goal']
+
 
 
 class GoalSerializer(serializers.ModelSerializer):
@@ -70,6 +100,8 @@ class GoalSerializer(serializers.ModelSerializer):
     ngo_username = serializers.SerializerMethodField()
     goal_comment = GoalCommentGetSerializer(many=True,read_only=True)
     goal_likes = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    is_saved = serializers.SerializerMethodField()
     
     
 
@@ -78,7 +110,7 @@ class GoalSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
                   'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
                   'profile_image','status', 'pgw_amount', 'paid_amount',
-                  'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media','goal_likes','goal_comment']
+                  'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media','goal_likes','is_liked','goal_comment','is_saved']
         read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'slug', 'ngo_amount',
                             'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',
                             'profile_username','profile_image','total_like_count','total_comment_count')
@@ -95,6 +127,25 @@ class GoalSerializer(serializers.ModelSerializer):
        likes = Like.objects.filter(goal = obj,is_like = True).count()
        return likes
 
+    def get_is_liked(self,obj):
+        if self.context['request'].user.is_anonymous :
+            return False
+        else:
+            likes = Like.objects.filter(goal = obj,is_like = True,user=self.context['request'].user.id)
+            if likes.exists():
+                return True
+            else:
+                return False
+
+    def get_is_saved(self,obj):
+        if self.context['request'].user.is_anonymous :
+            return False
+        else:
+            saves = GoalSave.objects.filter(goal = obj,is_saved = True,user=self.context['request'].user.id)
+            if saves.exists():
+                return True
+            else:
+                return False
 
     def create(self, validated_data):
         sdgs = validated_data.pop('sdgs')
@@ -128,6 +179,7 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
     ngo_username = serializers.SerializerMethodField()
     profile_username = serializers.CharField(source='goal.profile',read_only=True)
     profile_image = serializers.ImageField(source="goal.profile.image",read_only=True)
+    
     class Meta:
         model = GoalSDGS
         fields ='__all__'
