@@ -10,6 +10,7 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('create-user/', csrf_exempt(UserRegApi.as_view())),
     path('update-user/', UserUpdateAPIView.as_view()),
+    path('user-detail/', UserUpdateAPIView.as_view()),
     path('create-profile/', DoneeAndNgoProfileCreateAPIView.as_view()),
     path('update-profile/', DoneeAndNgoProfileUpdateAPIView.as_view()),
     path('profile-detail/', DoneeAndNgoProfileUpdateAPIView.as_view()),

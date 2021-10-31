@@ -1,5 +1,5 @@
 from itertools import chain
-from django.db.models import Q, Count, Value, F, CharField, Prefetch
+from django.db.models import Q, Count, Value, F, CharField, Prefetch, Subquery, Max, Min
 from django.db.models.functions import Concat
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
@@ -8,6 +8,7 @@ from Donee.pagination import CustomPagination
 from Donee.settings import MEDIA_URL
 from goal.serializers import PopularGoalSerializer, SearchSerializer
 from goal.models import SDGS, Goal, GoalSDGS, Like, Comment
+from payment.models import Payment
 from user.models import User, Profile
 from goal.serializers import GoalCommentSerializer, GoalLikeSerializer, SDGSSerializer, GoalSerializer, GoalListSerializer, SingleCatagorySerializer
 from rest_framework.response import Response
@@ -34,7 +35,16 @@ class GoalRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     lookup_url_kwarg = "slug"
 
     def get_queryset(self):
-        return Goal.objects.filter(status='PUBLISHED')
+        query = Goal.objects.filter(status='PUBLISHED').annotate(
+            donor_count=Count(
+                Concat('goal_payment__goal', 'goal_payment__user'),
+                filter=Q(goal_payment__status='PAID'),
+                distinct=True
+            ) - 1
+        ).annotate(last_donor = Min('goal_payment__user', filter=Q(goal_payment__status="PAID"))).prefetch_related(
+        Prefetch("goal_payment", queryset=Payment.objects.filter(status="PAID").distinct('user')))
+        print(query)
+        return query
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
@@ -42,7 +52,8 @@ class GoalRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class GoalListAPI(ListAPIView):
     permission_classes = (AllowAny,)
-    queryset = Goal.objects.filter(status='PUBLISHED').order_by('-created_at')
+    queryset = Goal.objects.filter(status='PUBLISHED').prefetch_related(
+        Prefetch("goal_payment", queryset=Payment.objects.filter(status="PAID").distinct())).order_by('-created_at')
     serializer_class = GoalListSerializer
     pagination_class = CustomPagination
 
@@ -82,16 +93,16 @@ class SearchAPIView(APIView):
     def get(self, request):
         query = request.GET.get('query')
         if query:
-            goals = Goal.objects.filter(title=query).\
-                annotate(img=Concat(Value(MEDIA_URL), 'image', output_field=CharField())).\
+            goals = Goal.objects.filter(title__icontains=query). \
+                annotate(img=Concat(Value(MEDIA_URL), 'image', output_field=CharField())). \
                 values("title", "img", uid=F("slug")).annotate(type = Value("goal"))
 
-            profiles = Profile.objects.filter(full_name=query).\
-                annotate(img=Concat(Value(MEDIA_URL), 'image', output_field=CharField())).\
+            profiles = Profile.objects.filter(full_name__icontains=query). \
+                annotate(img=Concat(Value(MEDIA_URL), 'image', output_field=CharField())). \
                 values("img", uid=F("id"), title=F("full_name")).annotate(type = Value("profile"))
 
-            users = User.objects.filter(full_name=query).\
-                annotate(img=Concat(Value(MEDIA_URL), 'image', output_field=CharField())).\
+            users = User.objects.filter(full_name__icontains=query). \
+                annotate(img=Concat(Value(MEDIA_URL), 'image', output_field=CharField())). \
                 values("img", uid=F("id"), title=F("full_name")).annotate(type = Value("user"))
 
             search_result = list(chain(goals, profiles, users))

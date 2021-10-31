@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from user.serializers import ProfileSerializer
+from payment.models import Payment
+from user.serializers import ProfileSerializer, UserSerializer
 from .models import *
 
 
@@ -15,6 +16,14 @@ class GoalSDGSSerializer(serializers.ModelSerializer):
     class Meta:
         model = GoalSDGS
         fields = ('title', )
+
+
+class GoalPaymentSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Payment
+        fields = ('user', )
 
 
 class MediaSerializer(serializers.ModelSerializer):
@@ -79,6 +88,9 @@ class GoalSerializer(serializers.ModelSerializer):
     ngo_username = serializers.SerializerMethodField()
     goal_comment = GoalCommentGetSerializer(many=True,read_only=True)
     goal_likes = serializers.SerializerMethodField()
+    donor_count = serializers.CharField(read_only=True)
+    last_donor_username = serializers.CharField(read_only=True)
+    goal_payment = GoalPaymentSerializer(read_only=True, many=True)
 
 
 
@@ -86,11 +98,11 @@ class GoalSerializer(serializers.ModelSerializer):
         model = Goal
         fields = ['id', 'title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
                   'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
-                  'profile_image','status', 'pgw_amount', 'paid_amount',
+                  'profile_image','status', 'pgw_amount', 'paid_amount', 'donor_count', 'last_donor_username', "goal_payment",
                   'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media','goal_likes','goal_comment']
         read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'slug', 'ngo_amount',
                             'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',
-                            'profile_username','profile_image','total_like_count','total_comment_count')
+                            'profile_username','profile_image','total_like_count','total_comment_count', 'payment_count')
 
 
     def get_ngo_username(self, obj):

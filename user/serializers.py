@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from goal.models import SDGS
-from payment.models import Wallet
+from goal.models import SDGS, Goal
+from payment.models import Wallet, Payment
 from .models import *
 from rest_framework.validators import UniqueValidator
 
@@ -23,6 +23,13 @@ class UserRegSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['username', 'image']
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -64,6 +71,22 @@ class WalletSerializer(serializers.ModelSerializer):
         fields = ('amount', 'profile', 'type')
 
 
+class SponsoredGoalSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
+    class Meta:
+        model = Goal
+        fields = ['id', 'title','slug', 'short_description', 'image',
+                  'profile', 'status']
+
+
+class UserPaymentSerializer(serializers.ModelSerializer):
+    goal = SponsoredGoalSerializer()
+
+    class Meta:
+        model = Payment
+        fields = ('goal', 'user')
+
+
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     donee_notification = serializers.BooleanField(write_only=True)
     account_activity = serializers.BooleanField(write_only=True)
@@ -73,12 +96,13 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     NGO_role_assign = serializers.BooleanField(write_only=True)
     user_notification = NotificationSerializer(many=True, read_only=True)
     user_profile = ProfileSerializer(read_only=True)
+    user_payment = UserPaymentSerializer(read_only=True, many=True)
 
     class Meta:
         model = User
         model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image', 'user_notification']
         extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
-                        'NGO_role_assign', 'user_profile']
+                        'NGO_role_assign', 'user_profile', 'user_payment']
         fields = model_fields + extra_fields
 
     def to_representation(self, instance):

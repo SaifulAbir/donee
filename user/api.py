@@ -3,6 +3,8 @@ from rest_framework import serializers
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
+
+from payment.models import Payment
 from user.models import User, Profile, Country,Notification
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer
@@ -17,7 +19,9 @@ class UserUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = UserProfileUpdateSerializer
 
     def get_object(self):
-        user = User.objects.filter(id=self.request.user.id).prefetch_related(Prefetch('user_notification',queryset = Notification.objects.filter(profile__isnull=True)))
+        user = User.objects.filter(id=self.request.user.id).prefetch_related(
+            Prefetch('user_notification',queryset = Notification.objects.filter(profile__isnull=True))).prefetch_related(
+            Prefetch("user_payment", queryset=Payment.objects.filter(status="PAID").distinct('goal')))
         return user.first()
 
     def put(self, request, *args, **kwargs):
