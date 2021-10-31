@@ -174,4 +174,19 @@ class Comment(DoneeModel):
         return self.goal.title
 
 
+class GoalSave(DoneeModel):
+    user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='goalsave_user')
+    goal = models.ForeignKey(Goal, on_delete=models.PROTECT, related_name = 'saved_goal')
+    is_saved = models.BooleanField(default=False)
+    has_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name ='goalsave_has_profile',null=True,blank=True)
+
+
+    class Meta:
+        verbose_name = 'GoalSave'
+        verbose_name_plural = 'GoalSaves'
+        db_table = 'goalsave'
+
+    def __str__(self):
+        return self.goal.title
+
 

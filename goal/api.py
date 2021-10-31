@@ -9,10 +9,13 @@ from Donee.settings import MEDIA_URL
 from goal.serializers import PopularGoalSerializer, SearchSerializer
 from goal.models import SDGS, Goal, GoalSDGS, Like, Comment
 from payment.models import Payment
+from goal.models import SDGS, Goal, GoalSDGS, GoalSave,Like,Comment
 from user.models import User, Profile
-from goal.serializers import GoalCommentSerializer, GoalLikeSerializer, SDGSSerializer, GoalSerializer, GoalListSerializer, SingleCatagorySerializer
+from goal.serializers import GoalCommentSerializer, GoalLikeSerializer, GoalSaveSerializer, SDGSSerializer, GoalSerializer, GoalListSerializer, SingleCatagorySerializer
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
+
 
 
 class SDGSListAPI(ListAPIView):
@@ -117,43 +120,51 @@ class GoalLikeAPI(CreateAPIView):
     queryset = Like.objects.all()
 
     def create(self, request, *args, **kwargs):
-        user = User.objects.get(id = self.request.user.id)
-        goal = Goal.objects.get(id = self.request.data['goal'])
-        check_like = Like.objects.filter(user = self.request.user.id,goal = self.request.data['goal'])
-        check_profile = Profile.objects.filter(user = self.request.user.id)
-        if check_like.exists() and check_like.first().is_like == True:
-            obj = check_like.first()
-            obj.is_like = False
-            obj.save()
-            goal_obj = goal
-            goal_obj.total_like_count -=1
-            goal_obj.save()
-            return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":False,}, status=status.HTTP_200_OK)
-        if check_like.exists() and check_like.first().is_like == False:
-            obj = check_like.first()
-            obj.is_like = True
-            obj.save()
-            goal_obj = goal
-            goal_obj.total_like_count +=1
-            goal_obj.save()
-            return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_200_OK)
+        if self.request.data =={} :
+            raise ValidationError({"error":'must provide a goal id!'})
         else:
-            if check_profile.exists():
-                profile_obj = check_profile.first()
-                goal_obj = goal
-                goal_obj.total_like_count +=1
-                goal_obj.save()
-                likeobj =  Like(user = user,goal = goal,is_like = True,created_by =user.username,has_profile=profile_obj)
-                likeobj.save()
-                return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_201_CREATED)
+            if isinstance(self.request.data['goal'], int):
+                user = User.objects.get(id = self.request.user.id)
+                goal = Goal.objects.get(id = self.request.data['goal'])
+                check_like = Like.objects.filter(user = self.request.user.id,goal = self.request.data['goal'])
+                check_profile = Profile.objects.filter(user = self.request.user.id)
+                if check_like.exists() and check_like.first().is_like == True:
+                    obj = check_like.first()
+                    obj.is_like = False
+                    obj.save()
+                    goal_obj = goal
+                    goal_obj.total_like_count -=1
+                    goal_obj.save()
+                    return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":False,}, status=status.HTTP_200_OK)
+                if check_like.exists() and check_like.first().is_like == False:
+                    obj = check_like.first()
+                    obj.is_like = True
+                    obj.save()
+                    goal_obj = goal
+                    goal_obj.total_like_count +=1
+                    goal_obj.save()
+                    return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_200_OK)
+                else:
+                    if check_profile.exists():
+                        profile_obj = check_profile.first()
+                        goal_obj = goal
+                        goal_obj.total_like_count +=1
+                        goal_obj.save()
+                        likeobj =  Like(user = user,goal = goal,is_like = True,created_by =user.username,has_profile=profile_obj)
+                        likeobj.save()
+                        return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_201_CREATED)
+                    else:
+                        goal_obj = goal
+                        goal_obj.total_like_count +=1
+                        goal_obj.save()
+                        likeobj= Like(user = user,goal = goal,is_like = True,created_by =user.username)
+                        likeobj.save()
+                        return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_201_CREATED)
+                # return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
-                goal_obj = goal
-                goal_obj.total_like_count +=1
-                goal_obj.save()
-                likeobj= Like(user = user,goal = goal,is_like = True,created_by =user.username)
-                likeobj.save()
-                return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_201_CREATED)
-        # return Response(serializer.data, status=status.HTTP_201_CREATED)
+                raise ValidationError({"error":'must provide integer goal id!'})
+    
+
 
 
 class GoalCommentAPI(CreateAPIView):
@@ -161,22 +172,69 @@ class GoalCommentAPI(CreateAPIView):
     queryset = Comment.objects.all()
 
     def create(self, request, *args, **kwargs):
-        user = User.objects.get(id = self.request.user.id)
-        goal = Goal.objects.get(id = self.request.data['goal'])
-        check_profile = Profile.objects.filter(user = self.request.user.id)
-
-        if check_profile.exists():
-            profile_obj = check_profile.first()
-            comment_obj = Comment(user = user,goal = goal,created_by =user.username,has_profile =profile_obj)
-            comment_obj.save()
-            goal_obj = goal
-            goal_obj.total_comment_count +=1
-            goal_obj.save()
-            return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"text":self.request.data["text"]}, status=status.HTTP_201_CREATED)
+        if self.request.data =={} :
+            raise ValidationError({"error":'must provide a goal id!'})
         else:
-            comment_obj = Comment(user = user,goal = goal,created_by =user.username)
-            comment_obj.save()
-            goal_obj = goal
-            goal_obj.total_comment_count +=1
-            goal_obj.save()
-            return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"text":self.request.data["text"]}, status=status.HTTP_201_CREATED)
+            if isinstance(self.request.data['goal'], int) and 'text' in self.request.data:
+                user = User.objects.get(id = self.request.user.id)
+                try:
+                    goal = Goal.objects.get(id = self.request.data['goal'])
+                    check_profile = Profile.objects.filter(user = self.request.user.id)
+                    if check_profile.exists():
+                        profile_obj = check_profile.first()
+                        comment_obj = Comment(user = user,goal = goal,created_by =user.username,text=self.request.data['text'],has_profile =profile_obj)
+                        comment_obj.save()
+                        goal_obj = goal
+                        goal_obj.total_comment_count +=1
+                        goal_obj.save()
+                        return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"text":self.request.data["text"]}, status=status.HTTP_201_CREATED)
+                    else:
+                        comment_obj = Comment(user = user,goal = goal,text=self.request.data['text'],created_by =user.username)
+                        comment_obj.save()
+                        goal_obj = goal
+                        goal_obj.total_comment_count +=1
+                        goal_obj.save()
+                        return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"text":self.request.data["text"]}, status=status.HTTP_201_CREATED)
+                except Goal.DoesNotExist:
+                     raise ValidationError({"error":"goal not exist!"})
+            else:
+                raise ValidationError({"error":'must provide integer goal id and text .'})
+
+
+
+
+class GoalSaveAPI(CreateAPIView):
+    serializer_class = GoalSaveSerializer
+    queryset = GoalSave.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        if self.request.data =={} :
+            raise ValidationError({"error":'must provide a goal id!'})
+        else:
+            user = User.objects.get(id = self.request.user.id)
+            goal = Goal.objects.get(id = self.request.data['goal'])
+            check_save = GoalSave.objects.filter(user = self.request.user.id,goal = self.request.data['goal'])
+            check_profile = Profile.objects.filter(user = self.request.user.id)
+            if check_save.exists() and check_save.first().is_saved == True:
+                obj = check_save.first()
+                obj.is_saved = False
+                obj.save()
+                return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_saved":False,}, status=status.HTTP_200_OK)
+            if check_save.exists() and check_save.first().is_saved == False:
+                obj = check_save.first()
+                obj.is_saved = True
+                obj.save()
+                return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_saved":True,}, status=status.HTTP_200_OK)
+            else:
+                if check_profile.exists():
+                    profile_obj = check_profile.first()
+                    savedobj =  GoalSave(user = user,goal = goal,is_saved = True,created_by =user.username,has_profile=profile_obj)
+                    savedobj.save()
+                    return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_saved":True,}, status=status.HTTP_201_CREATED)
+                else:
+                    savedobj= GoalSave(user = user,goal = goal,is_saved = True,created_by =user.username)
+                    savedobj.save()
+                    return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_saved":True,}, status=status.HTTP_201_CREATED)
+        
+    
+
