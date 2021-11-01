@@ -1,5 +1,6 @@
 from itertools import chain
-from django.db.models import Q, Count, Value, F, CharField, Prefetch, Subquery, Max, Min
+from django.db.models import Q, Count, Value, F, CharField, Prefetch, Subquery, Max, Min, ExpressionWrapper, \
+    IntegerField
 from django.db.models.functions import Concat
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
@@ -35,15 +36,16 @@ class GoalRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     lookup_url_kwarg = "slug"
 
     def get_queryset(self):
+        slug = self.kwargs['slug']
+        payment = Payment.objects.filter(goal=Goal.objects.get(slug=slug), status="PAID").order_by('user', '-created_at').distinct('user')
         query = Goal.objects.filter(status='PUBLISHED').annotate(
             donor_count=Count(
                 Concat('goal_payment__goal', 'goal_payment__user'),
                 filter=Q(goal_payment__status='PAID'),
                 distinct=True
             ) - 1
-        ).annotate(last_donor = Min('goal_payment__user', filter=Q(goal_payment__status="PAID"))).prefetch_related(
-        Prefetch("goal_payment", queryset=Payment.objects.filter(status="PAID").distinct('user')))
-        print(query)
+        ).prefetch_related(
+        Prefetch("goal_payment", queryset=Payment.objects.filter(id__in=payment).order_by('-created_at')))
         return query
 
     def put(self, request, *args, **kwargs):
@@ -84,7 +86,8 @@ class SupportedGoalAPI(ListAPIView):
     serializer_class = PopularGoalSerializer
 
     def get_queryset(self):
-        queryset = Goal.objects.filter(goal_payment__user=self.request.user, goal_payment__status="PAID").distinct()
+        queryset = Goal.objects.filter(goal_payment__user=self.request.user, goal_payment__status="PAID").distinct().\
+            annotate(percentage = ExpressionWrapper((F('paid_amount')/F("total_amount"))*100, output_field=IntegerField()))
         return queryset
 
 

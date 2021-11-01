@@ -29,7 +29,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'image']
+        fields = ['id', 'username', 'image']
 
 
 class NotificationSerializer(serializers.ModelSerializer):

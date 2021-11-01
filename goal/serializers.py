@@ -71,10 +71,11 @@ class GoalCommentGetSerializer(serializers.ModelSerializer):
 class PopularGoalSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
     payment_count = serializers.CharField(read_only=True)
+    percentage = serializers.IntegerField(read_only=True)
     class Meta:
         model = Goal
-        fields = ['id', 'title','slug', 'short_description', 'image',
-                  'profile', 'status', 'payment_count']
+        fields = ['id', 'title','slug', 'short_description', 'image', 'paid_amount',
+                  'profile', 'payment_count', 'total_amount', 'percentage']
 
 
 class GoalSerializer(serializers.ModelSerializer):
@@ -89,7 +90,6 @@ class GoalSerializer(serializers.ModelSerializer):
     goal_comment = GoalCommentGetSerializer(many=True,read_only=True)
     goal_likes = serializers.SerializerMethodField()
     donor_count = serializers.CharField(read_only=True)
-    last_donor_username = serializers.CharField(read_only=True)
     goal_payment = GoalPaymentSerializer(read_only=True, many=True)
 
 
@@ -98,7 +98,7 @@ class GoalSerializer(serializers.ModelSerializer):
         model = Goal
         fields = ['id', 'title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
                   'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
-                  'profile_image','status', 'pgw_amount', 'paid_amount', 'donor_count', 'last_donor_username', "goal_payment",
+                  'profile_image','status', 'pgw_amount', 'paid_amount', 'donor_count', "goal_payment",
                   'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media','goal_likes','goal_comment']
         read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'slug', 'ngo_amount',
                             'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',
