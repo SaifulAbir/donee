@@ -88,10 +88,19 @@ class GoalCommentGetSerializer(serializers.ModelSerializer):
         return rep
 
 
+class PopularGoalSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
+    payment_count = serializers.CharField(read_only=True)
+    percentage = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Goal
+        fields = ['id', 'title', 'slug', 'short_description', 'image', 'paid_amount',
+                  'profile', 'payment_count', 'total_amount', 'percentage']
 
 
 class GoalSaveSerializer(serializers.ModelSerializer):
-   
+
     class Meta:
         model = GoalSave
         fields = ['goal']
@@ -111,14 +120,16 @@ class GoalSerializer(serializers.ModelSerializer):
     goal_likes = serializers.SerializerMethodField()
     is_liked = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
-    
-    
+    donor_count = serializers.CharField(read_only=True)
+    goal_payment = GoalPaymentSerializer(read_only=True, many=True)
+
+
 
     class Meta:
         model = Goal
         fields = ['id', 'title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
                   'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
-                  'profile_image','status', 'pgw_amount', 'paid_amount',
+                  'profile_image','status', 'pgw_amount', 'paid_amount', 'donor_count', "goal_payment",
                   'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media','goal_likes','is_liked','goal_comment','is_saved']
         read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'slug', 'ngo_amount',
                             'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',
@@ -188,7 +199,7 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
     ngo_username = serializers.SerializerMethodField()
     profile_username = serializers.CharField(source='goal.profile',read_only=True)
     profile_image = serializers.ImageField(source="goal.profile.image",read_only=True)
-    
+
     class Meta:
         model = GoalSDGS
         fields ='__all__'
