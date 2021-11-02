@@ -1,8 +1,6 @@
 import decimal
-
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-
 from .models import *
 from .utils import paypal_token, payment
 
@@ -89,6 +87,15 @@ class TransactionSerializer(serializers.ModelSerializer):
                                                           previous_paid_amount=goal_obj.first().paid_amount,
                                                           created_by=self.context['request'].user.id)
         payment_obj.update(status="PAID")
+
+        # Total donation by user
+        user = User.objects.filter(id=self.context['request'].user.id)
+        previous_donated_amount = user.first().total_donated_amount
+        total_donated_amount = decimal.Decimal(paid_amount)
+        if previous_donated_amount:
+            total_donated_amount = previous_donated_amount + decimal.Decimal(paid_amount)
+        user.update(total_donated_amount=total_donated_amount)
+
 
         # Distribution Start
         pgw_amount = round((goal_obj.first().pgw_percentage * float(paid_amount)) / 100, 2)
