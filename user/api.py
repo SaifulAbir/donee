@@ -2,13 +2,13 @@ from django.db.models import Count, Q
 from django.db.models.functions import Concat
 from django.db.models.query import Prefetch
 from rest_framework import serializers
-from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from payment.models import Payment
 from user.models import User, Profile, Country,Notification
 from user.serializers import UserProfileUpdateSerializer, \
-    DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer
+    DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, DonorProfileSerializer
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -39,6 +39,12 @@ class UserUpdateAPIView(RetrieveUpdateAPIView):
             return self.update(request, *args, **kwargs)
         except KeyError:
             return self.update(request, *args, **kwargs)
+
+
+class DonorProfileAPIView(RetrieveAPIView):
+    serializer_class = DonorProfileSerializer
+    queryset = User.objects.all()
+    permission_classes = [AllowAny, ]
 
 
 class DoneeAndNgoProfileCreateAPIView(CreateAPIView):

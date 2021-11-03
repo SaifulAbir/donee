@@ -144,6 +144,22 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ('id', 'name')
+
+
+class DonorProfileSerializer(serializers.ModelSerializer):
+    country = CountrySerializer(read_only=True)
+
+    class Meta:
+        model = User
+        model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image',
+                        'total_donated_amount']
+        fields = model_fields
+
+
 class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     from goal.serializers import ProfileGoalSerializer
     donee_notification = serializers.BooleanField(write_only=True)
@@ -210,12 +226,6 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
                                 modified_by=self.context['request'].user.id,
                                 modified_at=timezone.now())
         return super().update(instance, validated_data)
-
-
-class CountrySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Country
-        fields = ('id', 'name')
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
