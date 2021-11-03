@@ -1,13 +1,13 @@
 from itertools import chain
 from django.db.models import Q, Count, Value, F, CharField, Prefetch, Subquery, Max, Min, ExpressionWrapper, \
     IntegerField
-from django.db.models.functions import Concat
+from django.db.models.functions import Concat, text
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from Donee.pagination import CustomPagination
 from Donee.settings import MEDIA_URL
-from goal.serializers import PopularGoalSerializer, SearchSerializer
+from goal.serializers import GoalCommentCreateSerializer, PopularGoalSerializer, SearchSerializer
 from goal.models import SDGS, Goal, GoalSDGS, Like, Comment
 from payment.models import Payment
 from goal.models import SDGS, Goal, GoalSDGS, GoalSave,Like,Comment
@@ -241,3 +241,6 @@ class GoalSaveAPI(CreateAPIView):
         
     
 
+class GoalCommentCreateAPIView(CreateAPIView):
+    serializer_class = GoalCommentCreateSerializer
+    

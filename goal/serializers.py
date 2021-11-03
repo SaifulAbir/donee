@@ -75,9 +75,32 @@ class GoalCommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['goal','text']
 
+class GoalCommentCreateSerializer(serializers.ModelSerializer):
+
+    # profile_username = serializers.CharField(source="profile.username", read_only=True)
+
+    class Meta: 
+        model = Comment
+        fields = ['goal','text', 'user', 'profile']
+        read_only_fields = ('user', 'profile')
+        
+
+    def create(self, validated_data):
+        
+        # if Profile.objects.filter(user= self.context['request'].user).exists():
+            
+        comment_instance = Comment.objects.create(**validated_data, user=self.context['request'].user,
+                                    created_by=self.context['request'].user.id)
+        
+        return comment_instance
+    
+    
+
+
 
 class GoalCommentGetSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(source='user.image')
+    
     class Meta:
         model = Comment
         fields = ['user','text','profile_image','created_at']

@@ -162,7 +162,7 @@ class Comment(DoneeModel):
     user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='comment_user')
     goal = models.ForeignKey(Goal, on_delete=models.PROTECT, related_name = 'goal_comment')
     text = models.TextField()
-    has_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name ='comment_has_profile',null=True,blank=True)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name ='profile_comment',null=True,blank=True)
 
 
     class Meta:
