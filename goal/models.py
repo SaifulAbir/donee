@@ -46,7 +46,7 @@ class Goal(DoneeModel):
     total_amount = models.DecimalField(max_digits=19, decimal_places=2)
     paid_amount = models.DecimalField(max_digits=19, decimal_places=2, default=0)
     status = models.CharField(max_length=20, choices=GOAL_STATUSES, default=GOAL_STATUSES[0][0])
-    profile = models.ForeignKey(Profile, on_delete=models.PROTECT)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name="profile_goal")
     total_like_count = models.IntegerField(default=0)
     total_comment_count = models.IntegerField(default=0)
 

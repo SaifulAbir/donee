@@ -29,7 +29,7 @@ class GoalPaymentSerializer(serializers.ModelSerializer):
 class MediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Media
-        fields = ['type', 'file', 'status']
+        fields = ['id', 'type', 'file', 'status']
 
 
 class GoalListSerializer(serializers.ModelSerializer):
@@ -120,6 +120,19 @@ class PopularGoalSerializer(serializers.ModelSerializer):
         model = Goal
         fields = ['id', 'title', 'slug', 'short_description', 'image', 'paid_amount',
                   'profile', 'payment_count', 'total_amount', 'percentage']
+
+
+class ProfileGoalSerializer(serializers.ModelSerializer):
+    media = serializers.SerializerMethodField('get_videos')
+
+    def get_videos(self, goal):
+        queryset = Media.objects.filter(type="video", goal=goal)
+        serializer = MediaSerializer(instance=queryset, many=True)
+        return serializer.data
+
+    class Meta:
+        model = Goal
+        fields = ['id', 'title', 'slug', 'image', 'media']
 
 
 class GoalSaveSerializer(serializers.ModelSerializer):

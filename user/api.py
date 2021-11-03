@@ -1,9 +1,10 @@
+from django.db.models import Count, Q
+from django.db.models.functions import Concat
 from django.db.models.query import Prefetch
 from rest_framework import serializers
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
-
 from payment.models import Payment
 from user.models import User, Profile, Country,Notification
 from user.serializers import UserProfileUpdateSerializer, \
@@ -21,7 +22,13 @@ class UserUpdateAPIView(RetrieveUpdateAPIView):
     def get_object(self):
         user = User.objects.filter(id=self.request.user.id).prefetch_related(
             Prefetch('user_notification',queryset = Notification.objects.filter(profile__isnull=True))).prefetch_related(
-            Prefetch("user_payment", queryset=Payment.objects.filter(status="PAID").distinct('goal')))
+            Prefetch("user_payment", queryset=Payment.objects.filter(status="PAID").distinct('goal'))).annotate(
+            total_supported_goals=Count(
+                Concat('user_payment__user', 'user_payment__goal'),
+                filter=Q(user_payment__status='PAID'),
+                distinct=True
+            )
+        )
         return user.first()
 
     def put(self, request, *args, **kwargs):

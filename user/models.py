@@ -73,6 +73,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     image = models.ImageField(default='images/demo.png', upload_to='images/user_profile_pictures')
     is_staff = models.BooleanField(_('staff status'),default=False,)
     is_active = models.BooleanField(_('active'),default=True,)
+    total_donated_amount = models.DecimalField(max_digits=19, decimal_places=2, default=0)
     is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     modified_at = models.DateTimeField(null=True)

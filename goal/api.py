@@ -101,15 +101,15 @@ class SearchAPIView(APIView):
         if query:
             goals = Goal.objects.filter(title__icontains=query). \
                 annotate(img=Concat(Value(MEDIA_URL), 'image', output_field=CharField())). \
-                values("title", "img", uid=F("slug")).annotate(type = Value("goal"))
+                values("title", "img", uid=F("slug")).annotate(type = Value("GOAL"))
 
             profiles = Profile.objects.filter(full_name__icontains=query). \
                 annotate(img=Concat(Value(MEDIA_URL), 'image', output_field=CharField())). \
-                values("img", uid=F("id"), title=F("full_name")).annotate(type = Value("profile"))
+                values("img", uid=F("id"), title=F("full_name")).annotate(type = F("profile_type"))
 
             users = User.objects.filter(full_name__icontains=query). \
                 annotate(img=Concat(Value(MEDIA_URL), 'image', output_field=CharField())). \
-                values("img", uid=F("id"), title=F("full_name")).annotate(type = Value("user"))
+                values("img", uid=F("id"), title=F("full_name")).annotate(type = Value("USER"))
 
             search_result = list(chain(goals, profiles, users))
         else:

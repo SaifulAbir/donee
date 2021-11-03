@@ -94,15 +94,17 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     achieved_goals = serializers.BooleanField(write_only=True)
     new_followers = serializers.BooleanField(write_only=True)
     NGO_role_assign = serializers.BooleanField(write_only=True)
+    total_supported_goals = serializers.CharField(read_only=True)
     user_notification = NotificationSerializer(many=True, read_only=True)
     user_profile = ProfileSerializer(read_only=True)
     user_payment = UserPaymentSerializer(read_only=True, many=True)
 
     class Meta:
         model = User
-        model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image', 'user_notification']
+        model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image', 'user_notification',
+                        'total_donated_amount']
         extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
-                        'NGO_role_assign', 'user_profile', 'user_payment']
+                        'NGO_role_assign', 'user_profile', 'user_payment', 'total_supported_goals']
         fields = model_fields + extra_fields
 
     def to_representation(self, instance):
@@ -143,6 +145,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
 
 class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
+    from goal.serializers import ProfileGoalSerializer
     donee_notification = serializers.BooleanField(write_only=True)
     account_activity = serializers.BooleanField(write_only=True)
     donee_activity = serializers.BooleanField(write_only=True)
@@ -151,6 +154,7 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     NGO_role_assign = serializers.BooleanField(write_only=True)
     profile_notification = NotificationSerializer(many=True, read_only=True)
     profile_wallet = WalletSerializer(many=True, read_only=True)
+    profile_goal = ProfileGoalSerializer(read_only=True, many=True)
     profile_sdgs = ProfileSDGSSerializer(many=True, read_only=True)
     sdgs = serializers.PrimaryKeyRelatedField(queryset=SDGS.objects.all(), many=True, write_only=True)
 
