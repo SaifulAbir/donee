@@ -89,22 +89,22 @@ class UserFollowUserAPI(CreateAPIView):
                 follow_user = User.objects.get(id = self.request.data['follow_user'])
                 check_follow = UserFollow.objects.filter(user = self.request.user.id,follow_user = self.request.data['follow_user']) #check follower user
                 check_profile = Profile.objects.filter(user = self.request.user.id)
-                if check_follow.exists() and check_follow.first().is_follow == True:
+                if check_follow.exists() and check_follow.first().is_followed == True:
                     obj = check_follow.first()
-                    obj.is_follow = False
+                    obj.is_followed = False
                     obj.save()
                     follow_user_obj = follow_user
                     follow_user.total_follow_count -=1
                     follow_user_obj.save()
-                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_user":self.request.data["follow_user"],"is_follow":False,}, status=status.HTTP_200_OK)
-                if check_follow.exists() and check_follow.first().is_follow == False:
+                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_user":self.request.data["follow_user"],"is_followed":False,}, status=status.HTTP_200_OK)
+                if check_follow.exists() and check_follow.first().is_followed == False:
                     obj = check_follow.first()
-                    obj.is_follow = True
+                    obj.is_followed = True
                     obj.save()
                     follow_user_obj = follow_user
                     follow_user_obj.total_follow_count +=1
                     follow_user_obj.save()
-                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_user":self.request.data["follow_user"],"is_follow":True,}, status=status.HTTP_200_OK)
+                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_user":self.request.data["follow_user"],"is_followed":True,}, status=status.HTTP_200_OK)
                 
                 if check_profile.exists():
                       raise ValidationError({"follow_user":'profile id is not allowed'})  
@@ -112,9 +112,9 @@ class UserFollowUserAPI(CreateAPIView):
                     follow_user_obj = follow_user
                     follow_user_obj.total_follow_count +=1
                     follow_user_obj.save()
-                    followobj= UserFollow(user = user,follow_user = follow_user,is_follow = True,created_by =user.username)
+                    followobj= UserFollow(user = user,follow_user = follow_user,is_followed = True,created_by =user.username)
                     followobj.save()
-                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_user":self.request.data["follow_user"],"is_follow":True,}, status=status.HTTP_201_CREATED)
+                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_user":self.request.data["follow_user"],"is_followed":True,}, status=status.HTTP_201_CREATED)
             else:
                 raise ValidationError({"follow_user":'must provide integer user id!'})
 
@@ -133,22 +133,22 @@ class UserFollowProfileAPI(CreateAPIView):
                 follow_profile = Profile.objects.get(id = self.request.data['follow_profile'])
                 check_follow = ProfileFollow.objects.filter(user = self.request.user.id,follow_profile = self.request.data['follow_profile'])  #check follower user
                 check_profile = Profile.objects.filter(user = self.request.user.id)
-                if check_follow.exists() and check_follow.first().is_follow == True:
+                if check_follow.exists() and check_follow.first().is_followed == True:
                     obj = check_follow.first()
-                    obj.is_follow = False
+                    obj.is_followed = False
                     obj.save()
                     follow_profile_obj = follow_profile
                     follow_profile.total_follow_count -=1
                     follow_profile_obj.save()
-                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_follow":False,}, status=status.HTTP_200_OK)
-                if check_follow.exists() and check_follow.first().is_follow == False:
+                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":False,}, status=status.HTTP_200_OK)
+                if check_follow.exists() and check_follow.first().is_followed == False:
                     obj = check_follow.first()
-                    obj.is_follow = True
+                    obj.is_followed = True
                     obj.save()
                     follow_profile_obj = follow_profile
                     follow_profile_obj.total_follow_count +=1
                     follow_profile_obj.save()
-                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_follow":True,}, status=status.HTTP_200_OK)
+                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":True,}, status=status.HTTP_200_OK)
                 
                 if check_profile.exists():
                       raise ValidationError({"follow_profile":'profile id is not allowed'})  
@@ -156,8 +156,8 @@ class UserFollowProfileAPI(CreateAPIView):
                     follow_profile_obj = follow_profile
                     follow_profile_obj.total_follow_count +=1
                     follow_profile_obj.save()
-                    followobj= ProfileFollow(user = user,follow_profile = follow_profile,is_follow = True,created_by =user.username)
+                    followobj= ProfileFollow(user = user,follow_profile = follow_profile,is_followed = True,created_by =user.username)
                     followobj.save()
-                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_follow":True,}, status=status.HTTP_201_CREATED)
+                    return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":True,}, status=status.HTTP_201_CREATED)
             else:
                 raise ValidationError({"follow_profile":'must provide integer user id!'})

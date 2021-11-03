@@ -192,13 +192,13 @@ class ProfileSDGS(DoneeModel):
 class UserFollow(DoneeModel):
     user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='user') #follower user
     follow_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name = 'follow_user') #followed user
-    is_follow = models.BooleanField(default=False)
+    is_followed = models.BooleanField(default=False)
     
 
     class Meta:
         verbose_name = 'Follow'
         verbose_name_plural = 'Follows'
-        db_table = 'userfollow'
+        db_table = 'user_follow'
 
     def __str__(self):
         return self.follow_user.username
@@ -206,13 +206,13 @@ class UserFollow(DoneeModel):
 class ProfileFollow(DoneeModel):
     user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='user_user') #follower user
     follow_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name = 'follow_profile') #followed profile
-    is_follow = models.BooleanField(default=False)
+    is_followed = models.BooleanField(default=False)
     
 
     class Meta:
         verbose_name = 'Follow'
         verbose_name_plural = 'Follows'
-        db_table = 'profilefollow'
+        db_table = 'profile_follow'
 
     def __str__(self):
         return self.follow_profile.username
