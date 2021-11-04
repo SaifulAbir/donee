@@ -1,4 +1,4 @@
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from django.db.models.functions import Concat
 from django.db.models.query import Prefetch
 from rest_framework import serializers
@@ -8,7 +8,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from payment.models import Payment
 from user.models import User, Profile, Country,Notification
 from user.serializers import UserProfileUpdateSerializer, \
-    DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, DonorProfileSerializer
+    DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
+    DonorProfileSerializer, DoneeAndNGOProfileSerializer
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -45,6 +46,24 @@ class DonorProfileAPIView(RetrieveAPIView):
     serializer_class = DonorProfileSerializer
     queryset = User.objects.all()
     permission_classes = [AllowAny, ]
+
+
+class DoneeAndNGOProfileAPIView(RetrieveAPIView):
+    serializer_class = DoneeAndNGOProfileSerializer
+    permission_classes = [AllowAny, ]
+
+    def get_queryset(self):
+        queryset = Profile.objects.annotate(
+            total_donor=Count(
+                Concat('profile_goal__goal_payment__goal', 'profile_goal__goal_payment__user'),
+                filter=Q(profile_goal__goal_payment__status='PAID'),
+                distinct=True
+            ),
+            total_completed_goals = Count(
+                'profile_goal', filter=Q(profile_goal__paid_amount=F('profile_goal__total_amount'))
+            )
+        )
+        return queryset
 
 
 class DoneeAndNgoProfileCreateAPIView(CreateAPIView):

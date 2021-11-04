@@ -160,6 +160,17 @@ class DonorProfileSerializer(serializers.ModelSerializer):
         fields = model_fields
 
 
+class DoneeAndNGOProfileSerializer(serializers.ModelSerializer):
+    total_donor = serializers.CharField(read_only=True)
+    total_completed_goals = serializers.CharField(read_only=True)
+    country = CountrySerializer(read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = '__all__'
+        extra_fields = ['total_donor', 'total_completed_goals']
+
+
 class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     from goal.serializers import ProfileGoalSerializer
     donee_notification = serializers.BooleanField(write_only=True)
