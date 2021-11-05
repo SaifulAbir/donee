@@ -78,6 +78,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     modified_at = models.DateTimeField(null=True)
     is_modified = models.BooleanField(default=False)
+    total_follow_count = models.IntegerField(default=0)
 
     objects = UserManager()
 
@@ -123,6 +124,7 @@ class Profile(models.Model):
     is_approved= models.BooleanField(default=False)
     view_count= models.PositiveIntegerField(default=0)
     plan_id= models.ForeignKey(Plan, on_delete=models.PROTECT, null=True, blank=True)
+    total_follow_count = models.IntegerField(default=0)
     created_at= models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -185,3 +187,32 @@ class ProfileSDGS(DoneeModel):
         verbose_name = 'ProfileSDGS'
         verbose_name_plural = 'ProfileSDGS'
         db_table = 'profile_sdgs'
+
+
+class UserFollow(DoneeModel):
+    user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='user') #follower user
+    follow_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name = 'follow_user') #followed user
+    is_followed = models.BooleanField(default=False)
+    
+
+    class Meta:
+        verbose_name = 'Follow'
+        verbose_name_plural = 'Follows'
+        db_table = 'user_follow'
+
+    def __str__(self):
+        return self.follow_user.username
+
+class ProfileFollow(DoneeModel):
+    user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='user_user') #follower user
+    follow_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name = 'follow_profile') #followed profile
+    is_followed = models.BooleanField(default=False)
+    
+
+    class Meta:
+        verbose_name = 'Follow'
+        verbose_name_plural = 'Follows'
+        db_table = 'profile_follow'
+
+    def __str__(self):
+        return self.follow_profile.username

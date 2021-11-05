@@ -258,4 +258,16 @@ class VerifyInvitationSerializer(serializers.Serializer):
    
    check_id = serializers.CharField(max_length=10)
    
-    
+
+class UserFollowUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserFollow
+        fields = '__all__'    
+
+
+class UserFollowProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProfileFollow
+        fields = '__all__'   
