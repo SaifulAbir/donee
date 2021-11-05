@@ -36,6 +36,9 @@ class GoalListSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
     is_liked = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
+    
+    
+    
     class Meta:
         model = Goal
         fields = ['id', 'title','slug', 'short_description', 'buying_item', 'online_source_url', 'image',
@@ -66,14 +69,23 @@ class GoalLikeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Like
-        fields = ['goal']
+        fields = ['user', 'goal' ,'is_like', 'profile' ]
+        read_only_fields = ('user', 'profile')
 
+
+    
+   
+            
+
+
+                
 
 class GoalCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['goal','text']
+        fields = ['goal','text','user', 'profile']
+        read_only_fields = ('user', 'profile')
 
 class GoalCommentCreateSerializer(serializers.ModelSerializer):
 
@@ -88,10 +100,8 @@ class GoalCommentCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         
         # if Profile.objects.filter(user= self.context['request'].user).exists():
-            
         comment_instance = Comment.objects.create(**validated_data, user=self.context['request'].user,
                                     created_by=self.context['request'].user.id)
-        
         return comment_instance
     
     
@@ -100,6 +110,7 @@ class GoalCommentCreateSerializer(serializers.ModelSerializer):
 
 class GoalCommentGetSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(source='user.image')
+    created_at = serializers.DateTimeField()
     
     class Meta:
         model = Comment
@@ -140,6 +151,7 @@ class GoalSaveSerializer(serializers.ModelSerializer):
     class Meta:
         model = GoalSave
         fields = ['goal']
+        read_only_fields=('user', 'profile', )
 
 
 
@@ -153,7 +165,7 @@ class GoalSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(source="profile.image",read_only=True)
     ngo_username = serializers.SerializerMethodField()
     goal_comment = GoalCommentGetSerializer(many=True,read_only=True)
-    goal_likes = serializers.SerializerMethodField()
+    goal_likes = GoalLikeSerializer(read_only=True)
     is_liked = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
     donor_count = serializers.CharField(read_only=True)
@@ -180,8 +192,8 @@ class GoalSerializer(serializers.ModelSerializer):
             return obj.profile.username
 
     def get_goal_likes(self,obj):
-       likes = Like.objects.filter(goal = obj,is_like = True).count()
-       return likes
+        likes = Like.objects.filter(goal = obj,is_like = True).count()
+        return likes
 
     def get_is_liked(self,obj):
         if self.context['request'].user.is_anonymous :
