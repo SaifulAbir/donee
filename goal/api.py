@@ -118,15 +118,20 @@ class SearchAPIView(APIView):
         return Response({"search_result": serializer.data})
 
 
-class GoalLikeAPI(CreateAPIView):
+class GoalLikeAPIView(CreateAPIView):
     serializer_class = GoalLikeSerializer
     queryset = Like.objects.all()
 
     def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        
+        serializer.is_valid(raise_exception=True)
+        
         if self.request.data =={} :
             raise ValidationError({"error":'must provide a goal id!'})
+        
         else:
-            if isinstance(self.request.data['goal'], int):
+            
                 user = User.objects.get(id = self.request.user.id)
                 goal = Goal.objects.get(id = self.request.data['goal'])
                 check_like = Like.objects.filter(user = self.request.user.id,goal = self.request.data['goal'])
@@ -164,21 +169,24 @@ class GoalLikeAPI(CreateAPIView):
                         likeobj.save()
                         return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_201_CREATED)
                 # return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                raise ValidationError({"error":'must provide integer goal id!'})
+            
     
 
 
 
-class GoalCommentAPI(CreateAPIView):
+class GoalCreateCommentAPI(CreateAPIView):
     serializer_class = GoalCommentSerializer
     queryset = Comment.objects.all()
 
     def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        
+        serializer.is_valid(raise_exception=True)
+        
         if self.request.data =={} :
             raise ValidationError({"error":'must provide a goal id!'})
         else:
-            if isinstance(self.request.data['goal'], int) and 'text' in self.request.data:
+            
                 user = User.objects.get(id = self.request.user.id)
                 try:
                     goal = Goal.objects.get(id = self.request.data['goal'])
@@ -200,8 +208,7 @@ class GoalCommentAPI(CreateAPIView):
                         return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"text":self.request.data["text"]}, status=status.HTTP_201_CREATED)
                 except Goal.DoesNotExist:
                      raise ValidationError({"error":"goal not exist!"})
-            else:
-                raise ValidationError({"error":'must provide integer goal id and text .'})
+            
 
 
 
@@ -209,10 +216,16 @@ class GoalCommentAPI(CreateAPIView):
 class GoalSaveAPI(CreateAPIView):
     serializer_class = GoalSaveSerializer
     queryset = GoalSave.objects.all()
-
+    
     def create(self, request, *args, **kwargs):
-        if self.request.data =={} :
-            raise ValidationError({"error":'must provide a goal id!'})
+        
+        serializer = self.get_serializer(data=request.data)
+        
+        serializer.is_valid(raise_exception=True) 
+        
+        if self.request.data =={}:
+            raise ValidationError({"goal":'this field may not be null'
+            })
         else:
             user = User.objects.get(id = self.request.user.id)
             goal = Goal.objects.get(id = self.request.data['goal'])
@@ -239,8 +252,10 @@ class GoalSaveAPI(CreateAPIView):
                     savedobj.save()
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_saved":True,}, status=status.HTTP_201_CREATED)
         
-    
+
 
 class GoalCommentCreateAPIView(CreateAPIView):
     serializer_class = GoalCommentCreateSerializer
     
+class GoalLikeCreateAPIView(CreateAPIView):
+    serializer_class = GoalLikeSerializer

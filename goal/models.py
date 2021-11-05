@@ -146,7 +146,7 @@ class Like(DoneeModel):
     user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='goal_user')
     goal = models.ForeignKey(Goal, on_delete=models.PROTECT, related_name = 'goal_like')
     is_like = models.BooleanField(default=False)
-    has_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name ='like_has_profile',null=True,blank=True)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name ='profile_like',null=True,blank=True)
 
 
     class Meta:
@@ -178,7 +178,7 @@ class GoalSave(DoneeModel):
     user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='goalsave_user')
     goal = models.ForeignKey(Goal, on_delete=models.PROTECT, related_name = 'saved_goal')
     is_saved = models.BooleanField(default=False)
-    has_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name ='goalsave_has_profile',null=True,blank=True)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name ='profile_goalsave',null=True,blank=True)
 
 
     class Meta:
