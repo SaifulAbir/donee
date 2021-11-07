@@ -25,8 +25,10 @@ class Setting(DoneeModel):
 class Goal(DoneeModel):
     
     GOAL_STATUSES = [
-        ('DRAFT', 'Draft'),
-        ('PUBLISHED', 'Published'),]
+        ('PENDING', 'Pending'),
+        ('ACTIVE', 'Active'),
+        ('REJECTED', 'Rejected'),
+        ('COMPLETED', 'Completed'),]
 
     title = models.CharField(max_length=500)
     slug = models.SlugField(null=False, blank=False, allow_unicode=True)

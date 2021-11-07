@@ -174,4 +174,6 @@ class TransactionSerializer(serializers.ModelSerializer):
         if goal_paid_amount:
             paid_amount = goal_paid_amount + decimal.Decimal(paid_amount)
         goal_obj.update(paid_amount=paid_amount)
+        if goal_obj.first().paid_amount == goal_obj.first().total_amount:
+            goal_obj.update(status="COMPLETED")
         return transaction_instance

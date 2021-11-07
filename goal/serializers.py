@@ -269,6 +269,17 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
         return rep
 
 
+class DashboardGoalCountSerializer(serializers.ModelSerializer):
+    active_goals = serializers.CharField(read_only=True)
+    completed_goals = serializers.CharField(read_only=True)
+    pending_goals = serializers.CharField(read_only=True)
+    rejected_goals = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Goal
+        fields = ['active_goals', 'completed_goals', 'pending_goals', 'rejected_goals']
+
+
 class SearchSerializer(serializers.Serializer):
     uid = serializers.CharField()
     title = serializers.CharField()

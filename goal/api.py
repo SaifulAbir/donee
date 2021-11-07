@@ -2,12 +2,13 @@ from itertools import chain
 from django.db.models import Q, Count, Value, F, CharField, Prefetch, Subquery, Max, Min, ExpressionWrapper, \
     IntegerField
 from django.db.models.functions import Concat, text
-from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from Donee.pagination import CustomPagination
 from Donee.settings import MEDIA_URL
-from goal.serializers import GoalCommentCreateSerializer, PopularGoalSerializer, SearchSerializer
+from goal.serializers import GoalCommentCreateSerializer, PopularGoalSerializer, SearchSerializer, \
+    DashboardGoalCountSerializer
 from goal.models import SDGS, Goal, GoalSDGS, Like, Comment
 from payment.models import Payment
 from goal.models import SDGS, Goal, GoalSDGS, GoalSave,Like,Comment
@@ -41,7 +42,7 @@ class GoalRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     def get_queryset(self):
         slug = self.kwargs['slug']
         payment = Payment.objects.filter(goal=Goal.objects.get(slug=slug), status="PAID").order_by('user', '-created_at').distinct('user')
-        query = Goal.objects.filter(status='PUBLISHED').annotate(
+        query = Goal.objects.filter(status='ACTIVE').annotate(
             donor_count=Count(
                 Concat('goal_payment__goal', 'goal_payment__user'),
                 filter=Q(goal_payment__status='PAID'),
@@ -57,7 +58,7 @@ class GoalRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class GoalListAPI(ListAPIView):
     permission_classes = (AllowAny,)
-    queryset = Goal.objects.filter(status='PUBLISHED').prefetch_related(
+    queryset = Goal.objects.filter(status='ACTIVE').prefetch_related(
         Prefetch("goal_payment", queryset=Payment.objects.filter(status="PAID").distinct())).order_by('-created_at')
     serializer_class = GoalListSerializer
     pagination_class = CustomPagination
@@ -70,7 +71,7 @@ class SingleCatagoryView(ListAPIView):
 
     def get_queryset(self):
         geturl = self.kwargs['id']
-        return GoalSDGS.objects.filter(sdgs__id=geturl,goal__status='PUBLISHED')
+        return GoalSDGS.objects.filter(sdgs__id=geturl,goal__status='ACTIVE')
 
 
 class PopularGoalAPI(ListAPIView):
@@ -81,7 +82,7 @@ class PopularGoalAPI(ListAPIView):
             filter=Q(goal_payment__status='PAID'),
             distinct=True
         )
-    ).filter(status='PUBLISHED').order_by('-payment_count')[:5]
+    ).filter(status='ACTIVE').order_by('-payment_count')[:5]
     serializer_class = PopularGoalSerializer
 
 
@@ -251,11 +252,37 @@ class GoalSaveAPI(CreateAPIView):
                     savedobj= GoalSave(user = user,goal = goal,is_saved = True,created_by =user.username)
                     savedobj.save()
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_saved":True,}, status=status.HTTP_201_CREATED)
-        
 
 
 class GoalCommentCreateAPIView(CreateAPIView):
     serializer_class = GoalCommentCreateSerializer
-    
+
+
 class GoalLikeCreateAPIView(CreateAPIView):
     serializer_class = GoalLikeSerializer
+
+
+class DashboardGoalCountAPIView(RetrieveAPIView):
+    serializer_class = DashboardGoalCountSerializer
+
+    def get_object(self):
+        profile = Profile.objects.get(user=self.request.user)
+        query = Goal.objects.filter(profile=profile, profile__ngo_profile_id = profile.id).annotate(
+            active_goals=Count(
+                'id',
+                filter=Q(status='ACTIVE')
+            ),
+            completed_goals=Count(
+                'id',
+                filter=Q(status='COMPLETED')
+            ),
+            pending_goals=Count(
+                'id',
+                filter=Q(status='PENDING')
+            ),
+            rejected_goals=Count(
+                'id',
+                filter=Q(status='REJECTED')
+            ),
+        )
+        return query
