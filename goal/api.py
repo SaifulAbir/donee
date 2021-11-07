@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from Donee.pagination import CustomPagination
 from Donee.settings import MEDIA_URL
 from goal.serializers import GoalCommentCreateSerializer, PopularGoalSerializer, SearchSerializer, \
-    DashboardGoalCountSerializer
+    DashboardGoalCountSerializer, DashboardGoalListSerializer
 from goal.models import SDGS, Goal, GoalSDGS, Like, Comment
 from payment.models import Payment
 from goal.models import SDGS, Goal, GoalSDGS, GoalSave,Like,Comment
@@ -262,27 +262,49 @@ class GoalLikeCreateAPIView(CreateAPIView):
     serializer_class = GoalLikeSerializer
 
 
-class DashboardGoalCountAPIView(RetrieveAPIView):
-    serializer_class = DashboardGoalCountSerializer
+class DashboardGoalCountAPIView(APIView):
 
-    def get_object(self):
+    def get(self, request):
         profile = Profile.objects.get(user=self.request.user)
-        query = Goal.objects.filter(profile=profile, profile__ngo_profile_id = profile.id).annotate(
+        goals = Goal.objects.filter(Q(profile=profile) | Q(profile__ngo_profile_id = profile.id))
+        active_goals = goals.aggregate(
             active_goals=Count(
                 'id',
                 filter=Q(status='ACTIVE')
             ),
+        )
+        completed_goals = goals.aggregate(
             completed_goals=Count(
                 'id',
                 filter=Q(status='COMPLETED')
             ),
+        )
+        pending_goals = goals.aggregate(
             pending_goals=Count(
                 'id',
                 filter=Q(status='PENDING')
             ),
+        )
+        rejected_goals = goals.aggregate(
             rejected_goals=Count(
                 'id',
                 filter=Q(status='REJECTED')
             ),
         )
-        return query
+
+        try:
+            average_goal_conversion_rate = (completed_goals["completed_goals"]/active_goals["active_goals"])*100
+        except ZeroDivisionError:
+            average_goal_conversion_rate = 0
+
+        goal_count = {**active_goals, **completed_goals, **pending_goals, **rejected_goals, "average_goal_conversion_rate": average_goal_conversion_rate}
+        serializer = DashboardGoalCountSerializer(goal_count, many=False)
+        return Response({"goal_count": serializer.data})
+
+
+class DashboardGoalListAPIView(ListAPIView):
+    serializer_class = DashboardGoalListSerializer
+
+    def get_queryset(self):
+        profile = Profile.objects.get(user=self.request.user)
+        return Goal.objects.filter(Q(profile=profile) | Q(profile__ngo_profile_id = profile.id))

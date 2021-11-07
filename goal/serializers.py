@@ -154,6 +154,13 @@ class GoalSaveSerializer(serializers.ModelSerializer):
         read_only_fields=('user', 'profile', )
 
 
+class DashboardGoalListSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
+
+    class Meta:
+        model = Goal
+        fields = ['title', 'profile', 'status', 'paid_amount', 'total_amount']
+
 
 class GoalSerializer(serializers.ModelSerializer):
     sdgs = serializers.PrimaryKeyRelatedField(queryset=SDGS.objects.all(), many=True, write_only=True)
@@ -274,10 +281,11 @@ class DashboardGoalCountSerializer(serializers.ModelSerializer):
     completed_goals = serializers.CharField(read_only=True)
     pending_goals = serializers.CharField(read_only=True)
     rejected_goals = serializers.CharField(read_only=True)
+    average_goal_conversion_rate = serializers.CharField(read_only=True)
 
     class Meta:
         model = Goal
-        fields = ['active_goals', 'completed_goals', 'pending_goals', 'rejected_goals']
+        fields = ['active_goals', 'completed_goals', 'pending_goals', 'rejected_goals', 'average_goal_conversion_rate']
 
 
 class SearchSerializer(serializers.Serializer):
