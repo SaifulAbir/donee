@@ -13,6 +13,6 @@ urlpatterns = [
     path('goal-like/', GoalLikeAPIView.as_view()),
     path('goal-comment/', GoalCreateCommentAPI.as_view()),
     path('goal-save/', GoalSaveAPI.as_view()),
-    path('goal-create-comments/', GoalCommentCreateAPIView.as_view()),
+    # path('goal-create-comments/', GoalCommentCreateAPIView.as_view()),
 ]
 
