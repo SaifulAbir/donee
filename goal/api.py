@@ -159,7 +159,7 @@ class GoalLikeAPIView(CreateAPIView):
                         goal_obj = goal
                         goal_obj.total_like_count +=1
                         goal_obj.save()
-                        likeobj =  Like(user = user,goal = goal,is_like = True,created_by =user.username,has_profile=profile_obj)
+                        likeobj =  Like(user = user,goal = goal,is_like = True,created_by =user.username)
                         likeobj.save()
                         return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_201_CREATED)
                     else:
@@ -245,7 +245,7 @@ class GoalSaveAPI(CreateAPIView):
             else:
                 if check_profile.exists():
                     profile_obj = check_profile.first()
-                    savedobj =  GoalSave(user = user,goal = goal,is_saved = True,created_by =user.username,has_profile=profile_obj)
+                    savedobj =  GoalSave(user = user,goal = goal,is_saved = True,created_by =user.username)
                     savedobj.save()
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_saved":True,}, status=status.HTTP_201_CREATED)
                 else:
