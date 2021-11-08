@@ -1,9 +1,12 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from goal.models import SDGS, Goal
+from goal.models import SDGS, Goal, GoalSave
 from payment.models import Wallet, Payment
 from .models import *
 from rest_framework.validators import UniqueValidator
+
+
+
 
 
 class UserRegSerializer(serializers.ModelSerializer):
@@ -70,6 +73,13 @@ class WalletSerializer(serializers.ModelSerializer):
         model = Wallet
         fields = ('amount', 'profile', 'type')
 
+class SavedGoalSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer()
+    class Meta:
+        model = Goal
+        fields = [ 'id','title','slug', 'short_description', 'image',
+                  'profile', 'status']
+
 
 class SponsoredGoalSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
@@ -86,8 +96,8 @@ class UserPaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = ('goal', 'user')
 
-
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    from goal.serializers import GoalListSerializer, GoalSaveSerializer
     donee_notification = serializers.BooleanField(write_only=True)
     account_activity = serializers.BooleanField(write_only=True)
     donee_activity = serializers.BooleanField(write_only=True)
@@ -98,20 +108,26 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     user_notification = NotificationSerializer(many=True, read_only=True)
     user_profile = ProfileSerializer(read_only=True)
     user_payment = UserPaymentSerializer(read_only=True, many=True)
+    goalsave_user = GoalSaveSerializer(many=True, read_only=True) 
+    
+    
+    
+    
 
     class Meta:
         model = User
-        model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image', 'user_notification',
+        model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image', 'user_notification', 'goalsave_user',
                         'total_donated_amount']
         extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
                         'NGO_role_assign', 'user_profile', 'user_payment', 'total_supported_goals']
         fields = model_fields + extra_fields
+    
+    
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         rep['country'] = CountrySerializer(instance.country).data
         return rep
-
    
 
     def update(self, instance, validated_data):

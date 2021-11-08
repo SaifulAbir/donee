@@ -17,6 +17,8 @@
 
 # Mono auto generated files
 mono_crash.*
+#python_template
+
 
 # Build results
 [Dd]ebug/

@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from payment.models import Payment
 from user.models import User, Profile, Country,Notification,ProfileFollow,UserFollow
+from goal.models import Goal, GoalSave
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer
@@ -33,7 +34,8 @@ class UserUpdateAPIView(RetrieveUpdateAPIView):
                 filter=Q(user_payment__status='PAID'),
                 distinct=True
             )
-        )
+        ).prefetch_related(
+            Prefetch('goalsave_user', queryset=GoalSave.objects.filter(is_saved=True).distinct('goal')))
         return user.first()
 
     def put(self, request, *args, **kwargs):
