@@ -302,6 +302,7 @@ class UserFollowProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProfileFollow
+        fields = '__all__'   
 
 
 
