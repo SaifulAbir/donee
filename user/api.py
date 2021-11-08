@@ -1,7 +1,9 @@
 from django.db.models import Count, Q, F
 from django.db.models.functions import Concat
 from django.db.models.query import Prefetch
+from django.db.models.query import Prefetch, QuerySet
 from rest_framework import serializers
+from rest_framework import response
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -10,6 +12,8 @@ from user.models import User, Profile, Country,Notification,ProfileFollow,UserFo
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer
+    DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
+        inNgoDoneeInfoSerializer, inNgoDoneeListSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -87,6 +91,25 @@ class DoneeAndNgoProfileUpdateAPIView(RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
+
+
+class inNgoDoneeInfoAPIView(RetrieveAPIView):
+    serializer_class = inNgoDoneeInfoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
+
+
+class inNgoDoneeListAPIView(ListAPIView):
+    serializer_class = inNgoDoneeListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        ngo_obj= Profile.objects.get(user=self.request.user)
+        return Profile.objects.filter(ngo_profile_id=ngo_obj.id)
+
+       
 
 
 class CountryListAPI(ListAPIView):
