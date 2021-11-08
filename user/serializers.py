@@ -187,12 +187,15 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     profile_goal = ProfileGoalSerializer(read_only=True, many=True)
     profile_sdgs = ProfileSDGSSerializer(many=True, read_only=True)
     sdgs = serializers.PrimaryKeyRelatedField(queryset=SDGS.objects.all(), many=True, write_only=True)
+    total_donor = serializers.CharField(read_only=True)
+    total_completed_goals = serializers.CharField(read_only=True)
 
 
     class Meta:
         model = Profile
         fields = '__all__'
-        extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers','NGO_role_assign', 'sdgs']
+        extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
+                        'NGO_role_assign', 'sdgs', 'total_donor', 'total_completed_goals']
         read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved', 'invitation_id', 'profile_wallet', 'total_donee_count', 'total_goal_count')
 
     def _get_total_goal_count(self, obj):
