@@ -185,7 +185,7 @@ class GoalSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
                   'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
                   'profile_image','status', 'pgw_amount', 'paid_amount', 'donor_count', "goal_payment",
-                  'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media','goal_likes','is_liked','goal_comment','is_saved']
+                  'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media','goal_likes','total_like_count','is_liked','goal_comment','total_comment_count','is_saved']
         read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'slug', 'ngo_amount',
                             'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',
                             'profile_username','profile_image','total_like_count','total_comment_count', 'payment_count')
