@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from payment.models import Payment
-from user.serializers import ProfileSerializer, UserSerializer
+from user.serializers import ProfileSerializer, SavedGoalSerializer, UserSerializer
 from .models import *
 
 
@@ -147,11 +147,11 @@ class ProfileGoalSerializer(serializers.ModelSerializer):
 
 
 class GoalSaveSerializer(serializers.ModelSerializer):
-
+    goal = SavedGoalSerializer(read_only=True) 
     class Meta:
         model = GoalSave
         fields = ['goal']
-        read_only_fields=('user', 'profile', )
+        read_only_fields=('user','profile' )
 
 
 class DashboardGoalListSerializer(serializers.ModelSerializer):
