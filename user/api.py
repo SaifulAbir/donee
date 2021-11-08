@@ -113,23 +113,35 @@ class UserFollowUserAPI(CreateAPIView):
                     obj.is_followed = False
                     obj.save()
                     follow_user_obj = follow_user
+                    user_obj = user
                     follow_user.total_follow_count -=1
+                    user.total_following_count -=1
+                    print(user.total_following_count)
                     follow_user_obj.save()
+                    user_obj.save()
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_user":self.request.data["follow_user"],"is_followed":False,}, status=status.HTTP_200_OK)
                 if check_follow.exists() and check_follow.first().is_followed == False:
                     obj = check_follow.first()
                     obj.is_followed = True
                     obj.save()
                     follow_user_obj = follow_user
+                    user_obj = user
                     follow_user_obj.total_follow_count +=1
+                    user_obj.total_following_count +=1
+                    print(user.total_following_count)
                     follow_user_obj.save()
+                    user_obj.save()
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_user":self.request.data["follow_user"],"is_followed":True,}, status=status.HTTP_200_OK)
 
                 
                 else:
                     follow_user_obj = follow_user
+                    user_obj = user
                     follow_user_obj.total_follow_count +=1
+                    user_obj.total_following_count +=1
+                    print(user.total_following_count)
                     follow_user_obj.save()
+                    user_obj.save()
                     followobj= UserFollow(user = user,follow_user = follow_user,is_followed = True,created_by =user.username)
                     followobj.save()
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_user":self.request.data["follow_user"],"is_followed":True,}, status=status.HTTP_201_CREATED)
@@ -156,23 +168,35 @@ class UserFollowProfileAPI(CreateAPIView):
                     obj.is_followed = False
                     obj.save()
                     follow_profile_obj = follow_profile
+                    user_obj = user
                     follow_profile.total_follow_count -=1
+                    user_obj.total_following_count -=1
+                    print(user.total_following_count)
                     follow_profile_obj.save()
+                    user_obj.save()
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":False,}, status=status.HTTP_200_OK)
                 if check_follow.exists() and check_follow.first().is_followed == False:
                     obj = check_follow.first()
                     obj.is_followed = True
                     obj.save()
                     follow_profile_obj = follow_profile
+                    user_obj = user
                     follow_profile_obj.total_follow_count +=1
+                    user_obj.total_following_count +=1
+                    print(user.total_following_count)
                     follow_profile_obj.save()
+                    user_obj.save()
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":True,}, status=status.HTTP_200_OK)
 
             
                 else:
                     follow_profile_obj = follow_profile
+                    user_obj = user
                     follow_profile_obj.total_follow_count +=1
+                    user_obj.total_following_count +=1
+                    print(user.total_following_count)
                     follow_profile_obj.save()
+                    user_obj.save()
                     followobj= ProfileFollow(user = user,follow_profile = follow_profile,is_followed = True,created_by =user.username)
                     followobj.save()
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":True,}, status=status.HTTP_201_CREATED)

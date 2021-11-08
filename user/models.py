@@ -79,6 +79,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     modified_at = models.DateTimeField(null=True)
     is_modified = models.BooleanField(default=False)
     total_follow_count = models.IntegerField(default=0)
+    total_following_count = models.IntegerField(default=0)
 
     objects = UserManager()
 
@@ -196,8 +197,8 @@ class UserFollow(DoneeModel):
     
 
     class Meta:
-        verbose_name = 'Follow'
-        verbose_name_plural = 'Follows'
+        verbose_name = 'UserFollow'
+        verbose_name_plural = 'UserFollows'
         db_table = 'user_follow'
 
     def __str__(self):
@@ -210,8 +211,8 @@ class ProfileFollow(DoneeModel):
     
 
     class Meta:
-        verbose_name = 'Follow'
-        verbose_name_plural = 'Follows'
+        verbose_name = 'ProfileFollow'
+        verbose_name_plural = 'ProfileFollows'
         db_table = 'profile_follow'
 
     def __str__(self):
