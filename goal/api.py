@@ -193,7 +193,7 @@ class GoalCreateCommentAPI(CreateAPIView):
                     check_profile = Profile.objects.filter(user = self.request.user.id)
                     if check_profile.exists():
                         profile_obj = check_profile.first()
-                        comment_obj = Comment(user = user,goal = goal,created_by =user.username,text=self.request.data['text'],has_profile =profile_obj)
+                        comment_obj = Comment(user = user,goal = goal,created_by =user.username,text=self.request.data['text'])
                         comment_obj.save()
                         goal_obj = goal
                         goal_obj.total_comment_count +=1
