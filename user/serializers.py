@@ -3,6 +3,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from goal.models import SDGS, Goal
 from payment.models import Wallet, Payment
 from .models import *
+from goal.models import Goal
 from rest_framework.validators import UniqueValidator
 
 
@@ -173,6 +174,8 @@ class DoneeAndNGOProfileSerializer(serializers.ModelSerializer):
 
 class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     from goal.serializers import ProfileGoalSerializer
+    total_donee_count = serializers.SerializerMethodField('_get_total_donee_count')
+    total_goal_count = serializers.SerializerMethodField('_get_total_goal_count')
     donee_notification = serializers.BooleanField(write_only=True)
     account_activity = serializers.BooleanField(write_only=True)
     donee_activity = serializers.BooleanField(write_only=True)
@@ -185,12 +188,40 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     profile_sdgs = ProfileSDGSSerializer(many=True, read_only=True)
     sdgs = serializers.PrimaryKeyRelatedField(queryset=SDGS.objects.all(), many=True, write_only=True)
 
+
     class Meta:
         model = Profile
         fields = '__all__'
-        extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
-                        'NGO_role_assign', 'sdgs']
-        read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved', 'invitation_id', 'profile_wallet')
+        extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers','NGO_role_assign', 'sdgs']
+        read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved', 'invitation_id', 'profile_wallet', 'total_donee_count', 'total_goal_count')
+
+    def _get_total_goal_count(self, obj):
+        total_goal = 0
+        total_donee_goal = 0
+        total_ngo_goal = 0
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+    
+        ngo_goal_query=Goal.objects.filter(profile=obj).filter(status='Completed')
+        total_ngo_goal = len(ngo_goal_query)
+
+        for donee_obj in query:
+            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj).filter(status='Completed')
+            if donee_obj_goal_query:
+                total_donee_goal += len(donee_obj_goal_query)
+        total_goal = total_ngo_goal + total_ngo_goal
+        return total_goal
+
+
+    def _get_total_donee_count(self, obj):
+        total_donee = 0
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+
+        if query:
+            total_donee=len(query)
+            return total_donee
+
+        else:
+            return total_donee
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
