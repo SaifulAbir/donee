@@ -1,6 +1,5 @@
 from django.db.models import Count, Q, F
 from django.db.models.functions import Concat
-from django.db.models.query import Prefetch
 from django.db.models.query import Prefetch, QuerySet
 from rest_framework import serializers
 from rest_framework import response
@@ -11,7 +10,6 @@ from payment.models import Payment
 from user.models import User, Profile, Country,Notification,ProfileFollow,UserFollow
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
-    DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
         inNgoDoneeInfoSerializer, inNgoDoneeListSerializer
 from rest_framework.response import Response
