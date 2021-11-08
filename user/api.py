@@ -127,6 +127,7 @@ class UserFollowUserAPI(CreateAPIView):
 
                 if check_profile.exists():
                       raise ValidationError({"follow_user":'profile id is not allowed'})
+                
                 else:
                     follow_user_obj = follow_user
                     follow_user_obj.total_follow_count +=1
@@ -171,6 +172,7 @@ class UserFollowProfileAPI(CreateAPIView):
 
                 if check_profile.exists():
                       raise ValidationError({"follow_profile":'profile id is not allowed'})
+            
                 else:
                     follow_profile_obj = follow_profile
                     follow_profile_obj.total_follow_count +=1
