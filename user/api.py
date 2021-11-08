@@ -125,8 +125,6 @@ class UserFollowUserAPI(CreateAPIView):
                     follow_user_obj.save()
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_user":self.request.data["follow_user"],"is_followed":True,}, status=status.HTTP_200_OK)
 
-                if check_profile.exists():
-                      raise ValidationError({"follow_user":'profile id is not allowed'})
                 
                 else:
                     follow_user_obj = follow_user
@@ -170,8 +168,6 @@ class UserFollowProfileAPI(CreateAPIView):
                     follow_profile_obj.save()
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":True,}, status=status.HTTP_200_OK)
 
-                if check_profile.exists():
-                      raise ValidationError({"follow_profile":'profile id is not allowed'})
             
                 else:
                     follow_profile_obj = follow_profile
