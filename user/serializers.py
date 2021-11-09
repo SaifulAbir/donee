@@ -116,7 +116,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image', 'user_notification', 'goalsave_user',
-                        'total_donated_amount']
+                        'total_donated_amount', 'total_follow_count', 'total_following_count']
         extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
                         'NGO_role_assign', 'user_profile', 'user_payment', 'total_supported_goals']
         fields = model_fields + extra_fields
