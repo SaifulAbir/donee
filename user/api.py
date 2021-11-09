@@ -71,7 +71,7 @@ class DoneeAndNGOProfileAPIView(RetrieveAPIView):
     permission_classes = [AllowAny, ]
 
     def get_object(self):
-        user_id = self.kwargs['pk']
+        profile_id = self.kwargs['pk']
         queryset = Profile.objects.annotate(
             total_donor=Count(
                 Concat('profile_goal__goal_payment__goal', 'profile_goal__goal_payment__user'),
@@ -81,7 +81,7 @@ class DoneeAndNGOProfileAPIView(RetrieveAPIView):
             total_completed_goals = Count(
                 'profile_goal', filter=Q(profile_goal__paid_amount=F('profile_goal__total_amount'))
             )
-        ).get(user_id=user_id)
+        ).get(id=profile_id)
         profile_view_count(queryset)
         return queryset
 
