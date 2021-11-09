@@ -231,6 +231,25 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
                 total_donee_goal += len(donee_obj_goal_query)
         total_goal = total_ngo_goal + total_ngo_goal
         return total_goal
+            total_goal = 0
+            total_donee_goal = 0
+            total_ngo_goal = 0
+            query=Profile.objects.filter(ngo_profile_id=obj.id)
+            ngo_goal_query=Goal.objects.filter(profile=obj)
+            
+            for ngo_goal in ngo_goal_query:
+                if ngo_goal.total_amount==ngo_goal.paid_amount:
+                    total_ngo_goal+=1
+
+            for donee_obj in query:
+                donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
+                
+                if donee_obj_goal_query:
+                    for donee_goal in donee_obj_goal_query:
+                        if donee_goal.total_amount==donee_goal.paid_amount:
+                            total_donee_goal+=1
+            total_goal = total_ngo_goal + total_donee_goal
+            return total_goal
 
 
     def _get_total_donee_count(self, obj):
