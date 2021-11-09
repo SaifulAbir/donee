@@ -14,7 +14,7 @@ from user.serializers import UserProfileUpdateSerializer, \
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-
+from user.utils import profile_view_count
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -50,15 +50,27 @@ class UserUpdateAPIView(RetrieveUpdateAPIView):
 
 class DonorProfileAPIView(RetrieveAPIView):
     serializer_class = DonorProfileSerializer
-    queryset = User.objects.all()
     permission_classes = [AllowAny, ]
+
+    def get_object(self):
+        user_id = self.kwargs['pk']
+        user = User.objects.annotate(
+            total_supported_goals=Count(
+                Concat('user_payment__user', 'user_payment__goal'),
+                filter=Q(user_payment__status='PAID'),
+                distinct=True
+            )
+        ).prefetch_related(
+            Prefetch("user_payment", queryset=Payment.objects.filter(status="PAID").distinct('goal'))).get(id=user_id)
+        return user
 
 
 class DoneeAndNGOProfileAPIView(RetrieveAPIView):
     serializer_class = DoneeAndNGOProfileSerializer
     permission_classes = [AllowAny, ]
 
-    def get_queryset(self):
+    def get_object(self):
+        user_id = self.kwargs['pk']
         queryset = Profile.objects.annotate(
             total_donor=Count(
                 Concat('profile_goal__goal_payment__goal', 'profile_goal__goal_payment__user'),
@@ -68,7 +80,8 @@ class DoneeAndNGOProfileAPIView(RetrieveAPIView):
             total_completed_goals = Count(
                 'profile_goal', filter=Q(profile_goal__paid_amount=F('profile_goal__total_amount'))
             )
-        )
+        ).get(user_id=user_id)
+        profile_view_count(queryset)
         return queryset
 
 
@@ -103,7 +116,6 @@ class DoneeAndNgoProfileUpdateAPIView(RetrieveUpdateAPIView):
 class CountryListAPI(ListAPIView):
     queryset = Country.objects.filter()
     serializer_class = CountrySerializer
-
 
 
 class UserFollowUserAPI(CreateAPIView):

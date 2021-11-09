@@ -7,9 +7,6 @@ from goal.models import Goal
 from rest_framework.validators import UniqueValidator
 
 
-
-
-
 class UserRegSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,
@@ -51,7 +48,6 @@ class ProfileSDGSSerializer(serializers.ModelSerializer):
         fields = ('sdgs_id', 'title', 'thumbnail')
 
 
-
 class ProfileSerializer(serializers.ModelSerializer):
     user_username = serializers.CharField(source="user.username")
     profile_username = serializers.CharField(source="username")
@@ -73,6 +69,7 @@ class WalletSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wallet
         fields = ('amount', 'profile', 'type')
+
 
 class SavedGoalSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
@@ -96,6 +93,7 @@ class UserPaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ('goal', 'user')
+
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     from goal.serializers import GoalListSerializer, GoalSaveSerializer
@@ -169,18 +167,22 @@ class CountrySerializer(serializers.ModelSerializer):
 
 class DonorProfileSerializer(serializers.ModelSerializer):
     country = CountrySerializer(read_only=True)
+    total_supported_goals = serializers.CharField(read_only=True)
+    user_payment = UserPaymentSerializer(read_only=True, many=True)
 
     class Meta:
         model = User
         model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image',
-                        'total_donated_amount']
+                        'total_donated_amount', 'total_supported_goals', 'user_payment']
         fields = model_fields
 
 
 class DoneeAndNGOProfileSerializer(serializers.ModelSerializer):
+    from goal.serializers import ProfileGoalSerializer
     total_donor = serializers.CharField(read_only=True)
     total_completed_goals = serializers.CharField(read_only=True)
     country = CountrySerializer(read_only=True)
+    profile_goal = ProfileGoalSerializer(read_only=True, many=True)
 
     class Meta:
         model = Profile

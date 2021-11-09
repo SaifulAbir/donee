@@ -293,7 +293,7 @@ class DashboardGoalCountAPIView(APIView):
         )
 
         try:
-            average_goal_conversion_rate = (completed_goals["completed_goals"]/active_goals["active_goals"])*100
+            average_goal_conversion_rate = (completed_goals["completed_goals"]/(active_goals["active_goals"]+completed_goals["completed_goals"]))*100
         except ZeroDivisionError:
             average_goal_conversion_rate = 0
 
