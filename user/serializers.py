@@ -6,6 +6,8 @@ from payment.models import Wallet, Payment
 from .models import *
 from goal.models import Goal
 from rest_framework.validators import UniqueValidator
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class UserRegSerializer(serializers.ModelSerializer):
@@ -370,62 +372,24 @@ class inNgoDoneeListSerializer(serializers.ModelSerializer):
     def _get_total_goal_count(self, obj):
         
         total_goal= 0
-        donee_obj_goal_query=Goal.objects.filter(profile=obj).filter(status='Completed')
-
+        donee_obj_goal_query=Goal.objects.filter(profile=obj)
         if donee_obj_goal_query:
-            total_goal=len(donee_obj_goal_query)
+            for donee_goal in donee_obj_goal_query:
+                if donee_goal.total_amount==donee_goal.paid_amount:
+                    total_goal+=1
         return total_goal
         
                 
 
 
     def _get_total_donee_wallet(self, obj):
-        donee_wallet=Wallet.objects.filter(profile=obj).filter(type='Donee')
         total_donee_wallet=0
+        donee_wallet=Wallet.objects.filter(profile=obj)
+        # print(donee_wallet)
         if donee_wallet:
-            total_donee_wallet=donee_wallet.amount
-
-
+            
+            for wallet in donee_wallet:
+                total_donee_wallet=wallet.amount
+        
         return total_donee_wallet
 
-
-    # def create(self, validated_data):
-    #     donee_notification = validated_data.pop('donee_notification')
-    #     account_activity = validated_data.pop('account_activity')
-    #     donee_activity = validated_data.pop('donee_activity')
-    #     achieved_goals = validated_data.pop('achieved_goals')
-    #     new_followers = validated_data.pop('new_followers')
-    #     NGO_role_assign = validated_data.pop('NGO_role_assign')
-    #     sdgs = validated_data.pop('sdgs')
-    #     profile_instance = Profile.objects.create(**validated_data, user=self.context['request'].user)
-    #     if sdgs:
-    #         for sdgs_id in sdgs:
-    #             ProfileSDGS.objects.create(sdgs=sdgs_id, profile=profile_instance, created_by=self.context['request'].user.id)
-    #     Notification.objects.create(donee_notification=donee_notification,
-    #                                 account_activity=account_activity,
-    #                                 donee_activity=donee_activity,
-    #                                 achieved_goals=achieved_goals,
-    #                                 new_followers=new_followers,
-    #                                 NGO_role_assign=NGO_role_assign,
-    #                                 user=self.context['request'].user,
-    #                                 profile=profile_instance,
-    #                                 created_by=self.context['request'].user.id)
-    #     return profile_instance
-
-    # def update(self, instance, validated_data):
-    #     donee_notification = validated_data.pop('donee_notification')
-    #     account_activity = validated_data.pop('account_activity')
-    #     donee_activity = validated_data.pop('donee_activity')
-    #     achieved_goals = validated_data.pop('achieved_goals')
-    #     new_followers = validated_data.pop('new_followers')
-    #     NGO_role_assign = validated_data.pop('NGO_role_assign')
-    #     validated_data.update({"user": self.context['request'].user})
-    #     Notification.objects.filter(profile=instance).update(donee_notification=donee_notification,
-    #                             account_activity=account_activity,
-    #                             donee_activity=donee_activity,
-    #                             achieved_goals=achieved_goals,
-    #                             new_followers=new_followers,
-    #                             NGO_role_assign=NGO_role_assign,
-    #                             modified_by=self.context['request'].user.id,
-    #                             modified_at=timezone.now())
-    #     return super().update(instance, validated_data)
