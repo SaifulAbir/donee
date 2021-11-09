@@ -217,20 +217,6 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved', 'invitation_id', 'profile_wallet', 'total_donee_count', 'total_goal_count')
 
     def _get_total_goal_count(self, obj):
-        total_goal = 0
-        total_donee_goal = 0
-        total_ngo_goal = 0
-        query=Profile.objects.filter(ngo_profile_id=obj.id)
-    
-        ngo_goal_query=Goal.objects.filter(profile=obj).filter(status='Completed')
-        total_ngo_goal = len(ngo_goal_query)
-
-        for donee_obj in query:
-            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj).filter(status='Completed')
-            if donee_obj_goal_query:
-                total_donee_goal += len(donee_obj_goal_query)
-        total_goal = total_ngo_goal + total_ngo_goal
-        return total_goal
             total_goal = 0
             total_donee_goal = 0
             total_ngo_goal = 0
