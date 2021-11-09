@@ -201,9 +201,6 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
         total_donee_goal = 0
         total_ngo_goal = 0
         query=Profile.objects.filter(ngo_profile_id=obj.id)
-    
-        ngo_goal_query=Goal.objects.filter(profile=obj).filter(status='Completed')
-        total_ngo_goal = len(ngo_goal_query)
         ngo_goal_query=Goal.objects.filter(profile=obj)
         
         for ngo_goal in ngo_goal_query:
@@ -211,7 +208,6 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
                 total_ngo_goal+=1
 
         for donee_obj in query:
-            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj).filter(status='Completed')
             donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
             
             if donee_obj_goal_query:
