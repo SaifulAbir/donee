@@ -42,7 +42,8 @@ class UserUpdateAPIView(RetrieveUpdateAPIView):
         try:
             user = User.objects.filter(username=request.data["username"]).exclude(id=request.user.id)
             if user:
-                raise serializers.ValidationError('Username must be unique.')
+                serializer = self.get_serializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
             return self.update(request, *args, **kwargs)
         except KeyError:
             return self.update(request, *args, **kwargs)
