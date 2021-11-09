@@ -174,6 +174,7 @@ class DonorProfileSerializer(serializers.ModelSerializer):
         model = User
         model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image',
                         'total_donated_amount', 'total_supported_goals', 'user_payment']
+                        'total_donated_amount', 'total_supported_goals', 'user_payment', 'total_follow_count','total_following_count' ]
         fields = model_fields
 
 
