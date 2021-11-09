@@ -34,6 +34,7 @@ class MediaSerializer(serializers.ModelSerializer):
 
 class GoalListSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
+    goal_media = MediaSerializer(many=True, read_only=True)
     is_liked = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
     
@@ -41,7 +42,7 @@ class GoalListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Goal
-        fields = ['id', 'title','slug', 'short_description', 'buying_item', 'online_source_url', 'image',
+        fields = ['id', 'title','slug', 'short_description', 'buying_item', 'online_source_url', 'image', 'goal_media',
                   'total_amount', 'profile', 'status','is_liked','total_like_count','total_comment_count','is_saved']
 
     def get_is_liked(self,obj):

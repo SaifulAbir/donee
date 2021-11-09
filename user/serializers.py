@@ -55,7 +55,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     ngo_username = serializers.SerializerMethodField()
     class Meta:
         model = Profile
-        fields = ('profile_username', 'profile_image', 'profile_type', 'user_username','ngo_username')
+        fields = ('id', 'profile_username', 'profile_image', 'profile_type', 'user_username','ngo_username')
 
     def get_ngo_username(self, obj):
         if obj.profile_type == 'DONEE':
