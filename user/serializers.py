@@ -1,3 +1,4 @@
+from django.db.models.functions.text import Length
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from goal.models import SDGS, Goal, GoalSave
@@ -5,6 +6,8 @@ from payment.models import Wallet, Payment
 from .models import *
 from goal.models import Goal
 from rest_framework.validators import UniqueValidator
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class UserRegSerializer(serializers.ModelSerializer):
@@ -107,11 +110,11 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     user_notification = NotificationSerializer(many=True, read_only=True)
     user_profile = ProfileSerializer(read_only=True)
     user_payment = UserPaymentSerializer(read_only=True, many=True)
-    goalsave_user = GoalSaveSerializer(many=True, read_only=True) 
-    
-    
-    
-    
+    goalsave_user = GoalSaveSerializer(many=True, read_only=True)
+
+
+
+
 
     class Meta:
         model = User
@@ -120,8 +123,8 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
                         'NGO_role_assign', 'user_profile', 'user_payment', 'total_supported_goals']
         fields = model_fields + extra_fields
-    
-    
+
+
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -222,14 +225,14 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
             total_ngo_goal = 0
             query=Profile.objects.filter(ngo_profile_id=obj.id)
             ngo_goal_query=Goal.objects.filter(profile=obj)
-            
+
             for ngo_goal in ngo_goal_query:
                 if ngo_goal.total_amount==ngo_goal.paid_amount:
                     total_ngo_goal+=1
 
             for donee_obj in query:
                 donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
-                
+
                 if donee_obj_goal_query:
                     for donee_goal in donee_obj_goal_query:
                         if donee_goal.total_amount==donee_goal.paid_amount:
@@ -327,4 +330,87 @@ class UserFollowProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProfileFollow
-        fields = '__all__'   
+        fields = '__all__'
+
+
+
+class inNgoDoneeInfoSerializer(serializers.ModelSerializer):
+    from goal.serializers import ProfileGoalSerializer
+    total_donee_count = serializers.SerializerMethodField('_get_total_donee_count')
+    total_active_count = serializers.SerializerMethodField('_get_total_active_count')
+    total_inactive_count = serializers.SerializerMethodField('_get_total_inactive_count')
+
+
+    class Meta:
+        model = Profile
+        fields = ['total_donee_count','total_active_count','total_inactive_count']
+
+
+    def _get_total_active_count(self, obj):
+        total_active = 0
+
+        query=Profile.objects.filter(ngo_profile_id=obj.id).filter(is_active=True)
+        if query:
+            total_active= len(query)
+
+        return total_active
+
+
+    def _get_total_inactive_count(self, obj):
+        total_inactive = 0
+
+        query=Profile.objects.filter(ngo_profile_id=obj.id).filter(is_active=False)
+        if query:
+            total_inactive= len(query)
+
+        return total_inactive
+
+
+    def _get_total_donee_count(self, obj):
+        total_donee = 0
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+
+        if query:
+            total_donee=len(query)
+            return total_donee
+
+        else:
+            return total_donee
+
+
+
+
+class inNgoDoneeListSerializer(serializers.ModelSerializer):
+    from goal.serializers import ProfileGoalSerializer
+    total_donee_wallet = serializers.SerializerMethodField('_get_total_donee_wallet')
+    total_goal_count = serializers.SerializerMethodField('_get_total_goal_count')
+
+    class Meta:
+        model = Profile
+        fields = ['total_goal_count','full_name','is_active','total_donee_wallet']
+
+
+    def _get_total_goal_count(self, obj):
+
+        total_goal= 0
+        donee_obj_goal_query=Goal.objects.filter(profile=obj)
+        if donee_obj_goal_query:
+            for donee_goal in donee_obj_goal_query:
+                if donee_goal.total_amount==donee_goal.paid_amount:
+                    total_goal+=1
+        return total_goal
+
+
+
+
+    def _get_total_donee_wallet(self, obj):
+        total_donee_wallet=0
+        donee_wallet=Wallet.objects.filter(profile=obj)
+        # print(donee_wallet)
+        if donee_wallet:
+
+            for wallet in donee_wallet:
+                total_donee_wallet=wallet.amount
+
+        return total_donee_wallet
+

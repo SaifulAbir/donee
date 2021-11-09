@@ -126,6 +126,7 @@ class Profile(models.Model):
     view_count= models.PositiveIntegerField(default=0)
     plan_id= models.ForeignKey(Plan, on_delete=models.PROTECT, null=True, blank=True)
     total_follow_count = models.IntegerField(default=0)
+    is_active= models.BooleanField(default=True)
     created_at= models.DateTimeField(auto_now_add=True)
 
     class Meta:
