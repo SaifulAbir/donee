@@ -308,3 +308,29 @@ class DashboardGoalListAPIView(ListAPIView):
     def get_queryset(self):
         profile = Profile.objects.get(user=self.request.user)
         return Goal.objects.filter(Q(profile=profile) | Q(profile__ngo_profile_id = profile.id))
+
+
+class GoalStatusUpdateAPI(CreateAPIView):
+    serializer_class = GoalSerializer
+    queryset = Goal.objects.all()
+    
+    def create(self, request, *args, **kwargs):
+        
+       
+        
+        if self.request.data =={}:
+            raise ValidationError({"goal":'this field may not be null'
+            })
+        else:
+            goal = Goal.objects.get(id = self.request.data['goal'])
+            status = self.request.data['status']
+            
+            if goal:
+                obj = goal
+                obj.status = status
+                obj.save()
+                return Response({"id":self.request.data['goal'],"status":self.request.data["status"]})
+            
+            else:
+                raise ValidationError({"goal":'this field may not be null'
+            })
