@@ -388,6 +388,7 @@ class inNgoDoneeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['total_goal_count','full_name','is_active','total_donee_wallet']
+        fields = ['id','total_goal_count','full_name','is_active','total_donee_wallet']
 
 
     def _get_total_goal_count(self, obj):

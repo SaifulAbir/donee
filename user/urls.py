@@ -22,5 +22,7 @@ urlpatterns = [
     path('profile-follow/', UserFollowProfileAPI.as_view()),
     path('donee-info/', inNgoDoneeInfoAPIView.as_view()),
     path('donee-list/', inNgoDoneeListAPIView.as_view()),
+    path('dashboard/donee-count/', inNgoDoneeInfoAPIView.as_view()),
+    path('dashboard/donee-list/', inNgoDoneeListAPIView.as_view()),
 ]
 
