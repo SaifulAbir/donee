@@ -1,7 +1,9 @@
 from django.contrib.auth.models import PermissionsMixin
+from django.core.validators import RegexValidator
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.db.models.fields import CharField
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
@@ -60,14 +62,14 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-
+phone_regex = RegexValidator(regex='^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$',message='invalid phone number')
 class User(AbstractBaseUser,PermissionsMixin):
     username_validator = UnicodeUsernameValidator()
     username = models.CharField(max_length=200, validators=[username_validator],error_messages={'unique': _("A user with that username already exists."),},)
     full_name = models.CharField(max_length=100,null=True,blank=True)
     email = models.EmailField(unique=True,blank=False,null=False)
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True, db_column='country')
-    phone_number = PhoneNumberField(null=True,blank=True)
+    phone_number = models.CharField(max_length=255, validators=[phone_regex],null=True)
     bio = models.CharField(max_length=100,null=True,blank=True)
     status = models.CharField(max_length=100,null=True,blank=True)
     image = models.ImageField(default='images/demo.png', upload_to='images/user_profile_pictures')
@@ -115,7 +117,7 @@ class Profile(models.Model):
     bio = models.TextField()
     country = models.ForeignKey(Country, on_delete=models.PROTECT, null=True, blank=True, db_column='country')
     email = models.EmailField(unique=True)
-    phone_number = PhoneNumberField()
+    phone_number = models.CharField(max_length=255, validators=[phone_regex], null=True)
     image = models.ImageField(default='images/demo.png', upload_to='images/ngo_and_donee_profile_pictures')
     invitation_id = models.CharField(default='null',max_length=40)
     rut_path = models.FileField(null=True,blank=True, upload_to='images')
