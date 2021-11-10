@@ -247,3 +247,28 @@ class UserFollowProfileAPI(CreateAPIView):
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":True,}, status=status.HTTP_201_CREATED)
             else:
                 raise ValidationError({"follow_profile":'must provide integer user id!'})
+
+
+                
+class DoneeStatusUpdateAPIView(CreateAPIView):
+    serializer_class = DoneeAndNGOProfileSerializer
+    queryset = Profile.objects.all()
+    
+    def create(self, request, *args, **kwargs):
+        
+        if self.request.data =={}:
+            raise ValidationError({"goal":'this field may not be null'
+            })
+        else:
+            profile = Profile.objects.get(id = self.request.data['profile'])
+            is_active = self.request.data['is_active']
+            
+            if profile:
+                obj = profile
+                obj.is_active = is_active
+                obj.save()
+                return Response({"id":self.request.data['profile'],"is_active":self.request.data["is_active"]})
+            
+            else:
+                raise ValidationError({"profile":'this field may not be null'
+            })
