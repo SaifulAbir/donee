@@ -294,3 +294,5 @@ class SearchSerializer(serializers.Serializer):
     title = serializers.CharField()
     type = serializers.CharField()
     img = serializers.CharField(required=False)
+
+
