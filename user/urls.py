@@ -20,8 +20,6 @@ urlpatterns = [
     path('verify-invitation/<str:invitation>',VerifyInvitationView.as_view()),
     path('user-follow/', UserFollowUserAPI.as_view()),
     path('profile-follow/', UserFollowProfileAPI.as_view()),
-    path('donee-info/', inNgoDoneeInfoAPIView.as_view()),
-    path('donee-list/', inNgoDoneeListAPIView.as_view()),
     path('dashboard/donee-count/', inNgoDoneeInfoAPIView.as_view()),
     path('dashboard/donee-list/', inNgoDoneeListAPIView.as_view()),
 ]
