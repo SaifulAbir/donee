@@ -12,7 +12,7 @@ from goal.models import Goal, GoalSave
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
-        InNgoDoneeInfoSerializer, InNgoDoneeListSerializer
+        InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, DashboardAppSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -247,3 +247,12 @@ class UserFollowProfileAPI(CreateAPIView):
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":True,}, status=status.HTTP_201_CREATED)
             else:
                 raise ValidationError({"follow_profile":'must provide integer user id!'})
+
+
+
+class DashboardAppAPIView(RetrieveAPIView):
+    serializer_class = DashboardAppSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
