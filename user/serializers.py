@@ -346,8 +346,6 @@ class UserFollowProfileSerializer(serializers.ModelSerializer):
 
 
 
-class inNgoDoneeInfoSerializer(serializers.ModelSerializer):
-    from goal.serializers import ProfileGoalSerializer
 class InNgoDoneeInfoSerializer(serializers.ModelSerializer):
     total_donee_count = serializers.SerializerMethodField('_get_total_donee_count')
     total_active_count = serializers.SerializerMethodField('_get_total_active_count')
@@ -393,8 +391,6 @@ class InNgoDoneeInfoSerializer(serializers.ModelSerializer):
 
 
 
-class inNgoDoneeListSerializer(serializers.ModelSerializer):
-    from goal.serializers import ProfileGoalSerializer
 class InNgoDoneeListSerializer(serializers.ModelSerializer):
     total_donee_wallet = serializers.SerializerMethodField('_get_total_donee_wallet')
     total_goal_count = serializers.SerializerMethodField('_get_total_goal_count')
@@ -420,7 +416,6 @@ class InNgoDoneeListSerializer(serializers.ModelSerializer):
     def _get_total_donee_wallet(self, obj):
         total_donee_wallet=0
         donee_wallet=Wallet.objects.filter(profile=obj)
-        # print(donee_wallet)
 
         if donee_wallet:
 

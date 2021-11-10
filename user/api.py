@@ -12,7 +12,6 @@ from goal.models import Goal, GoalSave
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
-        inNgoDoneeInfoSerializer, inNgoDoneeListSerializer
         InNgoDoneeInfoSerializer, InNgoDoneeListSerializer
 from rest_framework.response import Response
 from rest_framework import status
@@ -118,7 +117,6 @@ class DoneeAndNgoProfileUpdateAPIView(RetrieveUpdateAPIView):
 
 
 class inNgoDoneeInfoAPIView(RetrieveAPIView):
-    serializer_class = inNgoDoneeInfoSerializer
     serializer_class = InNgoDoneeInfoSerializer
     permission_classes = [IsAuthenticated]
 
@@ -127,7 +125,6 @@ class inNgoDoneeInfoAPIView(RetrieveAPIView):
 
 
 class inNgoDoneeListAPIView(ListAPIView):
-    serializer_class = inNgoDoneeListSerializer
     serializer_class = InNgoDoneeListSerializer
     permission_classes = [IsAuthenticated]
 
