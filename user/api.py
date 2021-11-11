@@ -16,6 +16,7 @@ from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
     InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, InvitationSerializer
+        InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, DashboardAppSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -252,26 +253,26 @@ class UserFollowProfileAPI(CreateAPIView):
                 raise ValidationError({"follow_profile":'must provide integer user id!'})
 
 
-                
+
 class DoneeStatusUpdateAPIView(CreateAPIView):
     serializer_class = DoneeAndNGOProfileSerializer
     queryset = Profile.objects.all()
-    
+
     def create(self, request, *args, **kwargs):
-        
+
         if self.request.data =={}:
             raise ValidationError({"goal":'this field may not be null'
             })
         else:
             profile = Profile.objects.get(id = self.request.data['profile'])
             is_active = self.request.data['is_active']
-            
+
             if profile:
                 obj = profile
                 obj.is_active = is_active
                 obj.save()
                 return Response({"id":self.request.data['profile'],"is_active":self.request.data["is_active"]})
-            
+
             else:
                 raise ValidationError({"profile":'this field may not be null'
             })
@@ -295,3 +296,13 @@ class SendInvitationLink(APIView):
             )
             return Response({'message': 'Email sent successfully!'})
         return Response({'message': invitation_serializer.errors})
+
+
+
+
+class DashboardAppAPIView(RetrieveAPIView):
+    serializer_class = DashboardAppSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
