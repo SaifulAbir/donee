@@ -2,9 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from .api import UserUpdateAPIView, DoneeAndNgoProfileCreateAPIView, DoneeAndNgoProfileUpdateAPIView, CountryListAPI, \
     CustomTokenObtainPairView, DonorProfileAPIView, DoneeAndNGOProfileAPIView, UserFollowUserAPI, UserFollowProfileAPI, \
-    inNgoDoneeInfoAPIView, inNgoDoneeListAPIView, DoneeStatusUpdateAPIView, SendInvitationLink
-    CustomTokenObtainPairView, DonorProfileAPIView, DoneeAndNGOProfileAPIView, UserFollowUserAPI, UserFollowProfileAPI, \
-         inNgoDoneeInfoAPIView, inNgoDoneeListAPIView, DashboardAppAPIView
+    DoneeStatusUpdateAPIView, SendInvitationLink, inNgoDoneeInfoAPIView, inNgoDoneeListAPIView, DashboardAppAPIView
 from .views import *
 from django.views.decorators.csrf import csrf_exempt
 

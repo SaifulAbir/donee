@@ -15,8 +15,7 @@ from goal.models import Goal, GoalSave
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
-    InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, InvitationSerializer
-        InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, DashboardAppSerializer
+    InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, DashboardAppSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError

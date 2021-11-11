@@ -6,8 +6,6 @@ from payment.models import Transaction, Wallet, Payment
 from .models import *
 from goal.models import Goal
 from rest_framework.validators import UniqueValidator
-from rest_framework.response import Response
-from rest_framework import status
 import datetime
 
 
