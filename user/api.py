@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.core.mail import send_mail
 from django.db.models import Count, Q, F
 from django.db.models.functions import Concat
 from django.db.models.query import Prefetch, QuerySet
@@ -5,6 +7,7 @@ from rest_framework import serializers
 from rest_framework import response
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from payment.models import Payment
 from user.models import User, Profile, Country,Notification,ProfileFollow,UserFollow
@@ -12,7 +15,7 @@ from goal.models import Goal, GoalSave
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
-        InNgoDoneeInfoSerializer, InNgoDoneeListSerializer
+    InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, InvitationSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -272,3 +275,23 @@ class DoneeStatusUpdateAPIView(CreateAPIView):
             else:
                 raise ValidationError({"profile":'this field may not be null'
             })
+
+
+class SendInvitationLink(APIView):
+
+    def post(self, request, *args, **kwargs):
+        invitation_serializer = InvitationSerializer(data=request.data)
+        if invitation_serializer.is_valid():
+            invitation_link = request.data.get('invitation_link')
+            email_list = request.POST.getlist('emails')
+            subject = "You are invited to become donee"
+            html_message = "<h4>To accept invitation please click on the link below.</h3><br><a href={}>Click Here!</a>".format(invitation_link)
+            send_mail(
+                subject=subject,
+                message=None,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=email_list,
+                html_message=html_message
+            )
+            return Response({'message': 'Email sent successfully!'})
+        return Response({'message': invitation_serializer.errors})

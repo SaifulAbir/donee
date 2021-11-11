@@ -424,3 +424,8 @@ class InNgoDoneeListSerializer(serializers.ModelSerializer):
 
         return total_donee_wallet
 
+
+class InvitationSerializer(serializers.Serializer):
+    emails = serializers.ListField(child=serializers.EmailField(), write_only=True)
+    invitation_link = serializers.CharField(write_only=True)
+
