@@ -593,6 +593,7 @@ class DashboardAppSerializer(serializers.ModelSerializer):
                             donee_donations+=payment2.amount
         total_donations = ngo_donations + donee_donations
         return total_donations
+
 class InvitationSerializer(serializers.Serializer):
     emails = serializers.ListField(child=serializers.EmailField(), write_only=True)
     invitation_link = serializers.CharField(write_only=True)
@@ -603,4 +604,71 @@ class EndorsedGoalsInNgoAPIViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
         fields = ['id','image','title','slug']
+
+
+
+class DashboardMyWalletSerializer(serializers.ModelSerializer):
+    from goal.serializers import ProfileGoalSerializer
+    total_collected = serializers.SerializerMethodField('_get_total_collected')
+    today_collected = serializers.SerializerMethodField('_get_today_collected')
+
+
+    class Meta:
+        model = Profile
+        fields = ['total_collected']
+
+
+    def _get_total_collected(self, obj):
+        total_ngo_wallet=0
+        total_donee_wallet=0
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+        ngo_wallet_query=Wallet.objects.filter(profile=obj)
+
+        if ngo_wallet_query:
+            for wallet in ngo_wallet_query:
+                total_ngo_wallet=wallet.amount
+
+        for donee_wallet in query:
+            donee_wallet_query=Wallet.objects.filter(profile=donee_wallet)
+            if donee_wallet_query:
+                for wallet in donee_wallet_query:
+                    total_donee_wallet+=wallet.amount
+
+        return total_ngo_wallet+total_donee_wallet
+
+
+    def _get_today_collected(self, obj):
+        total_donations = 0
+        donee_donations = 0
+        ngo_donations = 0
+        payment1= 0
+        payment2= 0
+        today = datetime.date.today()
+        thirty_days_ago = today - datetime.timedelta(days=30)
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+        ngo_goal_query=Goal.objects.filter(profile=obj)
+
+
+
+        for ngo_goal in ngo_goal_query:
+            ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__gte=thirty_days_ago)
+            if ngo_donation_query:
+
+                for don in ngo_donation_query:
+                    payment1=don.payment
+                    ngo_donations+=payment1.amount
+
+        for donee_obj in query:
+            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
+
+            if donee_obj_goal_query:
+                for donee_goal in donee_obj_goal_query:
+                    donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).filter(payment_updated_at__gte=thirty_days_ago)
+
+                    if donee_donation_query:
+                        for dona in donee_donation_query:
+                            payment2=don.payment
+                            donee_donations+=payment2.amount
+        total_donations = ngo_donations + donee_donations
+        return total_donations
 

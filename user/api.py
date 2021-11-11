@@ -13,7 +13,7 @@ from goal.models import Goal, GoalSave
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
-    InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
+    InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, DashboardMyWalletSerializer, \
     DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer
 from rest_framework.response import Response
 from rest_framework import status
@@ -321,6 +321,13 @@ class SendInvitationLink(APIView):
 class DashboardAppAPIView(RetrieveAPIView):
     serializer_class = DashboardAppSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
+
+
+class DashboardMyWalletAPIView(RetrieveAPIView):
+    serializer_class = DashboardMyWalletSerializer
 
     def get_object(self):
         return Profile.objects.get(user=self.request.user)
