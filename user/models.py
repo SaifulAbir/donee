@@ -70,6 +70,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     phone_number = PhoneNumberField(null=True,blank=True)
     bio = models.CharField(max_length=100,null=True,blank=True)
     status = models.CharField(max_length=100,null=True,blank=True)
+    social_status = models.CharField(max_length=20,null=True, blank=True)
     image = models.ImageField(default='images/demo.png', upload_to='images/user_profile_pictures')
     is_staff = models.BooleanField(_('staff status'),default=False,)
     is_active = models.BooleanField(_('active'),default=True,)

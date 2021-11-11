@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from .api import UserUpdateAPIView, DoneeAndNgoProfileCreateAPIView, DoneeAndNgoProfileUpdateAPIView, CountryListAPI, \
+from .api import SocialSignupAPIView, UserUpdateAPIView, DoneeAndNgoProfileCreateAPIView, DoneeAndNgoProfileUpdateAPIView, CountryListAPI, \
     CustomTokenObtainPairView, DonorProfileAPIView, DoneeAndNGOProfileAPIView, UserFollowUserAPI, UserFollowProfileAPI, inNgoDoneeInfoAPIView, inNgoDoneeListAPIView
 from .views import *
 from django.views.decorators.csrf import csrf_exempt
@@ -22,5 +22,6 @@ urlpatterns = [
     path('profile-follow/', UserFollowProfileAPI.as_view()),
     path('dashboard/donee-count/', inNgoDoneeInfoAPIView.as_view()),
     path('dashboard/donee-list/', inNgoDoneeListAPIView.as_view()),
+    path('social-signup/', SocialSignupAPIView.as_view()),
 ]
 

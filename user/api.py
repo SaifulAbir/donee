@@ -12,7 +12,7 @@ from goal.models import Goal, GoalSave
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
-        InNgoDoneeInfoSerializer, InNgoDoneeListSerializer
+        InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, UserSocialRegSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -23,6 +23,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     # Replace the serializer with your custom
     serializer_class = CustomTokenObtainPairSerializer
 
+class SocialSignupAPIView(CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = UserSocialRegSerializer
+
+    def post(self, request, *args, **kwargs):
+        return super(SocialSignupAPIView, self).post(request, *args, **kwargs)
 
 class UserUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = UserProfileUpdateSerializer

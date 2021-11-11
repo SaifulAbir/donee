@@ -28,6 +28,22 @@ class UserRegSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+class UserSocialRegSerializer(serializers.ModelSerializer):
+
+    email = serializers.EmailField(required=True, validators=[UniqueValidator(queryset=User.objects.all())])
+
+    class Meta:
+        model = User
+        fields = ['email', 'social_status']
+        
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        user.set_password(validated_data['email'])
+        user.save()
+        return user
+
+
 
 class UserSerializer(serializers.ModelSerializer):
 
