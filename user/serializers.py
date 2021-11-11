@@ -181,6 +181,7 @@ class DonorProfileSerializer(serializers.ModelSerializer):
 
 class DoneeAndNGOProfileSerializer(serializers.ModelSerializer):
     from goal.serializers import ProfileGoalSerializer
+    is_followed = serializers.SerializerMethodField('_get_is_followed')
     total_donee_count = serializers.SerializerMethodField('_get_total_donee_count')
     total_donor = serializers.CharField(read_only=True)
     total_completed_goals = serializers.CharField(read_only=True)
@@ -190,7 +191,7 @@ class DoneeAndNGOProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = '__all__'
-        extra_fields = ['total_donor', 'total_completed_goals', 'total_donee_count']
+        extra_fields = ['total_donor', 'total_completed_goals', 'total_donee_count','is_followed']
 
     def _get_total_donee_count(self, obj):
         total_donee = 0
@@ -203,6 +204,17 @@ class DoneeAndNGOProfileSerializer(serializers.ModelSerializer):
         else:
             return total_donee
 
+    def _get_is_followed(self, obj):
+        
+        if self.context['request'].user.is_anonymous :
+            return False
+        
+        else: 
+            query=ProfileFollow.objects.filter(follow_profile=obj.id,is_followed=True,user=self.context['request'].user.id)
+            if query:
+                return True
+            else:
+                return False
 
 class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     from goal.serializers import ProfileGoalSerializer

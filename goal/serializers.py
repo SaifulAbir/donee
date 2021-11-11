@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from payment.models import Payment
+from user.models import ProfileFollow
 from user.serializers import ProfileSerializer, SavedGoalSerializer, UserSerializer
 from .models import *
 
@@ -35,6 +36,7 @@ class MediaSerializer(serializers.ModelSerializer):
 class GoalListSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer()
     goal_media = MediaSerializer(many=True, read_only=True)
+    is_followed = serializers.SerializerMethodField('_get_is_followed')
     is_liked = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
     
@@ -43,7 +45,7 @@ class GoalListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
         fields = ['id', 'title','slug', 'short_description', 'buying_item', 'online_source_url', 'image', 'goal_media',
-                  'total_amount', 'profile', 'status','is_liked','total_like_count','total_comment_count','is_saved']
+                  'total_amount', 'profile', 'status','is_liked','total_like_count','total_comment_count','is_saved','is_followed']
 
     def get_is_liked(self,obj):
         if self.context['request'].user.is_anonymous :
@@ -54,12 +56,25 @@ class GoalListSerializer(serializers.ModelSerializer):
                 return True
             else:
                 return False
+
     def get_is_saved(self,obj):
         if self.context['request'].user.is_anonymous :
             return False
         else:
             saves = GoalSave.objects.filter(goal = obj,is_saved = True,user=self.context['request'].user.id)
             if saves.exists():
+                return True
+            else:
+                return False
+
+    def _get_is_followed(self, obj):
+        
+        if self.context['request'].user.is_anonymous :
+            return False
+        
+        else: 
+            query=ProfileFollow.objects.filter(follow_profile=obj.profile.id,is_followed=True,user=self.context['request'].user.id)
+            if query:
                 return True
             else:
                 return False
@@ -178,6 +193,7 @@ class GoalSerializer(serializers.ModelSerializer):
     is_saved = serializers.SerializerMethodField()
     donor_count = serializers.CharField(read_only=True)
     goal_payment = GoalPaymentSerializer(read_only=True, many=True)
+    is_followed = serializers.SerializerMethodField('_get_is_followed')
 
 
 
@@ -186,10 +202,23 @@ class GoalSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
                   'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
                   'profile_image','status', 'pgw_amount', 'paid_amount', 'donor_count', "goal_payment",
-                  'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media','goal_likes','total_like_count','is_liked','goal_comment','total_comment_count','is_saved']
+                  'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media','goal_likes','total_like_count','is_liked','goal_comment','total_comment_count','is_saved','is_followed']
         read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'slug', 'ngo_amount',
                             'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',
                             'profile_username','profile_image','total_like_count','total_comment_count', 'payment_count')
+
+
+    def _get_is_followed(self, obj):
+        
+        if self.context['request'].user.is_anonymous :
+            return False
+        
+        else: 
+            query=ProfileFollow.objects.filter(follow_profile=obj.profile.id,is_followed=True,user=self.context['request'].user.id)
+            if query:
+                return True
+            else:
+                return False
 
 
     def get_ngo_username(self, obj):
