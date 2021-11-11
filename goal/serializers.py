@@ -160,7 +160,7 @@ class DashboardGoalListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Goal
-        fields = ['title', 'profile', 'status', 'paid_amount', 'total_amount']
+        fields = ['id', 'title', 'profile', 'status', 'paid_amount', 'total_amount']
 
 
 class GoalSerializer(serializers.ModelSerializer):
