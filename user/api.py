@@ -3,6 +3,7 @@ from django.core.mail import send_mail
 from django.db.models import Count, Q, F
 from django.db.models.functions import Concat
 from django.db.models.query import Prefetch, QuerySet
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
@@ -14,8 +15,7 @@ from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
-    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer
-        InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, UserSocialRegSerializer
+    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -304,7 +304,7 @@ class EndorsedGoalsInNgoAPIView(ListAPIView):
 
 
 class SendInvitationLink(APIView):
-
+    @swagger_auto_schema(request_body=InvitationSerializer)
     def post(self, request, *args, **kwargs):
         invitation_serializer = InvitationSerializer(data=request.data)
         if invitation_serializer.is_valid():

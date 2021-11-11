@@ -3,9 +3,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .api import UserUpdateAPIView, DoneeAndNgoProfileCreateAPIView, DoneeAndNgoProfileUpdateAPIView, CountryListAPI, \
     CustomTokenObtainPairView, DonorProfileAPIView, DoneeAndNGOProfileAPIView, UserFollowUserAPI, UserFollowProfileAPI, \
     SendInvitationLink, DashboardAppAPIView, inNgoDoneeInfoAPIView, inNgoDoneeListAPIView, DoneeStatusUpdateAPIView,\
-    EndorsedGoalsInNgoAPIView
-from .api import SocialSignupAPIView, UserUpdateAPIView, DoneeAndNgoProfileCreateAPIView, DoneeAndNgoProfileUpdateAPIView, CountryListAPI, \
-    CustomTokenObtainPairView, DonorProfileAPIView, DoneeAndNGOProfileAPIView, UserFollowUserAPI, UserFollowProfileAPI, inNgoDoneeInfoAPIView, inNgoDoneeListAPIView
+    EndorsedGoalsInNgoAPIView, SocialSignupAPIView
 from .views import *
 from django.views.decorators.csrf import csrf_exempt
 
