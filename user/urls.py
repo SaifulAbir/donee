@@ -3,6 +3,8 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .api import UserUpdateAPIView, DoneeAndNgoProfileCreateAPIView, DoneeAndNgoProfileUpdateAPIView, CountryListAPI, \
     CustomTokenObtainPairView, DonorProfileAPIView, DoneeAndNGOProfileAPIView, UserFollowUserAPI, UserFollowProfileAPI, \
     DoneeStatusUpdateAPIView, SendInvitationLink, inNgoDoneeInfoAPIView, inNgoDoneeListAPIView, DashboardAppAPIView
+    CustomTokenObtainPairView, DonorProfileAPIView, DoneeAndNGOProfileAPIView, UserFollowUserAPI, UserFollowProfileAPI, \
+     inNgoDoneeInfoAPIView, inNgoDoneeListAPIView, DoneeStatusUpdateAPIView, EndorsedGoalsInNgoAPIView
 from .views import *
 from django.views.decorators.csrf import csrf_exempt
 
@@ -27,5 +29,6 @@ urlpatterns = [
     path('send-invitation-link/', SendInvitationLink.as_view()),
     path('dashboard/app/', DashboardAppAPIView.as_view()),
 
+    path('ngo-endorsed-goals/', EndorsedGoalsInNgoAPIView.as_view()),
 ]
 

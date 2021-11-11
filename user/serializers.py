@@ -585,3 +585,10 @@ class InvitationSerializer(serializers.Serializer):
     emails = serializers.ListField(child=serializers.EmailField(), write_only=True)
     invitation_link = serializers.CharField(write_only=True)
 
+
+class EndorsedGoalsInNgoAPIViewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Goal
+        fields = ['id','image','title','slug']
+
