@@ -424,3 +424,10 @@ class InNgoDoneeListSerializer(serializers.ModelSerializer):
 
         return total_donee_wallet
 
+
+class EndorsedGoalsInNgoAPIViewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Goal
+        fields = ['id','image','title','slug']
+

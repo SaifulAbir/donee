@@ -12,7 +12,7 @@ from goal.models import Goal, GoalSave
 from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
-        InNgoDoneeInfoSerializer, InNgoDoneeListSerializer
+        InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, EndorsedGoalsInNgoAPIViewSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -272,3 +272,22 @@ class DoneeStatusUpdateAPIView(CreateAPIView):
             else:
                 raise ValidationError({"profile":'this field may not be null'
             })
+
+
+
+class EndorsedGoalsInNgoAPIView(ListAPIView):
+    serializer_class = EndorsedGoalsInNgoAPIViewSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        profile=Profile.objects.get(user=self.request.user)
+        donee=Profile.objects.filter(ngo_profile_id=profile.id)
+        query_list=[]
+        
+        for donee_obj in donee:
+            goal=Goal.objects.filter(profile=donee_obj)
+            for goal_obj in goal:
+                query_list.append(goal_obj)
+
+        return query_list
+            
