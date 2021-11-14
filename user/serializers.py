@@ -2,7 +2,7 @@ from django.db.models.functions.text import Length
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from goal.models import SDGS, Goal, GoalSave
-from payment.models import Transaction, Wallet, Payment
+from payment.models import Transaction, Wallet, Payment, Distribution
 from .models import *
 from goal.models import Goal
 from rest_framework.validators import UniqueValidator
@@ -609,13 +609,14 @@ class EndorsedGoalsInNgoAPIViewSerializer(serializers.ModelSerializer):
 
 class DashboardMyWalletSerializer(serializers.ModelSerializer):
     from goal.serializers import ProfileGoalSerializer
-    total_collected = serializers.SerializerMethodField('_get_total_collected')
-    today_collected = serializers.SerializerMethodField('_get_today_collected')
+    total_income = serializers.SerializerMethodField('_get_total_collected')
+    today_income = serializers.SerializerMethodField('_get_today_collected')
+    today_income_percentage = serializers.SerializerMethodField('_get_today_percentage')
 
 
     class Meta:
         model = Profile
-        fields = ['total_collected']
+        fields = ['total_income','today_income','today_income_percentage']
 
 
     def _get_total_collected(self, obj):
@@ -643,32 +644,96 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
         ngo_donations = 0
         payment1= 0
         payment2= 0
+        payment3= 0
+        total_amount= 0
         today = datetime.date.today()
-        thirty_days_ago = today - datetime.timedelta(days=30)
         query=Profile.objects.filter(ngo_profile_id=obj.id)
         ngo_goal_query=Goal.objects.filter(profile=obj)
 
 
 
         for ngo_goal in ngo_goal_query:
-            ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__gte=thirty_days_ago)
+            ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__date=today)
             if ngo_donation_query:
-
+              
                 for don in ngo_donation_query:
-                    payment1=don.payment
-                    ngo_donations+=payment1.amount
+                    ngo_distribution= Distribution.objects.get(transaction=don)
+                    payment1=ngo_distribution.ngo_amount
+                    ngo_donations+=payment1
 
         for donee_obj in query:
             donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
 
             if donee_obj_goal_query:
                 for donee_goal in donee_obj_goal_query:
-                    donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).filter(payment_updated_at__gte=thirty_days_ago)
-
+                    donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).filter(payment_updated_at__date=today)
+        
                     if donee_donation_query:
                         for dona in donee_donation_query:
-                            payment2=don.payment
-                            donee_donations+=payment2.amount
+                            donee_distribution= Distribution.objects.get(transaction=dona)
+                            payment2=donee_distribution.donee_amount
+                            payment3=donee_distribution.ngo_amount
+                            total_amount=payment2+payment3
+                            donee_donations+=total_amount
         total_donations = ngo_donations + donee_donations
         return total_donations
+
+
+    def _get_today_percentage(self, obj):
+        total_ngo_wallet=0
+        total_donee_wallet=0
+        total_collected=0
+        today_collected = 0
+        donee_donations = 0
+        ngo_donations = 0
+        today_percentage = 0
+        payment1= 0
+        payment2= 0
+        payment3= 0
+        total_amount= 0
+        today = datetime.date.today()
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+        ngo_wallet_query=Wallet.objects.filter(profile=obj)
+        ngo_goal_query=Goal.objects.filter(profile=obj)
+
+        for ngo_goal in ngo_goal_query:
+            ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__date=today)
+            if ngo_donation_query:
+              
+                for don in ngo_donation_query:
+                    ngo_distribution= Distribution.objects.get(transaction=don)
+                    payment1=ngo_distribution.ngo_amount
+                    ngo_donations+=payment1
+        
+        for donee_obj in query:
+            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
+
+            if donee_obj_goal_query:
+                for donee_goal in donee_obj_goal_query:
+                    donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).filter(payment_updated_at__date=today)
+        
+                    if donee_donation_query:
+                        for dona in donee_donation_query:
+                            donee_distribution= Distribution.objects.get(transaction=dona)
+                            payment2=donee_distribution.donee_amount
+                            payment3=donee_distribution.ngo_amount
+                            total_amount=payment2+payment3
+                            donee_donations+=total_amount
+        today_collected = ngo_donations + donee_donations
+
+        if ngo_wallet_query:
+            for wallet in ngo_wallet_query:
+                total_ngo_wallet=wallet.amount
+
+        for donee_wallet in query:
+            donee_wallet_query=Wallet.objects.filter(profile=donee_wallet)
+            if donee_wallet_query:
+                for wallet in donee_wallet_query:
+                    total_donee_wallet+=wallet.amount
+
+        total_collected=total_ngo_wallet+total_donee_wallet
+
+        today_percentage=(today_collected*100)/total_collected
+ 
+        return today_percentage
 
