@@ -644,3 +644,24 @@ class EndorsedGoalsInNgoAPIViewSerializer(serializers.ModelSerializer):
         model = Goal
         fields = ['id','image','title','slug']
 
+
+class RoleListSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = NgoUserRole
+        fields = ('id', 'role_type')
+
+
+class NgoUserCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NgoUser
+        fields = ('role','user','profile','is_active')
+        read_only_fields = ('profile','is_active')
+    
+    def create(self, validated_data):
+        
+        profile = Profile.objects.get(user=self.context['request'].user.id)
+        ngo_user_instance = NgoUser.objects.create(**validated_data,is_active=True,profile=profile,
+                                    created_by=self.context['request'].user.id)
+
+        return ngo_user_instance

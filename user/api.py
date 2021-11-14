@@ -9,9 +9,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from payment.models import Payment
-from user.models import User, Profile, Country,Notification,ProfileFollow,UserFollow
+from user.models import NgoUserRole, User, Profile, Country,Notification,ProfileFollow,UserFollow
 from goal.models import Goal, GoalSave
-from user.serializers import UserProfileUpdateSerializer, \
+from user.serializers import NgoUserCreateSerializer, RoleListSerializer, UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
@@ -331,3 +331,14 @@ class DashboardAppAPIView(RetrieveAPIView):
 
     def get_object(self):
         return Profile.objects.get(user=self.request.user)
+
+
+class RoleListAPIView(ListAPIView):
+    queryset = NgoUserRole.objects.filter()
+    serializer_class = RoleListSerializer
+    
+class NgoUserCreateAPIView(CreateAPIView):
+    serializer_class = NgoUserCreateSerializer
+    
+
+    
