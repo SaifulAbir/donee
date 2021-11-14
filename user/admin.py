@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from donee.Donee.admin import DoneeAdmin
 from .models import *
 # Register your models here.
 
@@ -9,5 +11,5 @@ admin.site.register(Profile)
 admin.site.register(Country)
 admin.site.register(UserFollow)
 admin.site.register(ProfileFollow)
-admin.site.register(NgoUserRole)
-admin.site.register(NgoUser)
+admin.site.register(NgoUserRole, DoneeAdmin)
+admin.site.register(NgoUser, DoneeAdmin)
