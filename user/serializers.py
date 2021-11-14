@@ -673,3 +673,25 @@ class NgoUserCreateSerializer(serializers.ModelSerializer):
                                     created_by=self.context['request'].user.id)
 
         return ngo_user_instance
+
+class NgoUserListSerializer(serializers.ModelSerializer):
+    profile=ProfileSerializer()
+    user = serializers.CharField(source="user.full_name")
+    role = serializers.CharField(source="role.role_type")
+    class Meta:
+        model = NgoUser
+        fields=('id', 'user', 'role', 'profile', 'is_active')
+    
+    
+class NgoUserRoleUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=NgoUser
+        fields=('id', 'role',)
+
+
+class NgoUserStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=NgoUser
+        fields=('id', 'is_active')
+    
+    

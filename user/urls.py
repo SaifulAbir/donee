@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from .api import NgoUserCreateAPIView, RoleListAPIView, UserUpdateAPIView, DoneeAndNgoProfileCreateAPIView, DoneeAndNgoProfileUpdateAPIView, CountryListAPI, \
+from .api import NgoUserCreateAPIView, NgoUserListAPIView, NgoUserRoleUpdateAPIView, NgoUserUpdateStatusAPIView, RoleListAPIView, UserUpdateAPIView, DoneeAndNgoProfileCreateAPIView, DoneeAndNgoProfileUpdateAPIView, CountryListAPI, \
     CustomTokenObtainPairView, DonorProfileAPIView, DoneeAndNGOProfileAPIView, UserFollowUserAPI, UserFollowProfileAPI, \
     SendInvitationLink, DashboardAppAPIView, inNgoDoneeInfoAPIView, inNgoDoneeListAPIView, DoneeStatusUpdateAPIView, \
     EndorsedGoalsInNgoAPIView, SocialSignupAPIView, UserSearchAPIView
@@ -32,5 +32,8 @@ urlpatterns = [
     path('search-user/', UserSearchAPIView.as_view()),
     path('role-list/',RoleListAPIView.as_view()),
     path('ngo-user-create/',NgoUserCreateAPIView.as_view()),
+    path('ngo-user-list/',NgoUserListAPIView.as_view()),
+    path('ngo-user-role-update/<int:pk>/',NgoUserRoleUpdateAPIView.as_view()),
+    path('ngo-user-status-update/<int:pk>/', NgoUserUpdateStatusAPIView.as_view())
 ]
 

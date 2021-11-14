@@ -4,14 +4,14 @@ from django.db.models import Count, Q, F
 from django.db.models.functions import Concat
 from django.db.models.query import Prefetch, QuerySet
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from payment.models import Payment
-from user.models import NgoUserRole, User, Profile, Country,Notification,ProfileFollow,UserFollow
+from user.models import NgoUser, NgoUserRole, User, Profile, Country,Notification,ProfileFollow,UserFollow
 from goal.models import Goal, GoalSave
-from user.serializers import NgoUserCreateSerializer, RoleListSerializer, UserProfileUpdateSerializer, \
+from user.serializers import NgoUserCreateSerializer, NgoUserListSerializer, NgoUserRoleUpdateSerializer, NgoUserStatusUpdateSerializer, RoleListSerializer, UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
@@ -351,5 +351,23 @@ class RoleListAPIView(ListAPIView):
 
 class NgoUserCreateAPIView(CreateAPIView):
     serializer_class = NgoUserCreateSerializer
+
+class NgoUserListAPIView(ListAPIView):
+    serializer_class=NgoUserListSerializer
+
+    def get_queryset(self):
+        profile= Profile.objects.get(user=self.request.user)
+        ngo_users = NgoUser.objects.filter(profile=profile)
+        return ngo_users
+
+class NgoUserRoleUpdateAPIView(UpdateAPIView):
+    queryset=NgoUser.objects.all()
+    serializer_class=NgoUserRoleUpdateSerializer
+
+class NgoUserUpdateStatusAPIView(UpdateAPIView):
+    queryset=NgoUser.objects.all()
+    serializer_class= NgoUserStatusUpdateSerializer
+
+
 
 
