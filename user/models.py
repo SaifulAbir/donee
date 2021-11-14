@@ -221,3 +221,35 @@ class ProfileFollow(DoneeModel):
 
     def __str__(self):
         return self.follow_profile.username
+
+
+class NgoUserRole(DoneeModel):
+    ROLE_TYPES=(('SUPERADMIN', 'SuperAdmin'),
+        ('ADMIN', 'Admin'),
+        ('EDITOR', 'Editor'),
+        ('DONEEINVITOR','DoneeInvitor'),
+        ('ACCOUNTANT','Accountant')
+        )
+    role_type = models.CharField(max_length=30, blank=False, null=False,
+                                     choices=ROLE_TYPES)
+    
+    class Meta:
+        verbose_name = 'NgoUserRole'
+        verbose_name_plural = 'NgoUserRoles'
+        db_table = 'ngo_user_role'
+    
+    
+class NgoUser(DoneeModel):
+    role = models.ForeignKey(NgoUserRole, on_delete=models.PROTECT, related_name='role_ngo_user')
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name='role_profile') 
+    user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='role_user')
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together=('user','profile')
+        verbose_name = 'NgoUser'
+        verbose_name_plural = 'NgoUsers'
+        db_table = 'ngo_user'
+    
+    def __str__(self) :
+        return self.role_profile.username

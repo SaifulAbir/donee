@@ -9,9 +9,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from payment.models import Payment
-from user.models import User, Profile, Country,Notification,ProfileFollow,UserFollow
+from user.models import NgoUserRole, User, Profile, Country,Notification,ProfileFollow,UserFollow
 from goal.models import Goal, GoalSave
-from user.serializers import UserProfileUpdateSerializer, \
+from user.serializers import NgoUserCreateSerializer, RoleListSerializer, UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
@@ -342,3 +342,14 @@ class UserSearchAPIView(ListAPIView):
         if query:
             user_list=User.objects.filter(Q(email__icontains=query) | Q(full_name__icontains=query)).filter(~Q(user_profile__profile_type="DONEE"))
         return user_list
+
+
+class RoleListAPIView(ListAPIView):
+    queryset = NgoUserRole.objects.filter()
+    serializer_class = RoleListSerializer
+
+
+class NgoUserCreateAPIView(CreateAPIView):
+    serializer_class = NgoUserCreateSerializer
+
+
