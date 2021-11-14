@@ -659,6 +659,11 @@ class UserSearchAPIViewSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email']
 
+class NgoUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=User
+        fields=('full_name', 'image')
+
 
 class RoleListSerializer(serializers.ModelSerializer):
 
@@ -672,7 +677,7 @@ class NgoUserCreateSerializer(serializers.ModelSerializer):
         model = NgoUser
         fields = ('role','user','profile','is_active')
         read_only_fields = ('profile','is_active')
-
+        
     def create(self, validated_data):
 
         profile = Profile.objects.get(user=self.context['request'].user.id)
@@ -682,12 +687,12 @@ class NgoUserCreateSerializer(serializers.ModelSerializer):
         return ngo_user_instance
 
 class NgoUserListSerializer(serializers.ModelSerializer):
-    profile=ProfileSerializer()
-    user = serializers.CharField(source="user.full_name")
+    
+    user = NgoUserSerializer()
     role = serializers.CharField(source="role.role_type")
     class Meta:
         model = NgoUser
-        fields=('id', 'user', 'role', 'profile', 'is_active')
+        fields=('id', 'user', 'role', 'is_active')
     
     
 class NgoUserRoleUpdateSerializer(serializers.ModelSerializer):
