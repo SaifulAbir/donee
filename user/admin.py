@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from donee.Donee.admin import DoneeAdmin
+from Donee.admin import DoneeAdmin
 from .models import *
 # Register your models here.
 
