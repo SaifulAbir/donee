@@ -42,7 +42,7 @@ class GoalRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     def get_queryset(self):
         slug = self.kwargs['slug']
         payment = Payment.objects.filter(goal=Goal.objects.get(slug=slug), status="PAID").order_by('user', '-created_at').distinct('user')
-        query = Goal.objects.filter(status='ACTIVE').annotate(
+        query = Goal.objects.annotate(
             donor_count=Count(
                 Concat('goal_payment__goal', 'goal_payment__user'),
                 filter=Q(goal_payment__status='PAID'),
