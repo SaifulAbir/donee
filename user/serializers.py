@@ -459,8 +459,7 @@ class InNgoDoneeListSerializer(serializers.ModelSerializer):
         donee_obj_goal_query=Goal.objects.filter(profile=obj)
         if donee_obj_goal_query:
             for donee_goal in donee_obj_goal_query:
-                if donee_goal.total_amount==donee_goal.paid_amount:
-                    total_goal+=1
+                total_goal+=1
         return total_goal
 
 
