@@ -252,4 +252,4 @@ class NgoUser(DoneeModel):
         db_table = 'ngo_user'
     
     def __str__(self) :
-        return self.role_profile.username
+        return self.profile.username
