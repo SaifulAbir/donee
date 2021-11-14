@@ -338,7 +338,7 @@ class UserSearchAPIView(ListAPIView):
 
     def get_queryset(self):
         query = self.request.GET.get('query')
-        user_list=User.objects.filter(~Q(user_profile__profile_type="NGO"))
+        user_list=User.objects.filter(~Q(user_profile__profile_type="DONEE"))
         if query:
-            user_list=User.objects.filter(Q(email__icontains=query) | Q(full_name__icontains=query)).filter(~Q(user_profile__profile_type="NGO"))
+            user_list=User.objects.filter(Q(email__icontains=query) | Q(full_name__icontains=query)).filter(~Q(user_profile__profile_type="DONEE"))
         return user_list
