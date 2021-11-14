@@ -644,3 +644,10 @@ class EndorsedGoalsInNgoAPIViewSerializer(serializers.ModelSerializer):
         model = Goal
         fields = ['id','image','title','slug']
 
+
+class UserSearchAPIViewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['id', 'email']
+

@@ -15,7 +15,7 @@ from user.serializers import UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
-    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer
+    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -331,3 +331,14 @@ class DashboardAppAPIView(RetrieveAPIView):
 
     def get_object(self):
         return Profile.objects.get(user=self.request.user)
+
+
+class UserSearchAPIView(ListAPIView):
+    serializer_class = UserSearchAPIViewSerializer
+
+    def get_queryset(self):
+        query = self.request.GET.get('query')
+        user_list=User.objects.filter(~Q(user_profile__profile_type="NGO"))
+        if query:
+            user_list=User.objects.filter(Q(email__icontains=query) | Q(full_name__icontains=query)).filter(~Q(user_profile__profile_type="NGO"))
+        return user_list
