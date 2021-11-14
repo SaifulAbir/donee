@@ -2,7 +2,7 @@ from django.db.models.functions.text import Length
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from goal.models import SDGS, Goal, GoalSave
-from payment.models import Transaction, Wallet, Payment
+from payment.models import Transaction, Wallet, Payment, Distribution
 from .models import *
 from goal.models import Goal
 from rest_framework.validators import UniqueValidator
@@ -606,6 +606,8 @@ class DashboardAppSerializer(serializers.ModelSerializer):
         ngo_donations = 0
         payment1= 0
         payment2= 0
+        payment3= 0
+        total_amount= 0
         today = datetime.date.today()
         thirty_days_ago = today - datetime.timedelta(days=30)
         query=Profile.objects.filter(ngo_profile_id=obj.id)
@@ -616,10 +618,11 @@ class DashboardAppSerializer(serializers.ModelSerializer):
         for ngo_goal in ngo_goal_query:
             ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__gte=thirty_days_ago)
             if ngo_donation_query:
-
+              
                 for don in ngo_donation_query:
-                    payment1=don.payment
-                    ngo_donations+=payment1.amount
+                    ngo_distribution= Distribution.objects.get(transaction=don)
+                    payment1=ngo_distribution.ngo_amount
+                    ngo_donations+=payment1
 
         for donee_obj in query:
             donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
@@ -627,13 +630,17 @@ class DashboardAppSerializer(serializers.ModelSerializer):
             if donee_obj_goal_query:
                 for donee_goal in donee_obj_goal_query:
                     donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).filter(payment_updated_at__gte=thirty_days_ago)
-
+        
                     if donee_donation_query:
                         for dona in donee_donation_query:
-                            payment2=don.payment
-                            donee_donations+=payment2.amount
+                            donee_distribution= Distribution.objects.get(transaction=dona)
+                            payment2=donee_distribution.donee_amount
+                            payment3=donee_distribution.ngo_amount
+                            total_amount=payment2+payment3
+                            donee_donations+=total_amount
         total_donations = ngo_donations + donee_donations
         return total_donations
+
 class InvitationSerializer(serializers.Serializer):
     emails = serializers.ListField(child=serializers.EmailField(), write_only=True)
     invitation_link = serializers.CharField(write_only=True)
