@@ -3,6 +3,7 @@ from django.core.mail import send_mail
 from django.db.models import Count, Q, F
 from django.db.models.functions import Concat
 from django.db.models.query import Prefetch, QuerySet
+from django.template.loader import render_to_string, get_template
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -308,10 +309,11 @@ class SendInvitationLink(APIView):
     def post(self, request, *args, **kwargs):
         invitation_serializer = InvitationSerializer(data=request.data)
         if invitation_serializer.is_valid():
+            profile = Profile.objects.get(user=self.request.user)
             invitation_link = request.data.get('invitation_link')
             email_list = request.POST.getlist('emails')
-            subject = "You are invited to become donee"
-            html_message = "<h4>To accept invitation please click on the link below.</h3><br><a href={}>Click Here!</a>".format(invitation_link)
+            subject = "You have been invited to become donee"
+            html_message = render_to_string('invitation_email.html', {'invitation_link': invitation_link, 'ngo_username': profile.username})
             send_mail(
                 subject=subject,
                 message=None,
