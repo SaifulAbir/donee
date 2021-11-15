@@ -485,12 +485,13 @@ class DashboardAppSerializer(serializers.ModelSerializer):
     total_donations = serializers.SerializerMethodField('_get_total_donations')
     total_collected = serializers.SerializerMethodField('_get_total_collected')
     total_30_days_raised = serializers.SerializerMethodField('_get_total_30_days_raised')
+    total_today_collected = serializers.SerializerMethodField('_get_today_collected')
 
 
 
     class Meta:
         model = Profile
-        fields = ['total_active_goals','total_completed_goals','total_donee_count','view_count','total_donations','total_collected','total_30_days_raised']
+        fields = ['total_active_goals','total_completed_goals','total_donee_count','view_count','total_donations','total_collected','total_30_days_raised','total_today_collected']
 
 
     def _get_total_completed_goals(self, obj):
@@ -640,6 +641,47 @@ class DashboardAppSerializer(serializers.ModelSerializer):
                             donee_donations+=total_amount
         total_donations = ngo_donations + donee_donations
         return total_donations
+
+    def _get_today_collected(self, obj):
+        total_donations = 0
+        donee_donations = 0
+        ngo_donations = 0
+        payment1= 0
+        payment2= 0
+        payment3= 0
+        total_amount= 0
+        today = datetime.date.today()
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+        ngo_goal_query=Goal.objects.filter(profile=obj)
+
+
+
+        for ngo_goal in ngo_goal_query:
+            ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__date=today)
+            if ngo_donation_query:
+              
+                for don in ngo_donation_query:
+                    ngo_distribution= Distribution.objects.get(transaction=don)
+                    payment1=ngo_distribution.ngo_amount
+                    ngo_donations+=payment1
+
+        for donee_obj in query:
+            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
+
+            if donee_obj_goal_query:
+                for donee_goal in donee_obj_goal_query:
+                    donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).filter(payment_updated_at__date=today)
+        
+                    if donee_donation_query:
+                        for dona in donee_donation_query:
+                            donee_distribution= Distribution.objects.get(transaction=dona)
+                            payment2=donee_distribution.donee_amount
+                            payment3=donee_distribution.ngo_amount
+                            total_amount=payment2+payment3
+                            donee_donations+=total_amount
+        total_donations = ngo_donations + donee_donations
+        return total_donations
+
 
 class InvitationSerializer(serializers.Serializer):
     emails = serializers.ListField(child=serializers.EmailField(), write_only=True)
