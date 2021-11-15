@@ -12,13 +12,12 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from payment.models import Payment
 from user.models import NgoUser, NgoUserRole, User, Profile, Country,Notification,ProfileFollow,UserFollow
 from goal.models import Goal, GoalSave
-from user.serializers import NgoUserCreateSerializer, NgoUserListSerializer, NgoUserRoleUpdateSerializer, NgoUserStatusUpdateSerializer, RoleListSerializer, UserProfileUpdateSerializer, \
+from user.serializers import NgoUserCreateSerializer, NgoUserListSerializer, NgoUserRoleUpdateSerializer, \
+    NgoUserStatusUpdateSerializer, RoleListSerializer, UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
-    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer
-    InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, DashboardMyWalletSerializer, \
-    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer
+    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer, DashboardMyWalletSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
