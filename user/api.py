@@ -17,6 +17,8 @@ from user.serializers import NgoUserCreateSerializer, NgoUserListSerializer, Ngo
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
     DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer
+    InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, DashboardMyWalletSerializer, \
+    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -373,3 +375,11 @@ class NgoUserUpdateStatusAPIView(UpdateAPIView):
 
 
 
+
+
+
+class DashboardMyWalletAPIView(RetrieveAPIView):
+    serializer_class = DashboardMyWalletSerializer
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
