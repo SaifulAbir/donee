@@ -7,6 +7,7 @@ from .models import *
 from goal.models import Goal
 from rest_framework.validators import UniqueValidator
 import datetime
+from django.db.models.functions import Extract
 
 
 class UserRegSerializer(serializers.ModelSerializer):
@@ -612,11 +613,12 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
     total_income = serializers.SerializerMethodField('_get_total_collected')
     today_income = serializers.SerializerMethodField('_get_today_collected')
     today_income_percentage = serializers.SerializerMethodField('_get_today_percentage')
+    monthly_income = serializers.SerializerMethodField('_get_monthly_income')
 
 
     class Meta:
         model = Profile
-        fields = ['total_income','today_income','today_income_percentage']
+        fields = ['total_income','today_income','today_income_percentage','monthly_income']
 
 
     def _get_total_collected(self, obj):
@@ -736,4 +738,52 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
         today_percentage=(today_collected*100)/total_collected
  
         return today_percentage
+
+
+    # def _get_monthly_income(self, obj):
+    #     jan=0
+    #     feb=0
+    #     mar=0
+    #     apr=0
+    #     may=0
+    #     jun=0
+    #     jul=0
+    #     aug=0
+    #     sep=0
+    #     octo=0 
+    #     nov=0
+    #     dec=0
+
+    #     query=Profile.objects.filter(ngo_profile_id=obj.id)
+    #     ngo_month_data=Transaction.objects.filter(payment__profile=obj)
+    #     ngo_month= Transaction.objects.annotate(month_stamp=Extract('payment_updated_at', 'month')).values_list('month_stamp', flat=True).filter(payment__profile=obj)
+    #     for data in ngo_month_data:
+    #         for date in ngo_month:
+    #             if date=1:
+    #                 jan+=data.
+    #             if date=2:
+    #                 feb+=1
+    #             if date=3:
+    #                 mar+=1
+    #             if date=4:
+    #                 apr+=1
+    #             if date=5:
+    #                 may+=1
+    #             if date=6:
+    #                 jun+=1
+    #             if date=7:
+    #                 jul+=1
+    #             if date=8:
+    #                 aug+=1
+    #             if date=9:
+    #                 sep+=1
+    #             if date=10:
+    #                 octo+=1
+    #             if date=11:
+    #                 nov+=1
+    #             if date=12:
+    #                 dec+=1
+            
+    #     months = Transaction.objects.annotate(month_stamp=Extract('payment_updated_at', 'month')).values_list('month_stamp', flat=True)
+    #     print(months)
 
