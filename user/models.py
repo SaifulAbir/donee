@@ -242,7 +242,7 @@ class NgoUserRole(DoneeModel):
 class NgoUser(DoneeModel):
     role = models.ForeignKey(NgoUserRole, on_delete=models.PROTECT, related_name='role_ngo_user')
     profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name='role_profile') 
-    user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='role_user')
+    user = models.ForeignKey(User, on_delete=models.PROTECT,related_name='user_ngo_user')
     is_active = models.BooleanField(default=False)
 
     class Meta:

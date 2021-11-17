@@ -74,6 +74,12 @@ class Wallet(DoneeModel):
 
 
 class Distribution(DoneeModel):
+    CASHOUT_STATUS = [
+        ('INITIAL', 'Initial'),
+        ('PENDING', 'Pending'),
+        ('REJECTED', 'Reject'),
+        ('PAID', 'Paid'),
+    ]
     transaction = models.OneToOneField(
         Transaction, related_name='transaction_distribution', on_delete=models.PROTECT,
         verbose_name='transaction'
@@ -83,6 +89,8 @@ class Distribution(DoneeModel):
     ngo_amount = models.DecimalField(max_digits=19, decimal_places=2)
     donee_amount = models.DecimalField(max_digits=19, decimal_places=2, null=True, blank=True)
     platform_amount = models.DecimalField(max_digits=19, decimal_places=2)
+    ngo_cashout_status = models.CharField(max_length=30, choices=CASHOUT_STATUS, default=CASHOUT_STATUS[0][0])
+    donee_cashout_status = models.CharField(max_length=30, choices=CASHOUT_STATUS, default=CASHOUT_STATUS[0][0])
 
     class Meta:
         verbose_name = 'Distribution'
@@ -132,3 +140,26 @@ class WalletDistribution(DoneeModel):
         verbose_name = 'WalletDistribution'
         verbose_name_plural = 'WalletDistributions'
         db_table = 'wallet_distribution'
+
+
+class Cashout(DoneeModel):
+    CASHOUT_TYPES = [
+        ('PENDING', 'Pending'),
+        ('ACCEPTED', 'Accept'),
+        ('REJECTED', 'Reject'),
+        ('PAID', 'Paid'),
+    ]
+    remark = models.TextField()
+    goal = models.ForeignKey(Goal, on_delete=models.PROTECT, related_name="goal_cashout")
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="user_cashout")
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name="profile_cashout")
+    status = models.CharField(max_length=30, choices=CASHOUT_TYPES, default=CASHOUT_TYPES[0][0])
+    requested_amount = models.DecimalField(max_digits=19, decimal_places=2)
+
+    class Meta:
+        verbose_name = 'Cashout'
+        verbose_name_plural = 'Cashouts'
+        db_table = 'cashouts'
+
+    def __str__(self):
+        return str(self.remark)

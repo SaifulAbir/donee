@@ -1,4 +1,7 @@
 import decimal
+
+from django.db.models import Sum, DecimalField
+from django.db.models.functions import Coalesce
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from .models import *
@@ -177,3 +180,32 @@ class TransactionSerializer(serializers.ModelSerializer):
         if goal_obj.first().paid_amount == goal_obj.first().total_amount:
             goal_obj.update(status="COMPLETED")
         return transaction_instance
+
+
+class CashoutSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cashout
+        fields = ('remark', "goal", "user", "profile", "status", "requested_amount")
+        read_only_fields = ('user', "profile", "status", 'requested_amount')
+
+    def create(self, validated_data):
+        profile = validated_data["goal"].profile
+        goal = validated_data["goal"]
+        if goal==None:
+            user = self.context['request'].user
+        else:
+            if profile.profile_type=="DONEE":
+                amount = Payment.objects.filter(goal=goal).aggregate(
+                    available_amount=Coalesce(Sum(
+                        'payment_transaction__transaction_distribution__donee_amount',
+                    ), 0, output_field=DecimalField()),
+                )
+            elif profile.profile_type=="NGO":
+                amount = Payment.objects.filter(goal=goal).aggregate(
+                    available_amount=Coalesce(Sum(
+                        'payment_transaction__transaction_distribution__ngo_amount',
+                    ), 0, output_field=DecimalField()),
+                )
+        requested_amount = amount
+        cashout_instance = Cashout.objects.create(**validated_data, user=self.context['request'].user,
+                                                  profile=profile)

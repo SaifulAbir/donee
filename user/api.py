@@ -341,9 +341,12 @@ class UserSearchAPIView(ListAPIView):
 
     def get_queryset(self):
         query = self.request.GET.get('query')
-        user_list=User.objects.filter(~Q(user_profile__profile_type="DONEE"))
+        profile = Profile.objects.get(user=self.request.user)
+        ngo_user = NgoUser.objects.filter(profile=profile)
+        user_list=User.objects.filter(~Q(user_profile__profile_type="DONEE") & ~Q(id=self.request.user.id))
         if query:
-            user_list=User.objects.filter(Q(email__icontains=query) | Q(full_name__icontains=query)).filter(~Q(user_profile__profile_type="DONEE"))
+            user_list=User.objects.filter(Q(email__icontains=query) | Q(full_name__icontains=query)).\
+                filter(~Q(user_profile__profile_type="DONEE") & ~Q(id=self.request.user.id) & ~Q(user_ngo_user__in=ngo_user))
         return user_list
 
 
