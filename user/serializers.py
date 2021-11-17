@@ -134,7 +134,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image', 'user_notification', 'goalsave_user',
+        model_fields = ['id', 'username', 'full_name', 'country', 'phone_number', 'bio', 'image', 'user_notification', 'goalsave_user',
                         'total_donated_amount', 'total_follow_count', 'total_following_count']
         extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
                         'NGO_role_assign', 'user_profile', 'user_payment', 'total_supported_goals']
@@ -191,7 +191,7 @@ class DonorProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        model_fields = ['username', 'full_name', 'country', 'phone_number', 'bio', 'image',
+        model_fields = ['id', 'username', 'full_name', 'country', 'phone_number', 'bio', 'image',
                         'total_donated_amount', 'total_supported_goals', 'user_payment', 'total_follow_count','total_following_count' ]
         fields = model_fields
 
