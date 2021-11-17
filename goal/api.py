@@ -1,14 +1,14 @@
 from itertools import chain
 from django.db.models import Q, Count, Value, F, CharField, Prefetch, Subquery, Max, Min, ExpressionWrapper, \
-    IntegerField
-from django.db.models.functions import Concat, text
+    IntegerField, Sum, DecimalField
+from django.db.models.functions import Concat, text, Coalesce
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from Donee.pagination import CustomPagination
 from Donee.settings import MEDIA_URL
 from goal.serializers import GoalCommentCreateSerializer, PopularGoalSerializer, SearchSerializer, \
-    DashboardGoalCountSerializer, DashboardGoalListSerializer
+    DashboardGoalCountSerializer, DashboardGoalListSerializer, PaidGoalListSerializer
 from goal.models import SDGS, Goal, GoalSDGS, Like, Comment
 from payment.models import Payment
 from goal.models import SDGS, Goal, GoalSDGS, GoalSave,Like,Comment
@@ -334,3 +334,29 @@ class GoalStatusUpdateAPI(CreateAPIView):
             else:
                 raise ValidationError({"goal":'this field may not be null'
             })
+
+
+class PaidGoalListAPIView(APIView):
+
+    def get(self, request):
+        profile = Profile.objects.get(user=self.request.user)
+        goals = Goal.objects.filter(Q(profile=profile)).annotate(
+            available_amount=Coalesce(Sum(
+                'goal_payment__payment_transaction__transaction_distribution__donee_amount',
+                filter=Q(goal_payment__status='PAID')
+            ), 0, output_field=DecimalField())
+        )
+        donee_goals = Goal.objects.filter(Q(profile__ngo_profile_id = profile.id))
+
+        ngo_amount_from_donee = donee_goals.aggregate(
+            available_amount=Coalesce(Sum(
+                'goal_payment__payment_transaction__transaction_distribution__ngo_amount',
+            ), 0, output_field=DecimalField()),
+        )
+
+        ngo_amount_from_donee = {"ngo_amount_from_donee": ngo_amount_from_donee["available_amount"]}
+        goal_list = PaidGoalListSerializer(goals, many=True).data
+        data = {"goals": goal_list}
+        if profile.profile_type=="NGO":
+            data = {"goals": goal_list, "ngo_amount_from_donee": ngo_amount_from_donee}
+        return Response(data)

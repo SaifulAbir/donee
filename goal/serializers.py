@@ -318,6 +318,13 @@ class DashboardGoalCountSerializer(serializers.ModelSerializer):
         fields = ['active_goals', 'completed_goals', 'pending_goals', 'rejected_goals', 'average_goal_conversion_rate']
 
 
+class PaidGoalListSerializer(serializers.ModelSerializer):
+    available_amount = serializers.CharField(read_only=True)
+    class Meta:
+        model = Goal
+        fields = ['id', 'title', 'image', 'slug', 'paid_amount', 'total_amount', 'available_amount']
+
+
 class SearchSerializer(serializers.Serializer):
     uid = serializers.CharField()
     title = serializers.CharField()
