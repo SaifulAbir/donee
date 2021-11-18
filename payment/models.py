@@ -77,7 +77,9 @@ class Distribution(DoneeModel):
     CASHOUT_STATUS = [
         ('INITIAL', 'Initial'),
         ('PENDING', 'Pending'),
-        ('REJECTED', 'Reject'),
+        ('ACCEPTED', 'Accept'),
+        ('REJECTED_BY_NGO', 'Reject by ngo'),
+        ('REJECTED_BY_ADMIN', 'Reject by admin'),
         ('PAID', 'Paid'),
     ]
     transaction = models.OneToOneField(
@@ -146,7 +148,8 @@ class Cashout(DoneeModel):
     CASHOUT_TYPES = [
         ('PENDING', 'Pending'),
         ('ACCEPTED', 'Accept'),
-        ('REJECTED', 'Reject'),
+        ('REJECTED_BY_NGO', 'Reject by ngo'),
+        ('REJECTED_BY_ADMIN', 'Reject by admin'),
         ('PAID', 'Paid'),
     ]
     remark = models.TextField()
@@ -163,3 +166,30 @@ class Cashout(DoneeModel):
 
     def __str__(self):
         return str(self.remark)
+
+
+class CashoutDistribution(DoneeModel):
+    """
+        distribution: one to many relation
+    """
+    CASHOUT_DISTRIBUTION_TYPES = [
+        ('PENDING', 'Pending'),
+        ('ACCEPTED', 'Accept'),
+        ('REJECTED_BY_NGO', 'Reject by ngo'),
+        ('REJECTED_BY_ADMIN', 'Reject by admin'),
+        ('PAID', 'Paid'),
+    ]
+    distribution = models.ForeignKey(
+        Distribution, related_name='distribution_cashout', on_delete=models.PROTECT,
+        verbose_name='Distribution'
+    )
+    cashout = models.ForeignKey(
+        Cashout, related_name='cashout_distribution', on_delete=models.PROTECT,
+        verbose_name='Cashout'
+    )
+    status = models.CharField(max_length=30, choices=CASHOUT_DISTRIBUTION_TYPES, default=CASHOUT_DISTRIBUTION_TYPES[0][0])
+
+    class Meta:
+        verbose_name = 'CashoutDistribution'
+        verbose_name_plural = 'CashoutDistributions'
+        db_table = 'cashout_distribution'

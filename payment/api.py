@@ -8,3 +8,7 @@ class PaymentCreateAPIView(CreateAPIView):
 
 class TransactionCreateAPIView(CreateAPIView):
     serializer_class = TransactionSerializer
+
+
+class CashoutCreateAPIView(CreateAPIView):
+    serializer_class = CashoutSerializer

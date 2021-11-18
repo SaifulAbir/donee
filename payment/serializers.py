@@ -1,6 +1,6 @@
 import decimal
 
-from django.db.models import Sum, DecimalField
+from django.db.models import Sum, DecimalField, Q
 from django.db.models.functions import Coalesce
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -186,26 +186,55 @@ class CashoutSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cashout
         fields = ('remark', "goal", "user", "profile", "status", "requested_amount")
-        read_only_fields = ('user', "profile", "status", 'requested_amount')
+        read_only_fields = ('user', "status", 'requested_amount')
 
     def create(self, validated_data):
-        profile = validated_data["goal"].profile
+        profile = validated_data["profile"]
         goal = validated_data["goal"]
         if goal==None:
-            user = self.context['request'].user
-        else:
-            if profile.profile_type=="DONEE":
-                amount = Payment.objects.filter(goal=goal).aggregate(
+            amount = Distribution.objects.filter(
+                Q(transaction__payment__goal__profile__ngo_profile_id=profile.id) & Q(ngo_cashout_status="INITIAL")).aggregate(
                     available_amount=Coalesce(Sum(
-                        'payment_transaction__transaction_distribution__donee_amount',
+                        'ngo_amount',
                     ), 0, output_field=DecimalField()),
                 )
+            distribution = Distribution.objects.filter(
+                Q(transaction__payment__goal__profile__ngo_profile_id=profile.id) & Q(ngo_cashout_status="INITIAL"))
+            distribution.update(ngo_cashout_status="PENDING")
+            cashout_instance = Cashout.objects.create(**validated_data, user=self.context['request'].user,
+                                                      requested_amount=amount,
+                                                      created_by=self.context['request'].user)
+            for each_distribution in distribution:
+                CashoutDistribution.objects.create(distribution=each_distribution, cashout=cashout_instance,
+                                                   status="PENDING", created_by=self.context['request'].user)
+        else:
+            if profile.profile_type=="DONEE":
+                amount = Distribution.objects.filter(Q(transaction__payment__goal=goal) | Q(donee_cashout_status="INITIAL")).aggregate(
+                    available_amount=Coalesce(Sum(
+                        'donee_amount',
+                    ), 0, output_field=DecimalField()),
+                )
+                distribution = Distribution.objects.filter(
+                    Q(transaction__payment__goal=goal)|Q(donee_cashout_status="INITIAL"))
+                distribution.update(donee_cashout_status="PENDING")
+                cashout_instance = Cashout.objects.create(**validated_data, user=self.context['request'].user,
+                                                          requested_amount=amount,
+                                                          created_by=self.context['request'].user)
+                for each_distribution in distribution:
+                    CashoutDistribution.objects.create(distribution=each_distribution, cashout=cashout_instance,
+                                                       status="PENDING", created_by=self.context['request'].user)
             elif profile.profile_type=="NGO":
                 amount = Payment.objects.filter(goal=goal).aggregate(
                     available_amount=Coalesce(Sum(
                         'payment_transaction__transaction_distribution__ngo_amount',
                     ), 0, output_field=DecimalField()),
                 )
-        requested_amount = amount
-        cashout_instance = Cashout.objects.create(**validated_data, user=self.context['request'].user,
-                                                  profile=profile)
+                distribution = Distribution.objects.filter(
+                    transaction__payment__goal=goal)
+                distribution.update(ngo_cashout_status="PENDING")
+                cashout_instance = Cashout.objects.create(**validated_data, user=self.context['request'].user,
+                                                          requested_amount=amount,
+                                                          created_by=self.context['request'].user)
+                for each_distribution in distribution:
+                    CashoutDistribution.objects.create(distribution=each_distribution, cashout=cashout_instance,
+                                                       status="PENDING", created_by=self.context['request'].user)
