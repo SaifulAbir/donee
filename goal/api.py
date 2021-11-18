@@ -339,7 +339,7 @@ class GoalStatusUpdateAPI(CreateAPIView):
 class PaidGoalListAPIView(APIView):
 
     def post(self, request):
-        profile = request.POST.get("profile")
+        profile = Profile.objects.get(id=request.POST.get("profile"))
         # profile = Profile.objects.get(user=self.request.user)
         if profile.profile_type=="DONEE":
             goals = Goal.objects.filter(Q(profile=profile)).annotate(
