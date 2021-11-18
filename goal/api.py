@@ -338,14 +338,23 @@ class GoalStatusUpdateAPI(CreateAPIView):
 
 class PaidGoalListAPIView(APIView):
 
-    def get(self, request):
-        profile = Profile.objects.get(user=self.request.user)
-        goals = Goal.objects.filter(Q(profile=profile)).annotate(
-            available_amount=Coalesce(Sum(
-                'goal_payment__payment_transaction__transaction_distribution__donee_amount',
-                filter=Q(goal_payment__status='PAID')
-            ), 0, output_field=DecimalField())
-        )
+    def post(self, request):
+        profile = request.POST.get("profile")
+        # profile = Profile.objects.get(user=self.request.user)
+        if profile.profile_type=="DONEE":
+            goals = Goal.objects.filter(Q(profile=profile)).annotate(
+                available_amount=Coalesce(Sum(
+                    'goal_payment__payment_transaction__transaction_distribution__donee_amount',
+                    filter=Q(goal_payment__status='PAID')
+                ), 0, output_field=DecimalField())
+            )
+        elif profile.profile_type=="NGO":
+            goals = Goal.objects.filter(Q(profile=profile)).annotate(
+                available_amount=Coalesce(Sum(
+                    'goal_payment__payment_transaction__transaction_distribution__ngo_amount',
+                    filter=Q(goal_payment__status='PAID')
+                ), 0, output_field=DecimalField())
+            )
         donee_goals = Goal.objects.filter(Q(profile__ngo_profile_id = profile.id))
 
         ngo_amount_from_donee = donee_goals.aggregate(
