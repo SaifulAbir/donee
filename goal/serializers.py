@@ -331,7 +331,7 @@ class SearchSerializer(serializers.Serializer):
     type = serializers.CharField()
     img = serializers.CharField(required=False)
 
-class PaidGoalSerializer(serializers.ModelSerializer):
+class PaidGoalSerializer(serializers.Serializer):
     profile = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all(), many=False)
 
 
