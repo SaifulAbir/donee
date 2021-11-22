@@ -1,5 +1,6 @@
+import decimal
 from django.db.models.functions.text import Length
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from goal.models import SDGS, Goal, GoalSave
 from payment.models import Transaction, Wallet, Payment, Distribution
@@ -8,6 +9,8 @@ from goal.models import Goal
 from rest_framework.validators import UniqueValidator
 import datetime
 from django.db.models.functions import Extract
+from itertools import zip_longest
+from rest_framework.response import Response
 
 
 class UserRegSerializer(serializers.ModelSerializer):
@@ -1080,3 +1083,282 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
         date=["01/01/2020","02/01/2020","03/01/2020","04/01/2020","05/01/2020","06/01/2020","07/01/2020","08/01/2020","09/01/2020","10/01/2020","11/01/2020","12/01/2020"]
         return data_list,date
 
+
+class DashboardDonorSerializer(serializers.ModelSerializer):
+    donors = serializers.SerializerMethodField('_get_donors_count')
+    donations = serializers.SerializerMethodField('_get_donations')
+    donations_amount = serializers.SerializerMethodField('_get_donations_amount')
+    new_donors = serializers.SerializerMethodField('_get_new_donors')
+    donors_by_country = serializers.SerializerMethodField('_get_donors_by_country')
+    recent_activity = serializers.SerializerMethodField('_get_recent_activity')
+
+    class Meta:
+        model = Profile
+        fields = ['donors', 'donations', 'donations_amount', 'new_donors', 'donors_by_country','recent_activity']
+
+    
+    def _get_donations(self,obj):
+        total_goal_donations = 0
+        donee_goal_donations = 0
+        ngo_goal_donations = 0
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+        ngo_goal_query=Goal.objects.filter(profile=obj)
+
+        for ngo_goal in ngo_goal_query:
+            ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal)
+            if ngo_donation_query:
+                for don in ngo_donation_query:
+                    ngo_goal_donations+=1
+
+        for donee_obj in query:
+            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
+
+            if donee_obj_goal_query:
+                for donee_goal in donee_obj_goal_query:
+                    donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal)
+
+                    if donee_donation_query:
+                        for dona in donee_donation_query:
+                            donee_goal_donations+=1
+        total_goal_donations = ngo_goal_donations + donee_goal_donations
+        return total_goal_donations
+
+
+    def _get_donors_count(self,obj):
+        total_unique_donors = 0
+        ngo_goal_donor_count = 0
+        donee_goal_donor_count = 0
+        ngo_donor_list=[]
+        unique_ngo_donor_list=[]
+        donee_donor_list=[]
+        unique_donee_donor_list=[]
+        
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+        ngo_goal_query=Goal.objects.filter(profile=obj)
+        
+        for ngo_goal in ngo_goal_query:
+            ngo_donation_query=Payment.objects.filter(goal=ngo_goal)
+            if ngo_donation_query:
+                for don in ngo_donation_query:
+                    donor = don.user.id
+                    ngo_donor_list.append(donor)
+            
+            unique_ngo_donor_list = set(ngo_donor_list)
+            ngo_goal_donor_count = len(unique_ngo_donor_list)
+
+        
+        for donee_obj in query:
+            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj) 
+
+            if donee_obj_goal_query:
+                for goal in donee_obj_goal_query:
+                    donee_donation_query=Payment.objects.filter(goal=goal)
+                    if donee_donation_query:
+                        for don in donee_donation_query:
+                            donor=don.user.id
+                            donee_donor_list.append(donor)
+            
+            unique_donee_donor_list = set(donee_donor_list)
+            donee_goal_donor_count = len(unique_donee_donor_list)
+            
+        
+        total_unique_donors = ngo_goal_donor_count + donee_goal_donor_count
+        return total_unique_donors
+
+    def _get_donations_amount(self,obj):
+        ngo_donations_amount = 0.0
+        donee_donations_amount = 0.0
+        total_donations_amount = 0.0
+        
+        
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+        ngo_goal_query=Goal.objects.filter(profile=obj)
+        
+        for ngo_goal in ngo_goal_query:
+            ngo_donation_query=Payment.objects.filter(goal=ngo_goal)
+            if ngo_donation_query:
+                for don in ngo_donation_query:
+                    ngo_amount = don.amount
+                    ngo_donations_amount = decimal.Decimal(ngo_donations_amount) + decimal.Decimal(ngo_amount)
+                
+                    
+        for donee_obj in query:
+            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj) 
+
+            if donee_obj_goal_query:
+                for goal in donee_obj_goal_query:
+                    donee_donation_query=Payment.objects.filter(goal=goal)
+                    if donee_donation_query:
+                        for don in donee_donation_query:
+                            donee_amount=don.amount
+                            donee_donations_amount = decimal.Decimal(donee_donations_amount) + decimal.Decimal(donee_amount)
+                       
+        total_donations_amount = ngo_donations_amount + donee_donations_amount  
+        return total_donations_amount 
+
+    def _get_new_donors(self, obj):
+        total_new_donors = 0
+        ngo_goal_donor_count = 0
+        donee_goal_donor_count = 0
+        ngo_donor_list=[]
+        new_ngo_donor_list=[]
+        donee_donor_list=[]
+        new_donee_donor_list=[]
+        today = datetime.date.today()
+        
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+        ngo_goal_query=Goal.objects.filter(profile=obj)
+        
+        for ngo_goal in ngo_goal_query:
+            ngo_donation_query=Payment.objects.filter(goal=ngo_goal, created_at= today)
+            if ngo_donation_query:
+                for don in ngo_donation_query:
+                    donor = don.user.id
+                    ngo_donor_list.append(donor)
+            
+            new_ngo_donor_list = set(ngo_donor_list)
+            ngo_goal_donor_count = len(new_ngo_donor_list)
+
+         
+
+        for donee_obj in query:
+            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj) 
+
+            if donee_obj_goal_query:
+                for goal in donee_obj_goal_query:
+                    donee_donation_query=Payment.objects.filter(goal=goal, created_at = today)
+                    if donee_donation_query:
+                        for don in donee_donation_query:
+                            donor=don.user.id
+                            donee_donor_list.append(donor)
+            
+            new_donee_donor_list = set(donee_donor_list)
+            donee_goal_donor_count = len(new_donee_donor_list)
+            
+        
+        total_new_donors = ngo_goal_donor_count + donee_goal_donor_count
+        return total_new_donors
+
+    def _get_donors_by_country(self, obj):
+        ngo_donor_country_list=[]
+        country_id_list = []
+        country_name_list = []
+        ngo_donor_country_count_list = []
+        donee_donor_country_count_list = []
+        total_donor_country_count_list = []
+        donor_country_count_percentage_list = []
+        donor_country_count_percentage_round_list = []
+        
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+        ngo_goal_query=Goal.objects.filter(profile=obj)
+        
+        for ngo_goal in ngo_goal_query:
+            ngo_donation_query=Payment.objects.filter(goal=ngo_goal)
+            if ngo_donation_query:
+                for don in ngo_donation_query:
+                    donors = don.user.id
+                    country = don.user.country
+                    ngo_donor_country_list.append(country)
+                
+        country_list = Country.objects.all()
+        for country in country_list:
+            country_id_list.append(country.id)
+            country_name_list.append(country.name)
+        
+
+        for country_id in country_id_list:
+            ngo_count = 0
+            for donor_country_id in ngo_donor_country_list:
+            
+                if country_id == donor_country_id:
+                    
+                    ngo_count +=1
+            ngo_donor_country_count_list.append(ngo_count)
+        
+        
+        for donee_obj in query:
+            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj) 
+
+            if donee_obj_goal_query:
+                for goal in donee_obj_goal_query:
+                    donee_donation_query=Payment.objects.filter(goal=goal)
+                    if donee_donation_query:
+                        for don in donee_donation_query:
+                            donor=don.user.id
+                            country = don.user.country.id
+                    ngo_donor_country_list.append(country)
+                    
+        
+        for country_id in country_id_list:
+            donee_count = 0
+            for donor_country_id in ngo_donor_country_list:
+            
+                if country_id == donor_country_id:
+                    donee_count +=1
+            donee_donor_country_count_list.append(donee_count)
+        
+        total_donor_country_count_list = list(map(sum, zip_longest(ngo_donor_country_count_list, donee_donor_country_count_list, fillvalue=0)))
+        total_donors = sum(total_donor_country_count_list)
+        donor_country_count_percentage_list = [percentage_donors/total_donors * 100 for percentage_donors in total_donor_country_count_list]
+        donor_country_count_percentage_round_list = ['%.2f' % elem for elem in donor_country_count_percentage_list]
+        
+        return donor_country_count_percentage_round_list, country_name_list
+
+    def _get_recent_activity(self,obj):
+        ngo_donor_list=[]
+        today = datetime.date.today()
+        seven_days_ago = today - datetime.timedelta(days=7)
+
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+        ngo_goal_query=Goal.objects.filter(profile=obj)
+        ngo = obj.full_name
+        for ngo_goal in ngo_goal_query:
+            ngo_donation_query=Payment.objects.filter(goal=ngo_goal, status="PAID").filter(created_at__gte=seven_days_ago)
+            
+            if ngo_donation_query:
+                for don in ngo_donation_query:
+                    donor = don.user.full_name
+                    created_at = don.created_at
+                    amount = don.amount
+                    
+                    ngo_dict = {'donor_fullname': donor, 'created_at': created_at, 'amount': amount , 'ngo_fullname': ngo}
+                    ngo_donor_list.append(ngo_dict)
+
+        for donee_obj in query:
+            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj) 
+            donee = donee_obj.full_name
+
+            if donee_obj_goal_query:
+                for goal in donee_obj_goal_query:
+                    donee_donation_query=Payment.objects.filter(goal=goal, status="PAID").filter(created_at__gte=seven_days_ago)
+                    if donee_donation_query:
+                        for don in donee_donation_query:
+                            donor=don.user.full_name
+                            donor = don.user.full_name
+                            created_at = don.created_at
+                            amount = don.amount
+
+                            donee_dict = {'donor_fullname': donor, 'created_at': created_at, 'amount': amount , 'donee_fullname': donee}
+                            ngo_donor_list.append(donee_dict)
+
+        return ngo_donor_list
+
+        
+        
+
+
+
+
+        
+        
+
+
+
+                
+        
+
+
+        
+
+            
+        
