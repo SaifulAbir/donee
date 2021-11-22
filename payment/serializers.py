@@ -202,7 +202,7 @@ class CashoutSerializer(serializers.ModelSerializer):
                 Q(transaction__payment__goal__profile__ngo_profile_id=profile.id) & Q(ngo_cashout_status="INITIAL"))
             distribution.update(ngo_cashout_status="PENDING")
             cashout_instance = Cashout.objects.create(**validated_data, user=self.context['request'].user,
-                                                      requested_amount=amount,
+                                                      requested_amount=amount["available_amount"],
                                                       created_by=self.context['request'].user)
             for each_distribution in distribution:
                 CashoutDistribution.objects.create(distribution=each_distribution, cashout=cashout_instance,
@@ -218,7 +218,7 @@ class CashoutSerializer(serializers.ModelSerializer):
                     Q(transaction__payment__goal=goal)|Q(donee_cashout_status="INITIAL"))
                 distribution.update(donee_cashout_status="PENDING")
                 cashout_instance = Cashout.objects.create(**validated_data, user=self.context['request'].user,
-                                                          requested_amount=amount,
+                                                          requested_amount=amount["available_amount"],
                                                           created_by=self.context['request'].user)
                 for each_distribution in distribution:
                     CashoutDistribution.objects.create(distribution=each_distribution, cashout=cashout_instance,
@@ -233,8 +233,9 @@ class CashoutSerializer(serializers.ModelSerializer):
                     transaction__payment__goal=goal)
                 distribution.update(ngo_cashout_status="PENDING")
                 cashout_instance = Cashout.objects.create(**validated_data, user=self.context['request'].user,
-                                                          requested_amount=amount,
+                                                          requested_amount=amount["available_amount"],
                                                           created_by=self.context['request'].user)
                 for each_distribution in distribution:
                     CashoutDistribution.objects.create(distribution=each_distribution, cashout=cashout_instance,
                                                        status="PENDING", created_by=self.context['request'].user)
+                return cashout_instance
