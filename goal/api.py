@@ -2,13 +2,14 @@ from itertools import chain
 from django.db.models import Q, Count, Value, F, CharField, Prefetch, Subquery, Max, Min, ExpressionWrapper, \
     IntegerField, Sum, DecimalField
 from django.db.models.functions import Concat, text, Coalesce
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from Donee.pagination import CustomPagination
 from Donee.settings import MEDIA_URL
 from goal.serializers import GoalCommentCreateSerializer, PopularGoalSerializer, SearchSerializer, \
-    DashboardGoalCountSerializer, DashboardGoalListSerializer, PaidGoalListSerializer
+    DashboardGoalCountSerializer, DashboardGoalListSerializer, PaidGoalListSerializer, PaidGoalSerializer
 from goal.models import SDGS, Goal, GoalSDGS, Like, Comment
 from payment.models import Payment
 from goal.models import SDGS, Goal, GoalSDGS, GoalSave,Like,Comment
@@ -337,26 +338,37 @@ class GoalStatusUpdateAPI(CreateAPIView):
 
 
 class PaidGoalListAPIView(APIView):
+    @swagger_auto_schema(request_body=PaidGoalSerializer)
+    def post(self, request):
+        paid_goal_serializer = PaidGoalSerializer(data=request.data)
+        if paid_goal_serializer.is_valid():
+            profile = Profile.objects.get(id=request.POST.get("profile"))
+            # profile = Profile.objects.get(user=self.request.user)
+            if profile.profile_type=="DONEE":
+                goals = Goal.objects.filter(Q(profile=profile)).annotate(
+                    available_amount=Coalesce(Sum(
+                        'goal_payment__payment_transaction__transaction_distribution__donee_amount',
+                        filter=Q(goal_payment__status='PAID')
+                    ), 0, output_field=DecimalField())
+                )
+            elif profile.profile_type=="NGO":
+                goals = Goal.objects.filter(Q(profile=profile)).annotate(
+                    available_amount=Coalesce(Sum(
+                        'goal_payment__payment_transaction__transaction_distribution__ngo_amount',
+                        filter=Q(goal_payment__status='PAID')
+                    ), 0, output_field=DecimalField())
+                )
+            donee_goals = Goal.objects.filter(Q(profile__ngo_profile_id = profile.id))
 
-    def get(self, request):
-        profile = Profile.objects.get(user=self.request.user)
-        goals = Goal.objects.filter(Q(profile=profile)).annotate(
-            available_amount=Coalesce(Sum(
-                'goal_payment__payment_transaction__transaction_distribution__donee_amount',
-                filter=Q(goal_payment__status='PAID')
-            ), 0, output_field=DecimalField())
-        )
-        donee_goals = Goal.objects.filter(Q(profile__ngo_profile_id = profile.id))
+            ngo_amount_from_donee = donee_goals.aggregate(
+                available_amount=Coalesce(Sum(
+                    'goal_payment__payment_transaction__transaction_distribution__ngo_amount',
+                ), 0, output_field=DecimalField()),
+            )
 
-        ngo_amount_from_donee = donee_goals.aggregate(
-            available_amount=Coalesce(Sum(
-                'goal_payment__payment_transaction__transaction_distribution__ngo_amount',
-            ), 0, output_field=DecimalField()),
-        )
-
-        ngo_amount_from_donee = {"ngo_amount_from_donee": ngo_amount_from_donee["available_amount"]}
-        goal_list = PaidGoalListSerializer(goals, many=True).data
-        data = {"goals": goal_list}
-        if profile.profile_type=="NGO":
-            data = {"goals": goal_list, "ngo_amount_from_donee": ngo_amount_from_donee}
-        return Response(data)
+            ngo_amount_from_donee = {"ngo_amount_from_donee": ngo_amount_from_donee["available_amount"]}
+            goal_list = PaidGoalListSerializer(goals, many=True).data
+            data = {"goals": goal_list}
+            if profile.profile_type=="NGO":
+                data = {"goals": goal_list, "ngo_amount_from_donee": ngo_amount_from_donee}
+            return Response(data)
