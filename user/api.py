@@ -12,7 +12,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from payment.models import Payment
 from user.models import NgoUser, NgoUserRole, User, Profile, Country,Notification,ProfileFollow,UserFollow
 from goal.models import Goal, GoalSave
-from user.serializers import NgoUserCreateSerializer, NgoUserListSerializer, NgoUserRoleUpdateSerializer, \
+from user.serializers import DashboardDonorSerializer, NgoUserCreateSerializer, NgoUserListSerializer, NgoUserRoleUpdateSerializer, \
     NgoUserStatusUpdateSerializer, RoleListSerializer, UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
@@ -372,13 +372,33 @@ class NgoUserUpdateStatusAPIView(UpdateAPIView):
     serializer_class= NgoUserStatusUpdateSerializer
 
 
-
-
-
-
-
 class DashboardMyWalletAPIView(RetrieveAPIView):
     serializer_class = DashboardMyWalletSerializer
 
     def get_object(self):
         return Profile.objects.get(user=self.request.user)
+
+
+class DashboardDonorsAPIView(RetrieveAPIView):
+    serializer_class = DashboardDonorSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
+        
+        
+        
+        
+        
+        
+        
+    
+
+        
+        
+
+
+
+
+
+    
