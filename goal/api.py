@@ -345,7 +345,7 @@ class PaidGoalListAPIView(APIView):
             profile = Profile.objects.get(id=request.POST.get("profile"))
             # profile = Profile.objects.get(user=self.request.user)
             if profile.profile_type=="DONEE":
-                goals = Goal.objects.filter(Q(profile=profile) & ~Q(goal_cashout__profile=profile)).annotate(
+                goals = Goal.objects.filter(Q(profile=profile)).annotate(
                     available_amount=Coalesce(Sum(
                         'goal_payment__payment_transaction__transaction_distribution__donee_amount',
                         filter=Q(goal_payment__status='PAID') & ~Q(goal_payment__payment_transaction__transaction_distribution__donee_cashout_status="PENDING")
