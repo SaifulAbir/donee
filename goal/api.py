@@ -345,17 +345,17 @@ class PaidGoalListAPIView(APIView):
             profile = Profile.objects.get(id=request.POST.get("profile"))
             # profile = Profile.objects.get(user=self.request.user)
             if profile.profile_type=="DONEE":
-                goals = Goal.objects.filter(Q(profile=profile)).annotate(
+                goals = Goal.objects.filter(Q(profile=profile) & ~Q(goal_cashout__profile=profile)).annotate(
                     available_amount=Coalesce(Sum(
                         'goal_payment__payment_transaction__transaction_distribution__donee_amount',
-                        filter=Q(goal_payment__status='PAID')
+                        filter=Q(goal_payment__status='PAID') & ~Q(goal_payment__payment_transaction__transaction_distribution__donee_cashout_status="INITIAL")
                     ), 0, output_field=DecimalField())
                 )
             elif profile.profile_type=="NGO":
                 goals = Goal.objects.filter(Q(profile=profile)).annotate(
                     available_amount=Coalesce(Sum(
                         'goal_payment__payment_transaction__transaction_distribution__ngo_amount',
-                        filter=Q(goal_payment__status='PAID')
+                        filter=Q(goal_payment__status='PAID') & ~Q(goal_payment__payment_transaction__transaction_distribution__ngo_cashout_status="INITIAL")
                     ), 0, output_field=DecimalField())
                 )
             donee_goals = Goal.objects.filter(Q(profile__ngo_profile_id = profile.id))
@@ -363,6 +363,8 @@ class PaidGoalListAPIView(APIView):
             ngo_amount_from_donee = donee_goals.aggregate(
                 available_amount=Coalesce(Sum(
                     'goal_payment__payment_transaction__transaction_distribution__ngo_amount',
+                    filter=Q(goal_payment__status='PAID') & ~Q(
+                        goal_payment__payment_transaction__transaction_distribution__ngo_cashout_status="INITIAL")
                 ), 0, output_field=DecimalField()),
             )
 
