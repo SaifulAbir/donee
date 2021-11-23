@@ -257,9 +257,6 @@ class CashoutHistoryListSerializers(serializers.ModelSerializer):
         model = Cashout
         fields = ('goal', 'requested_amount', 'remark', 'status')
 
-    def create(self, validated_data):
-        profile = validated_data["profile"]
-
 class WaitingforAdminListSerializer(serializers.ModelSerializer):
     goal = CashoutGoalSerializer()
     profile = CashoutProfileSerializer()
@@ -275,5 +272,4 @@ class WaitingforNGOListSerializer(serializers.ModelSerializer):
         model = Cashout
         fields = ( 'goal', 'profile', 'requested_amount', 'remark', 'status')
     
-    def create(self, validated_data):
-        profile = validated_data["profile"]
+    
