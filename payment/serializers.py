@@ -238,6 +238,7 @@ class CashoutSerializer(serializers.ModelSerializer):
                 for each_distribution in distribution:
                     CashoutDistribution.objects.create(distribution=each_distribution, cashout=cashout_instance,
                                                        status="PENDING", created_by=self.context['request'].user)
+        return cashout_instance
 
 class CashoutGoalSerializer(serializers.ModelSerializer):
 
@@ -271,7 +272,3 @@ class WaitingforNGOListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cashout
         fields = ( 'goal', 'profile', 'requested_amount', 'remark', 'status')
-
-
-
-                return cashout_instance

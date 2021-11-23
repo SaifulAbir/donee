@@ -153,7 +153,7 @@ class Cashout(DoneeModel):
         ('PAID', 'Paid'),
     ]
     remark = models.TextField()
-    goal = models.ForeignKey(Goal, on_delete=models.PROTECT, related_name="goal_cashout")
+    goal = models.ForeignKey(Goal, on_delete=models.PROTECT, related_name="goal_cashout", null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="user_cashout")
     profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name="profile_cashout")
     status = models.CharField(max_length=30, choices=CASHOUT_TYPES, default=CASHOUT_TYPES[0][0])
