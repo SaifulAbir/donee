@@ -37,5 +37,6 @@ urlpatterns = [
     path('ngo-user-status-update/<int:pk>/', NgoUserUpdateStatusAPIView.as_view()),
     path('dashboard/my-wallet/', DashboardMyWalletAPIView.as_view()),
     path('dashboard/donors/',DashboardDonorsAPIView.as_view()),
+
 ]
 

@@ -1,4 +1,4 @@
-from rest_framework.generics import  CreateAPIView, ListAPIView
+from rest_framework.generics import  CreateAPIView, ListAPIView, UpdateAPIView
 from rest_framework.views import APIView
 
 from goal.serializers import PaidGoalSerializer
@@ -44,5 +44,9 @@ class WaitingforNGOListAPIView(APIView):
             return Response(waiting_for_ngo_list)
 
 
-    
+class CashoutStatusUpdateAPIView(UpdateAPIView):
+    queryset=Cashout.objects.all()
+    serializer_class= CashoutUserUpdateSerializer
+
+
 

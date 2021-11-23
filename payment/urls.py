@@ -9,6 +9,6 @@ urlpatterns = [
     path('cashout-history-list/', CashoutHistoryListAPIView.as_view()),
     path('waiting-for-admin-list/', WaitingforAdminListAPIView.as_view()),
     path('waiting-for-ngo-list/', WaitingforNGOListAPIView.as_view()),
-
+    path('cashout-user-status-update/<int:pk>/',CashoutStatusUpdateAPIView.as_view()),
 ]
 
