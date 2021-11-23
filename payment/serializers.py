@@ -1,6 +1,6 @@
 import decimal
 
-from django.db.models import Sum, DecimalField, Q
+from django.db.models import Sum, DecimalField, Q, fields
 from django.db.models.functions import Coalesce
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -238,3 +238,42 @@ class CashoutSerializer(serializers.ModelSerializer):
                 for each_distribution in distribution:
                     CashoutDistribution.objects.create(distribution=each_distribution, cashout=cashout_instance,
                                                        status="PENDING", created_by=self.context['request'].user)
+
+class CashoutGoalSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Goal
+        fields = ('id', 'title', 'image', 'slug' )
+
+class CashoutProfileSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Profile
+        fields = ('id', 'username', 'type')
+
+class CashoutHistoryListSerializers(serializers.ModelSerializer):
+    goal = CashoutGoalSerializer()
+    class Meta:
+        model = Cashout
+        fields = ('goal', 'requested_amount', 'remark', 'status')
+
+    def create(self, validated_data):
+        profile = validated_data["profile"]
+
+class WaitingforAdminListSerializer(serializers.ModelSerializer):
+    goal = CashoutGoalSerializer()
+    profile = CashoutProfileSerializer()
+
+    class Meta:
+        model = Cashout
+        fields = ('goal', 'profile', 'requested_amount', 'remark', 'status')
+
+class WaitingforNGOListSerializer(serializers.ModelSerializer):
+    goal = CashoutGoalSerializer()
+
+    class Meta:
+        model = Cashout
+        fields = ( 'goal', 'profile', 'requested_amount', 'remark', 'status')
+    
+    def create(self, validated_data):
+        profile = validated_data["profile"]
