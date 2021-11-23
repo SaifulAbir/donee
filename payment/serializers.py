@@ -275,7 +275,6 @@ class WaitingforNGOListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cashout
         fields = ( 'goal', 'profile', 'requested_amount', 'remark', 'status')
-        fields = ('goal', 'profile', 'requested_amount', 'remark', 'status')
 
 class CashoutUserUpdateSerializer(serializers.ModelSerializer):
 
