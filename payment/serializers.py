@@ -253,7 +253,8 @@ class CashoutProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('id', 'username', 'type')
+        fields = ('id', 'username', 'profile_type', 'image')
+
 
 class CashoutHistoryListSerializers(serializers.ModelSerializer):
     goal = CashoutGoalSerializer()
@@ -271,6 +272,7 @@ class WaitingforAdminListSerializer(serializers.ModelSerializer):
 
 class WaitingforNGOListSerializer(serializers.ModelSerializer):
     goal = CashoutGoalSerializer()
+    profile = CashoutProfileSerializer()
 
     class Meta:
         model = Cashout
@@ -283,4 +285,12 @@ class CashoutUserUpdateSerializer(serializers.ModelSerializer):
         fields=('id', 'status')
 
 
+class CashoutPaidGoalSerializer(serializers.ModelSerializer):
+    profile = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all(), many=False)
 
+    class Meta:
+        model = Profile
+        fields = '__all__'
+
+
+    

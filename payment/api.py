@@ -17,31 +17,39 @@ class TransactionCreateAPIView(CreateAPIView):
 class CashoutCreateAPIView(CreateAPIView):
     serializer_class = CashoutSerializer
 
-
 class CashoutHistoryListAPIView(APIView):
      
      def post(self, request):
-        history_goal_serializer = PaidGoalSerializer(data=request.data)
-        if history_goal_serializer.is_valid():
-            profile = Profile.objects.get(id=request.POST.get("profile"))
-            queryset = Cashout.objects.filter(profile=profile)
-            cashout_history_list = CashoutHistoryListSerializers(queryset, many=True).data  
-            return Response(cashout_history_list)
+        profile = Profile.objects.get(id=request.POST.get("profile"))
+        queryset = Cashout.objects.filter(profile=profile)
+        cashout_history_list = CashoutHistoryListSerializers(queryset, many=True).data  
+        return Response(cashout_history_list)
+        
+        
+            
     
 
 class WaitingforAdminListAPIView(ListAPIView):
+    queryset = Cashout.objects.all()
     serializer_class = WaitingforAdminListSerializer
+
 
 class WaitingforNGOListAPIView(APIView):
 
     def post(self, request):
-        ngo_paid_goal_serializer = PaidGoalSerializer(data=request.data)
-        if ngo_paid_goal_serializer.is_valid():
-            profile = Profile.objects.get(id=request.POST.get("profile"))
-            donees=Profile.objects.filter(ngo_profile_id=profile.id)
-            queryset = Cashout.objects.filter(profile=donees)
-            waiting_for_ngo_list = WaitingforNGOListSerializer(queryset, many=True).data  
-            return Response(waiting_for_ngo_list)
+        profile = Profile.objects.get(id=request.POST.get("profile"))
+        donees=Profile.objects.filter(ngo_profile_id=profile.id)
+        print(donees)
+        list=[]
+        for donee in donees: 
+            queryset = Cashout.objects.filter(profile=donee, status="PENDING")
+            for cash in queryset:
+                list.append(cash)
+        print(list)
+        list = WaitingforNGOListSerializer(queryset, many=True).data  
+
+        return Response(list)
+        
 
 
 class CashoutStatusUpdateAPIView(UpdateAPIView):
