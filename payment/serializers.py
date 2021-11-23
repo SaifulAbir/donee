@@ -190,7 +190,10 @@ class CashoutSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         profile = validated_data["profile"]
-        goal = validated_data["goal"]
+        try:
+            goal = validated_data["goal"]
+        except KeyError as e:
+            goal = None
         if goal==None:
             amount = Distribution.objects.filter(
                 Q(transaction__payment__goal__profile__ngo_profile_id=profile.id) & Q(ngo_cashout_status="INITIAL")).aggregate(
