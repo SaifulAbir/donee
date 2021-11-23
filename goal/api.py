@@ -348,14 +348,14 @@ class PaidGoalListAPIView(APIView):
                 goals = Goal.objects.filter(Q(profile=profile) & ~Q(goal_cashout__profile=profile)).annotate(
                     available_amount=Coalesce(Sum(
                         'goal_payment__payment_transaction__transaction_distribution__donee_amount',
-                        filter=Q(goal_payment__status='PAID') & ~Q(goal_payment__payment_transaction__transaction_distribution__donee_cashout_status="INITIAL")
+                        filter=Q(goal_payment__status='PAID') & ~Q(goal_payment__payment_transaction__transaction_distribution__donee_cashout_status="PENDING")
                     ), 0, output_field=DecimalField())
                 )
             elif profile.profile_type=="NGO":
                 goals = Goal.objects.filter(Q(profile=profile)).annotate(
                     available_amount=Coalesce(Sum(
                         'goal_payment__payment_transaction__transaction_distribution__ngo_amount',
-                        filter=Q(goal_payment__status='PAID') & ~Q(goal_payment__payment_transaction__transaction_distribution__ngo_cashout_status="INITIAL")
+                        filter=Q(goal_payment__status='PAID') & ~Q(goal_payment__payment_transaction__transaction_distribution__ngo_cashout_status="PENDING")
                     ), 0, output_field=DecimalField())
                 )
             donee_goals = Goal.objects.filter(Q(profile__ngo_profile_id = profile.id))
@@ -364,7 +364,7 @@ class PaidGoalListAPIView(APIView):
                 available_amount=Coalesce(Sum(
                     'goal_payment__payment_transaction__transaction_distribution__ngo_amount',
                     filter=Q(goal_payment__status='PAID') & ~Q(
-                        goal_payment__payment_transaction__transaction_distribution__ngo_cashout_status="INITIAL")
+                        goal_payment__payment_transaction__transaction_distribution__ngo_cashout_status="PENDING")
                 ), 0, output_field=DecimalField()),
             )
 
