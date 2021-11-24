@@ -322,7 +322,7 @@ class CashoutAccountInfoSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
 
         profile = Profile.objects.get(user=self.context['request'].user.id)
-        cashout_account_info = CashoutAccountInfo.objects.create(**validated_data,
+        cashout_account_info = CashoutAccountInfo.objects.create(**validated_data,profile=profile,
                                     created_by=self.context['request'].user.id)
 
         return cashout_account_info
