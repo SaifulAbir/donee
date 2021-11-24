@@ -198,9 +198,12 @@ class CashoutDistribution(DoneeModel):
 
 
 class CashoutAccountInfo(DoneeModel):
+    ACCOUNT_TYPES=(('PAYPAL', 'Paypal'),
+    )
     name = models.CharField(max_length=150)
     profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, related_name="profile_cashout_account_info")
-    type = models.CharField(max_length=130)
+    type = models.CharField(max_length=30, blank=False, null=False,
+                                     choices=ACCOUNT_TYPES)
     account_number = models.CharField(max_length=130)
 
     class Meta:
