@@ -296,16 +296,10 @@ class CashoutUserUpdateSerializer(serializers.ModelSerializer):
             validated_data.update({"ngo_remark" : remark })
         elif validated_data['status'] == "REJECTED_BY_ADMIN":
             validated_data.update({"admin_remark" : remark })
-        else:
-            validated_data.update({"remark" : remark})
     
         return super().update(instance, validated_data)
 
             
-    
-
-
-
 class CashoutPaidGoalSerializer(serializers.ModelSerializer):
     profile = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all(), many=False)
 
