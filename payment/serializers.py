@@ -214,7 +214,7 @@ class CashoutSerializer(serializers.ModelSerializer):
                                                    status="PENDING", created_by=self.context['request'].user)
         else:
             if profile.profile_type=="DONEE":
-                amount = Distribution.objects.filter(Q(transaction__payment__goal=goal) | Q(donee_cashout_status="INITIAL")).aggregate(
+                amount = Distribution.objects.filter(Q(transaction__payment__goal=goal) & Q(donee_cashout_status="INITIAL")).aggregate(
                     available_amount=Coalesce(Sum(
                         'donee_amount',
                     ), 0, output_field=DecimalField()),
@@ -229,9 +229,9 @@ class CashoutSerializer(serializers.ModelSerializer):
                     CashoutDistribution.objects.create(distribution=each_distribution, cashout=cashout_instance,
                                                        status="PENDING", created_by=self.context['request'].user)
             elif profile.profile_type=="NGO":
-                amount = Payment.objects.filter(goal=goal).aggregate(
+                amount = Distribution.objects.filter(Q(transaction__payment__goal=goal) & Q(ngo_cashout_status="INITIAL")).aggregate(
                     available_amount=Coalesce(Sum(
-                        'payment_transaction__transaction_distribution__ngo_amount',
+                        'ngo_amount',
                     ), 0, output_field=DecimalField()),
                 )
                 distribution = Distribution.objects.filter(
