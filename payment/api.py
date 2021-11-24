@@ -22,13 +22,12 @@ class CashoutHistoryListAPIView(APIView):
      def post(self, request):
         profile = Profile.objects.get(id=request.POST.get("profile"))
         queryset = Cashout.objects.filter(profile=profile)
+        print(queryset)
+        
         cashout_history_list = CashoutHistoryListSerializers(queryset, many=True).data  
         return Response(cashout_history_list)
         
         
-            
-    
-
 class WaitingforAdminListAPIView(ListAPIView):
     queryset = Cashout.objects.all()
     serializer_class = WaitingforAdminListSerializer
@@ -39,16 +38,15 @@ class WaitingforNGOListAPIView(APIView):
     def post(self, request):
         profile = Profile.objects.get(id=request.POST.get("profile"))
         donees=Profile.objects.filter(ngo_profile_id=profile.id)
-        print(donees)
         list=[]
         for donee in donees: 
             queryset = Cashout.objects.filter(profile=donee, status="PENDING")
             for cash in queryset:
                 list.append(cash)
-        print(list)
-        list = WaitingforNGOListSerializer(queryset, many=True).data  
+                print(list)
+        donee_list = WaitingforNGOListSerializer(list, many=True).data  
 
-        return Response(list)
+        return Response(donee_list)
         
 
 
