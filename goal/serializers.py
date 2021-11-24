@@ -261,7 +261,14 @@ class GoalSerializer(serializers.ModelSerializer):
         ngo_amount = (setting_obj.ngo * total_cost) / 100
         platform_amount = (setting_obj.platform * total_cost) / 100
         total_amount = pgw_amount + ngo_amount + platform_amount + total_cost
-        goal_instance = Goal.objects.create(**validated_data, pgw_amount=pgw_amount,
+        if validated_data['profile'].profile_type=="NGO":
+            goal_instance = Goal.objects.create(**validated_data, pgw_amount=pgw_amount,
+                                                created_by=self.context['request'].user.id,
+                                                ngo_amount=ngo_amount,
+                                                platform_amount=platform_amount,
+                                                total_amount=total_amount, status="ACTIVE")
+        else:
+            goal_instance = Goal.objects.create(**validated_data, pgw_amount=pgw_amount,
                                             created_by=self.context['request'].user.id,
                                             ngo_amount=ngo_amount,
                                             platform_amount=platform_amount,
