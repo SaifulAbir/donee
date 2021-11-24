@@ -1,6 +1,8 @@
 import decimal
+from warnings import catch_warnings
 
 from django.db.models import Sum, DecimalField, Q
+from django.db.models.fields import CharField
 from django.db.models.functions import Coalesce
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -279,10 +281,29 @@ class WaitingforNGOListSerializer(serializers.ModelSerializer):
         fields = ( 'goal', 'profile', 'requested_amount', 'remark', 'status')
 
 class CashoutUserUpdateSerializer(serializers.ModelSerializer):
-
+    remark = serializers.CharField(write_only=True, required= False)
     class Meta:
         model=Cashout
-        fields=('id', 'status')
+        fields=('id', 'status', 'remark')
+    
+    def update(self, instance, validated_data):
+        try:
+            remark = validated_data.pop('remark')
+        except:
+            remark = None
+
+        if validated_data['status'] == "REJECTED_BY_NGO":
+            validated_data.update({"ngo_remark" : remark })
+        elif validated_data['status'] == "REJECTED_BY_ADMIN":
+            validated_data.update({"admin_remark" : remark })
+        else:
+            validated_data.update({"remark" : remark})
+    
+        return super().update(instance, validated_data)
+
+            
+    
+
 
 
 class CashoutPaidGoalSerializer(serializers.ModelSerializer):
