@@ -195,3 +195,18 @@ class CashoutDistribution(DoneeModel):
         verbose_name = 'CashoutDistribution'
         verbose_name_plural = 'CashoutDistributions'
         db_table = 'cashout_distribution'
+
+
+class CashoutAccountInfo(DoneeModel):
+    name = models.CharField(max_length=150)
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, related_name="profile_cashout_account_info")
+    type = models.CharField(max_length=130)
+    account_number = models.CharField(max_length=130)
+
+    class Meta:
+        verbose_name = 'CashoutAccountInfo'
+        verbose_name_plural = 'CashoutAccountInfo'
+        db_table = 'CashoutAccountInfo'
+
+    def __str__(self):
+        return str(self.name)

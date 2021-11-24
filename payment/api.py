@@ -58,3 +58,5 @@ class CashoutStatusUpdateAPIView(UpdateAPIView):
 
 
 
+class CashoutAccountInfoAPIView(CreateAPIView):
+    serializer_class = CashoutAccountInfoSerializer
