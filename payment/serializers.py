@@ -220,7 +220,7 @@ class CashoutSerializer(serializers.ModelSerializer):
                     ), 0, output_field=DecimalField()),
                 )
                 distribution = Distribution.objects.filter(
-                    Q(transaction__payment__goal=goal)|Q(donee_cashout_status="INITIAL"))
+                    Q(transaction__payment__goal=goal) & Q(donee_cashout_status="INITIAL"))
                 distribution.update(donee_cashout_status="PENDING")
                 cashout_instance = Cashout.objects.create(**validated_data, user=self.context['request'].user,
                                                           requested_amount=amount["available_amount"],
@@ -235,7 +235,7 @@ class CashoutSerializer(serializers.ModelSerializer):
                     ), 0, output_field=DecimalField()),
                 )
                 distribution = Distribution.objects.filter(
-                    transaction__payment__goal=goal)
+                    Q(transaction__payment__goal=goal) & Q(ngo_cashout_status="INITIAL"))
                 distribution.update(ngo_cashout_status="PENDING")
                 cashout_instance = Cashout.objects.create(**validated_data, user=self.context['request'].user,
                                                           requested_amount=amount["available_amount"],
