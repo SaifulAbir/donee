@@ -10,11 +10,12 @@ from Donee.pagination import CustomPagination
 from Donee.settings import MEDIA_URL
 from goal.serializers import GoalCommentCreateSerializer, PopularGoalSerializer, SearchSerializer, \
     DashboardGoalCountSerializer, DashboardGoalListSerializer, PaidGoalListSerializer, PaidGoalSerializer
-from goal.models import SDGS, Goal, GoalSDGS, Like, Comment
+from goal.models import SDGS, Goal, GoalSDGS, Like, Comment, Setting
 from payment.models import Payment
 from goal.models import SDGS, Goal, GoalSDGS, GoalSave,Like,Comment
 from user.models import User, Profile
-from goal.serializers import GoalCommentSerializer, GoalLikeSerializer, GoalSaveSerializer, SDGSSerializer, GoalSerializer, GoalListSerializer, SingleCatagorySerializer
+from goal.serializers import GoalCommentSerializer, GoalLikeSerializer, GoalSaveSerializer, SDGSSerializer, \
+     GoalSerializer, GoalListSerializer, SingleCatagorySerializer, GetPercentagesSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -374,3 +375,20 @@ class PaidGoalListAPIView(APIView):
             if profile.profile_type=="NGO":
                 data = {"goals": goal_list, "ngo_amount_from_donee": ngo_amount_from_donee}
             return Response(data)
+
+class GetPercentagesAPIView(ListAPIView):
+    serializer_class = GetPercentagesSerializer
+    
+    def get_queryset(self):
+        percentages = Setting.objects.all()
+        if percentages:
+            return percentages
+        else:
+            raise ValidationError({"percentages":'there is no percentage'})
+
+
+    
+
+    
+
+   
