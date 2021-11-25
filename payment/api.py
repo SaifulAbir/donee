@@ -1,4 +1,5 @@
 from rest_framework.generics import  CreateAPIView, ListAPIView, UpdateAPIView
+from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
 
 from goal.serializers import PaidGoalSerializer
@@ -58,3 +59,24 @@ class CashoutStatusUpdateAPIView(UpdateAPIView):
 
 class CashoutAccountInfoAPIView(CreateAPIView):
     serializer_class = CashoutAccountInfoSerializer
+
+class CashoutAccountListAPIView(ListAPIView):
+    serializer_class = CashoutAccountListSerializer
+
+    def get_queryset(self):
+        profile= Profile.objects.get(user=self.request.user)
+        account_list = CashoutAccountInfo.objects.filter(profile=profile)
+        if account_list:
+            return account_list
+        else:
+            raise ValidationError({"Account_info":'there is no account information'})
+
+class CashoutAccountUpdateAPIView(UpdateAPIView):
+    serializer_class = CashoutAccountUpdateSerializer
+    queryset = CashoutAccountInfo.objects.all()
+       
+
+
+
+    
+

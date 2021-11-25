@@ -321,6 +321,31 @@ class CashoutAccountInfoSerializer(serializers.ModelSerializer):
 
         return cashout_account_info
 
+class CashoutAccountListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CashoutAccountInfo
+        fields = ('id', 'profile', 'name', 'type', 'account_number')
+
+
+class CashoutAccountUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CashoutAccountInfo
+        fields = '__all__'
+
+
+    def update(self, instance, validated_data):
+        
+        if validated_data['name']:
+            validated_data.update({"name" : validated_data['name'] })
+        elif validated_data['type']:
+            validated_data.update({"type" : validated_data['type'] })
+        elif validated_data['account_number']:
+            validated_data.update({"account_number" : validated_data['account_number'] })
+    
+        return super().update(instance, validated_data)
+
 
 
     
