@@ -17,6 +17,7 @@ urlpatterns = [
     path('goal-save/', GoalSaveAPI.as_view()),
     path('goal-status/', GoalStatusUpdateAPI.as_view()),
     path('paid-goal-list/', PaidGoalListAPIView.as_view()),
+    path('get-percentages/', GetPercentagesAPIView.as_view()),
     # path('goal-create-comments/', GoalCommentCreateAPIView.as_view()),
 ]
 

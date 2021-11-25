@@ -343,3 +343,8 @@ class PaidGoalSerializer(serializers.Serializer):
     profile = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all(), many=False)
 
 
+class GetPercentagesSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Setting
+        fields = ('pgw','ngo','platform')
