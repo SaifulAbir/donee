@@ -62,9 +62,10 @@ class CashoutAccountInfoAPIView(CreateAPIView):
 
 class CashoutAccountListAPIView(ListAPIView):
     serializer_class = CashoutAccountListSerializer
+    
 
     def get_queryset(self):
-        profile= Profile.objects.get(user=self.request.user)
+        profile= self.request.GET.get('profile')
         account_list = CashoutAccountInfo.objects.filter(profile=profile)
         if account_list:
             return account_list
