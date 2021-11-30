@@ -49,9 +49,11 @@ INSTALLED_APPS = [
     'storages',
     'drf_yasg',
     'phonenumber_field',
+    # 'channels',
     'user.apps.UserConfig',
     'goal.apps.GoalConfig',
     'payment.apps.PaymentConfig',
+    'notification'
 ]
 
 MIDDLEWARE = [
@@ -225,3 +227,19 @@ SWAGGER_SETTINGS = {
       }
    }
 }
+
+ASGI_APPLICATION = "Donee.routing.application" #websocket
+
+# Django Channels
+# Adding Django Channel Layers
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],   # Change localhost to the ip in which you have redis server running on.
+        },
+    },
+}
+
+# End Django Channels
