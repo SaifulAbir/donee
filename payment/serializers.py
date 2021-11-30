@@ -5,6 +5,7 @@ from django.db.models import Sum, DecimalField, Q
 from django.db.models.fields import CharField
 from django.db.models.functions import Coalesce
 from django.db.models.query import Prefetch, QuerySet
+from django.utils import translation
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -299,30 +300,95 @@ class CashoutUserUpdateSerializer(serializers.ModelSerializer):
             validated_data.update({"ngo_remark" : remark })
             cashout_distribution = CashoutDistribution.objects.filter(cashout_id=self.instance.id)
             cashout_distribution.update(status = 'REJECTED_BY_NGO')
-            for cash in cashout_distribution:
-                distribution = Distribution.objects.filter(
-                    Q(id=cash.distribution_id) & Q(transaction__payment__goal__profile__profile_type = "NGO"))
-                print(distribution)
-                distribution.update(ngo_cashout_status="INITIAL")
-                
+            for ngo_cash in cashout_distribution:
+                cashout = Cashout.objects.filter(Q(id=ngo_cash.cashout_id) & Q(profile__profile_type="NGO"))
+                if cashout:
+                    for ngo_profiles in cashout:
+                        profile=ngo_profiles.profile_id
+                        ngo_distribution=Distribution.objects.filter(transaction__payment__goal__profile__id=profile)
+                        for ngos in ngo_distribution:
+                            ngo_distribution.update(ngo_cashout_status="INITIAL")
+            
+            for donee_cash in cashout_distribution:
+                cashout = Cashout.objects.filter(Q(id=donee_cash.cashout_id) & Q(profile__profile_type="DONEE"))
+                if cashout:
+                    for donee_profiles in cashout:
+                        profile=donee_profiles.profile_id
+                        donee_distribution=Distribution.objects.filter(transaction__payment__goal__profile__id=profile)
+                        for donees in donee_distribution:
+                            ngo_distribution.update(donee_cashout_status="INITIAL")
+                    
                 
             
         elif validated_data['status'] == "REJECTED_BY_ADMIN":
             validated_data.update({"admin_remark" : remark })
             cashout_distribution = CashoutDistribution.objects.filter(cashout_id=self.instance.id )
             cashout_distribution.update(status = 'REJECTED_BY_ADMIN')
+            for ngo_cash in cashout_distribution:
+                cashout = Cashout.objects.filter(Q(id=ngo_cash.cashout_id) & Q(profile__profile_type="NGO"))
+                if cashout:
+                    for ngo_profiles in cashout:
+                        profile=ngo_profiles.profile_id
+                        ngo_distribution=Distribution.objects.filter(transaction__payment__goal__profile__id=profile)
+                        for ngos in ngo_distribution:
+                            ngo_distribution.update(ngo_cashout_status="INITIAL")
+            
+            for donee_cash in cashout_distribution:
+                cashout = Cashout.objects.filter(Q(id=donee_cash.cashout_id) & Q(profile__profile_type="DONEE"))
+                if cashout:
+                    for donee_profiles in cashout:
+                        profile=donee_profiles.profile_id
+                        donee_distribution=Distribution.objects.filter(transaction__payment__goal__profile__id=profile)
+                        for donees in donee_distribution:
+                            ngo_distribution.update(donee_cashout_status="INITIAL")
+            
         
         elif validated_data['status'] == "ACCEPTED":
             cashout_distribution = CashoutDistribution.objects.filter(cashout_id=self.instance.id )
             cashout_distribution.update(status = 'ACCEPTED')
-        
+
+            for ngo_cash in cashout_distribution:
+                cashout = Cashout.objects.filter(Q(id=ngo_cash.cashout_id) & Q(profile__profile_type="NGO"))
+                if cashout:
+                    for ngo_profiles in cashout:
+                        profile=ngo_profiles.profile_id
+                        ngo_distribution=Distribution.objects.filter(transaction__payment__goal__profile__id=profile)
+                        for ngos in ngo_distribution:
+                            ngo_distribution.update(ngo_cashout_status="ACCEPTED")
+            
+            for donee_cash in cashout_distribution:
+                cashout = Cashout.objects.filter(Q(id=donee_cash.cashout_id) & Q(profile__profile_type="DONEE"))
+                if cashout:
+                    for donee_profiles in cashout:
+                        profile=donee_profiles.profile_id
+                        donee_distribution=Distribution.objects.filter(transaction__payment__goal__profile__id=profile)
+                        for donees in donee_distribution:
+                            ngo_distribution.update(donee_cashout_status="ACCEPTED")
+                    
         elif validated_data['status'] == "PAID":
             cashout_distribution = CashoutDistribution.objects.filter(cashout_id=self.instance.id )
             cashout_distribution.update(status = 'PAID')
+
+            
+            for ngo_cash in cashout_distribution:
+                cashout = Cashout.objects.filter(Q(id=ngo_cash.cashout_id) & Q(profile__profile_type="NGO"))
+                if cashout:
+                    for ngo_profiles in cashout:
+                        profile=ngo_profiles.profile_id
+                        ngo_distribution=Distribution.objects.filter(transaction__payment__goal__profile__id=profile)
+                        for ngos in ngo_distribution:
+                            ngo_distribution.update(ngo_cashout_status="PAID")
+
+                    
+            for donee_cash in cashout_distribution:
+                cashout = Cashout.objects.filter(Q(id=donee_cash.cashout_id) & Q(profile__profile_type="DONEE"))
+                if cashout:
+                    for donee_profiles in cashout:
+                        profile=donee_profiles.profile_id
+                        donee_distribution=Distribution.objects.filter(transaction__payment__goal__profile__id=profile)
+                        for donees in donee_distribution:
+                            ngo_distribution.update(donee_cashout_status="PAID")
         
-        
-        
-    
         return super().update(instance, validated_data)
 
             
