@@ -4,8 +4,11 @@ from warnings import catch_warnings
 from django.db.models import Sum, DecimalField, Q
 from django.db.models.fields import CharField
 from django.db.models.functions import Coalesce
+from django.db.models.query import Prefetch, QuerySet
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+
+
 from .models import *
 from .utils import paypal_token, payment
 
@@ -291,11 +294,34 @@ class CashoutUserUpdateSerializer(serializers.ModelSerializer):
             remark = validated_data.pop('remark')
         except:
             remark = None
-
+    
         if validated_data['status'] == "REJECTED_BY_NGO":
             validated_data.update({"ngo_remark" : remark })
+            cashout_distribution = CashoutDistribution.objects.filter(cashout_id=self.instance.id)
+            cashout_distribution.update(status = 'REJECTED_BY_NGO')
+            for cash in cashout_distribution:
+                distribution = Distribution.objects.filter(
+                    Q(id=cash.distribution_id) & Q(transaction__payment__goal__profile__profile_type = "NGO"))
+                print(distribution)
+                distribution.update(ngo_cashout_status="INITIAL")
+                
+                
+            
         elif validated_data['status'] == "REJECTED_BY_ADMIN":
             validated_data.update({"admin_remark" : remark })
+            cashout_distribution = CashoutDistribution.objects.filter(cashout_id=self.instance.id )
+            cashout_distribution.update(status = 'REJECTED_BY_ADMIN')
+        
+        elif validated_data['status'] == "ACCEPTED":
+            cashout_distribution = CashoutDistribution.objects.filter(cashout_id=self.instance.id )
+            cashout_distribution.update(status = 'ACCEPTED')
+        
+        elif validated_data['status'] == "PAID":
+            cashout_distribution = CashoutDistribution.objects.filter(cashout_id=self.instance.id )
+            cashout_distribution.update(status = 'PAID')
+        
+        
+        
     
         return super().update(instance, validated_data)
 
