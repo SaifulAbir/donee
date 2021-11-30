@@ -28,17 +28,17 @@ class LiveNotification(DoneeModel):
     def __str__(self):
         return self.text
 
-@receiver(post_save, sender=LiveNotification)
-def notification_post_save(sender, instance, *args, **kwargs):
-    from notification.serializers import LiveNotificationSerializer
-    channel_layer = get_channel_layer()
-
-    group_name = "notifications"
-    async_to_sync(channel_layer.group_send)(
-        group_name,
-        {
-            'type': 'notify',
-            'text': LiveNotificationSerializer(instance, many=False).data
-            # 'text': "jkdfkdsljfldslkdfj"
-        }
-    )
+# @receiver(post_save, sender=LiveNotification)
+# def notification_post_save(sender, instance, *args, **kwargs):
+#     from notification.serializers import LiveNotificationSerializer
+#     channel_layer = get_channel_layer()
+#
+#     group_name = "notifications"
+#     async_to_sync(channel_layer.group_send)(
+#         group_name,
+#         {
+#             'type': 'notify',
+#             'text': LiveNotificationSerializer(instance, many=False).data
+#             # 'text': "jkdfkdsljfldslkdfj"
+#         }
+#     )
