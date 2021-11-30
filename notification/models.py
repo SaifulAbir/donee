@@ -1,6 +1,7 @@
 import json
 # from asgiref.sync import async_to_sync
 # from channels.layers import get_channel_layer
+import requests
 from django.db import models
 # Create your models here.
 from django.db.models.signals import post_save
@@ -42,3 +43,9 @@ class LiveNotification(DoneeModel):
 #             # 'text': "jkdfkdsljfldslkdfj"
 #         }
 #     )
+@receiver(post_save, sender=LiveNotification)
+def notification_post_save(sender, instance, *args, **kwargs):
+    from notification.serializers import LiveNotificationSerializer
+    url = "http://192.168.100.200:8080/api/send-notification/"
+    payload = {"notification": json.dumps(LiveNotificationSerializer(instance, many=False).data)}
+    requests.post(url, data=payload)
