@@ -83,12 +83,26 @@ class User(AbstractBaseUser,PermissionsMixin):
     is_modified = models.BooleanField(default=False)
     total_follow_count = models.IntegerField(default=0)
     total_following_count = models.IntegerField(default=0)
+    verification_id = models.CharField(default='null',max_length=40)
 
     objects = UserManager()
 
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'email'
     #REQUIRED_FIELDS = ['email']
+
+    def verification_id_generator(self,size=8, chars=string.ascii_uppercase + string.digits):
+        result_str = ''.join(random.choice(chars) for i in range(size))
+        return result_str
+
+
+    def save(self, *args, **kwargs):
+        super(User,self).save(*args, **kwargs)
+        if self.is_active == False and self.verification_id == 'null':
+            veri_id = self.verification_id_generator()
+            self.verification_id = veri_id
+            self.save()
+    
 
     class Meta:
         verbose_name = _('alluser')

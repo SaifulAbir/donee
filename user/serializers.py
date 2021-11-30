@@ -1,4 +1,5 @@
 import decimal
+from django.core.mail import send_mail
 from django.db.models.functions.text import Length
 from rest_framework import serializers, status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -11,6 +12,7 @@ import datetime
 from django.db.models.functions import Extract
 from itertools import zip_longest
 from rest_framework.response import Response
+from django.conf import settings
 
 
 class UserRegSerializer(serializers.ModelSerializer):
@@ -28,7 +30,18 @@ class UserRegSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = super().create(validated_data)
         user.set_password(validated_data['password'])
+        user.is_active = False
         user.save()
+        email_list = ['email']
+        subject = "You have been invited to become donee"
+        
+        send_mail(
+            subject=subject,
+            message=None,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=email_list
+        )
+        
         return user
 
 class UserSocialRegSerializer(serializers.ModelSerializer):
@@ -43,6 +56,7 @@ class UserSocialRegSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = super().create(validated_data)
         user.set_password(validated_data['email'])
+        user.is_active = False
         user.save()
         return user
 

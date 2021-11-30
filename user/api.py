@@ -305,6 +305,7 @@ class EndorsedGoalsInNgoAPIView(ListAPIView):
 
 
 
+
 class SendInvitationLink(APIView):
     @swagger_auto_schema(request_body=InvitationSerializer)
     def post(self, request, *args, **kwargs):
