@@ -1,9 +1,6 @@
 import json
-# from asgiref.sync import async_to_sync
-# from channels.layers import get_channel_layer
 import requests
 from django.db import models
-# Create your models here.
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from Donee.models import DoneeModel
@@ -14,7 +11,6 @@ class LiveNotification(DoneeModel):
     NOTIFICATION_TYPES = [
         ('DONEE_GOAL_CREATION', 'Donee Goal Creation'),
     ]
-
     text = models.CharField(max_length=500)
     type = models.CharField(max_length=100, choices=NOTIFICATION_TYPES)
     is_read = models.BooleanField(default=False)
@@ -29,23 +25,10 @@ class LiveNotification(DoneeModel):
     def __str__(self):
         return self.text
 
-# @receiver(post_save, sender=LiveNotification)
-# def notification_post_save(sender, instance, *args, **kwargs):
-#     from notification.serializers import LiveNotificationSerializer
-#     channel_layer = get_channel_layer()
-#
-#     group_name = "notifications"
-#     async_to_sync(channel_layer.group_send)(
-#         group_name,
-#         {
-#             'type': 'notify',
-#             'text': LiveNotificationSerializer(instance, many=False).data
-#             # 'text': "jkdfkdsljfldslkdfj"
-#         }
-#     )
+
 @receiver(post_save, sender=LiveNotification)
 def notification_post_save(sender, instance, *args, **kwargs):
     from notification.serializers import LiveNotificationSerializer
-    url = "http://192.168.100.200:8080/api/send-notification/"
+    url = "http://3.1.80.219/api/send-notification/"
     payload = {"notification": json.dumps(LiveNotificationSerializer(instance, many=False).data)}
     requests.post(url, data=payload)
