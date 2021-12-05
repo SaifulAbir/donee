@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Count, Q, F
+from django.db.models import query
 from django.db.models.functions import Concat
 from django.db.models.query import Prefetch, QuerySet
 from django.template.loader import render_to_string, get_template
@@ -17,7 +18,7 @@ from user.serializers import DashboardDonorSerializer, NgoUserCreateSerializer, 
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
-    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer, DashboardMyWalletSerializer
+    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer, DashboardMyWalletSerializer, IdActiveSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -307,6 +308,7 @@ class EndorsedGoalsInNgoAPIView(ListAPIView):
 
 
 
+
 class SendInvitationLink(APIView):
     @swagger_auto_schema(request_body=InvitationSerializer)
     def post(self, request, *args, **kwargs):
@@ -392,15 +394,16 @@ class DashboardDonorsAPIView(RetrieveAPIView):
         return Profile.objects.get(user=self.request.user)
         
         
-        
-        
-        
-        
-        
-    
+class IdActiveAPIView(APIView):
+    serializer_class = IdActiveSerializer
+    permission_classes = [AllowAny, ]
 
-        
-        
+    def get(self,  *args, **kwargs):
+        verification = kwargs.get('verification')
+        query_user=User.objects.get(verification_id=verification)
+        query_user.is_active=True
+        query_user.save()
+        return Response({'message': 'id is active now'})
 
 
 

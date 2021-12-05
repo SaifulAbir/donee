@@ -1,4 +1,5 @@
 import decimal
+from django.core.mail import send_mail
 from django.db.models.functions.text import Length
 from rest_framework import serializers, status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -12,6 +13,8 @@ import datetime
 from django.db.models.functions import Extract
 from itertools import zip_longest
 from rest_framework.response import Response
+from django.conf import settings
+from django.template.loader import render_to_string
 
 
 class UserRegSerializer(serializers.ModelSerializer):
@@ -29,7 +32,22 @@ class UserRegSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = super().create(validated_data)
         user.set_password(validated_data['password'])
+        user.is_active = False
         user.save()
+        email_list = validated_data['email']
+        subject = "verification code"
+        code = user.verification_id
+        verification_link = 'https://mvp.doneeapp.com/verifyuser/id={}'.format(code)
+        html_message = render_to_string('verification_email.html', {'verification_link':verification_link })
+        
+        send_mail(
+            subject=subject,
+            message=None,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email_list],
+            html_message=html_message
+        )
+        
         return user
 
 class UserSocialRegSerializer(serializers.ModelSerializer):
@@ -44,6 +62,7 @@ class UserSocialRegSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = super().create(validated_data)
         user.set_password(validated_data['email'])
+        user.is_active = False
         user.save()
         return user
 
@@ -1348,7 +1367,10 @@ class DashboardDonorSerializer(serializers.ModelSerializer):
 
         return ngo_donor_list
 
-        
+class IdActiveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
         
 
 
