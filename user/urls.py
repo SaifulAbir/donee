@@ -3,7 +3,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .api import DashboardDonorsAPIView, NgoUserCreateAPIView, NgoUserListAPIView, NgoUserRoleUpdateAPIView, NgoUserUpdateStatusAPIView, RoleListAPIView, UserUpdateAPIView, DoneeAndNgoProfileCreateAPIView, DoneeAndNgoProfileUpdateAPIView, CountryListAPI, \
     CustomTokenObtainPairView, DonorProfileAPIView, DoneeAndNGOProfileAPIView, UserFollowUserAPI, UserFollowProfileAPI, \
     SendInvitationLink, DashboardAppAPIView, inNgoDoneeInfoAPIView, inNgoDoneeListAPIView, DoneeStatusUpdateAPIView, \
-    EndorsedGoalsInNgoAPIView, SocialSignupAPIView, UserSearchAPIView, DashboardMyWalletAPIView
+    EndorsedGoalsInNgoAPIView, SocialSignupAPIView, UserSearchAPIView, DashboardMyWalletAPIView, IdActiveAPIView
 from .views import *
 from django.views.decorators.csrf import csrf_exempt
 
@@ -35,6 +35,7 @@ urlpatterns = [
     path('ngo-user-list/',NgoUserListAPIView.as_view()),
     path('ngo-user-role-update/<int:pk>/',NgoUserRoleUpdateAPIView.as_view()),
     path('ngo-user-status-update/<int:pk>/', NgoUserUpdateStatusAPIView.as_view()),
+    path('verify-user/<str:verification>', IdActiveAPIView.as_view()),
     path('dashboard/my-wallet/', DashboardMyWalletAPIView.as_view()),
     path('dashboard/donors/',DashboardDonorsAPIView.as_view()),
 

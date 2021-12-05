@@ -13,6 +13,7 @@ from django.db.models.functions import Extract
 from itertools import zip_longest
 from rest_framework.response import Response
 from django.conf import settings
+from django.template.loader import render_to_string
 
 
 class UserRegSerializer(serializers.ModelSerializer):
@@ -32,14 +33,18 @@ class UserRegSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.is_active = False
         user.save()
-        email_list = ['email']
-        subject = "You have been invited to become donee"
+        email_list = validated_data['email']
+        subject = "verification code"
+        code = user.verification_id
+        verification_link = 'https://mvp.doneeapp.com/verifyuser/id={}'.format(code)
+        html_message = render_to_string('verification_email.html', {'verification_link':verification_link })
         
         send_mail(
             subject=subject,
             message=None,
             from_email=settings.EMAIL_HOST_USER,
-            recipient_list=email_list
+            recipient_list=[email_list],
+            html_message=html_message
         )
         
         return user
@@ -1357,7 +1362,10 @@ class DashboardDonorSerializer(serializers.ModelSerializer):
 
         return ngo_donor_list
 
-        
+class IdActiveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
         
 
 
