@@ -28,12 +28,14 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     # Replace the serializer with your custom
     serializer_class = CustomTokenObtainPairSerializer
 
+
 class SocialSignupAPIView(CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = UserSocialRegSerializer
 
     def post(self, request, *args, **kwargs):
         return super(SocialSignupAPIView, self).post(request, *args, **kwargs)
+
 
 class UserUpdateAPIView(RetrieveUpdateAPIView):
     serializer_class = UserProfileUpdateSerializer

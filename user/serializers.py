@@ -3,6 +3,7 @@ from django.db.models.functions.text import Length
 from rest_framework import serializers, status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from goal.models import SDGS, Goal, GoalSave
+from notification.models import LiveNotification
 from payment.models import Transaction, Wallet, Payment, Distribution
 from .models import *
 from goal.models import Goal
@@ -345,6 +346,10 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
                                     user=self.context['request'].user,
                                     profile=profile_instance,
                                     created_by=self.context['request'].user.id)
+        if profile_instance.ngo_profile_id:
+            ngo_profile = Profile.objects.get(id=profile_instance.ngo_profile_id)
+            text = 'Donee @{} has accepted your request and has been added in this platform under your NGO @{}'.format(profile_instance.username, ngo_profile)
+            LiveNotification.objects.create(text=text, type='DONEE_INVITATION_ACCEPT', from_user=profile_instance.user, to_user=ngo_profile.user)
         return profile_instance
 
     def update(self, instance, validated_data):

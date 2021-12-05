@@ -10,6 +10,19 @@ from user.models import User
 class LiveNotification(DoneeModel):
     NOTIFICATION_TYPES = [
         ('DONEE_GOAL_CREATION', 'Donee Goal Creation'),
+        ('DONEE_INVITATION_ACCEPT', 'Donee Invitation Accept'),
+        ('DONEE_GOAL_APPROVE', 'Donee Goal Approve'),
+        ('DONEE_GOAL_APPROVE', 'Donee Goal Approve'),
+        ('DONATION', 'Donation'),
+        ('GOAL_LIKE', 'Goal Like'),
+        ('GOAL_COMMENT', 'Goal Comment'),
+        ('PROFILE_FOLLOW', 'Profile Follow'),
+        ('DONEE_CASHOUT_REQUEST', 'Donee Cashout Request'),
+        ('NGO_CASHOUT_REQUEST', 'NGO Cashout Request'),
+        ('DONEE_CASHOUT_ACCEPT', 'Donee Cashout Accept'),
+        ('DONEE_CASHOUT_REJECT', 'Donee Cashout Reject'),
+        ('NGO_CASHOUT_ACCEPT', 'Donee Cashout Accept'),
+        ('NGO_CASHOUT_REJECT', 'Donee Cashout Reject'),
     ]
     text = models.CharField(max_length=500)
     type = models.CharField(max_length=100, choices=NOTIFICATION_TYPES)
