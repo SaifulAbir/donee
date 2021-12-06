@@ -13,5 +13,6 @@ urlpatterns = [
     path('cashout-account-info/',CashoutAccountInfoAPIView.as_view()),
     path('cashout-account-list/',CashoutAccountListAPIView.as_view()),
     path('cashout-account-update/<int:pk>/',CashoutAccountUpdateAPIView.as_view()),
+    path('dedication-info/',DedicationInfoAPIView.as_view())
 ]
 

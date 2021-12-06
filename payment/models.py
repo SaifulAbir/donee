@@ -115,6 +115,8 @@ class DedicationInfo(DoneeModel):
     type = models.CharField(max_length=30, choices=DEDICATION_TYPES)
     is_dedicated = models.BooleanField(default=False)
     message = models.TextField()
+    name = models.CharField(max_length = 200, null=True, blank=True)
+    email = models.EmailField(blank=True, null=True)
 
     class Meta:
         verbose_name = 'Dedication Info'
