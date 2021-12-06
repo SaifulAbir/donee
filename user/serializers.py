@@ -62,7 +62,6 @@ class UserSocialRegSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = super().create(validated_data)
         user.set_password(validated_data['email'])
-        user.is_active = False
         user.save()
         return user
 
