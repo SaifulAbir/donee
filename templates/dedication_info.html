@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head> 
+    <meta charset="utf-8">
+    <title>Donee Email</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap');
+    </style>
+</head>
+
+<div>
+    <div style="background-image:url('https://donee.s3.ap-southeast-1.amazonaws.com/static/email_template/Donee.jpeg');
+                background-size: cover;
+                background-position: center center;
+                height: 550px; 
+                width: 500px; 
+                padding:30px;
+                color: white">
+        <img style="width:23%; 
+                    height:auto" 
+             src="https://donee.s3.ap-southeast-1.amazonaws.com/static/email_template/4C80983A-AF3D-47FD-AAC8-D19D36B5C847.png" />
+        <div>
+           <h2 style="color: whitesmoke; 
+                      padding-top: 230px; 
+                      width:auto; margin-left: 5px; 
+                      text-align: left; 
+                      font-size: 2.2rem; 
+                      font-family: 'Inter', 'sans-serif'"> Hello {% if dedicated_name %}{{dedicated_name}}{% endif %}! </h2>
+           <h2 style="color: whitesmoke; 
+                      padding-top: 5px; 
+                      width:auto; 
+                      margin-left: 5px; 
+                      line-height:12px;
+                      text-align: left; 
+                      font-size: 1.6rem; 
+                      font-family: 'Inter', 
+                      'sans-serif'"> A goal has been dedicated </h2>
+           <h2 style="color: whitesmoke; 
+                      padding-top: 1px; 
+                      width:auto; 
+                      margin-left: 5px; 
+                      line-height:12px;
+                      text-align: left; 
+                      font-size: 1.6rem; 
+                      font-family: 'Inter', 
+                      'sans-serif'">  to you by <span style="color:#6EEDD6">{{ username }}</span> </h2>
+                      {% comment %} <a style="
+                      margin: 55px 5px 5px;
+                      transform: translate(-50%, -50%);
+                      -ms-transform: translate(-50%, -50%);
+                      background-color: #045de9;
+                      color: white;
+                      font-size: 17px;
+                      padding:10px  24px;
+                      border: none;
+                      cursor: pointer;
+                      border-radius: 5px;
+                      box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 
+                      0 17px 50px 0 rgba(0,0,0,0.19);
+                      color: white;
+                      text-decoration: none" href="www.doneeapp.com">
+                      Click to learn more
+                      </a> {% endcomment %}
+            
+            
+            
+                            
+        </div>
+    </div>
+</div>

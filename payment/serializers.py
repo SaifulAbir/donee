@@ -1,10 +1,13 @@
 import decimal
 from warnings import catch_warnings
+from django.conf import settings
+from django.core.mail import send_mail
 
 from django.db.models import Sum, DecimalField, Q
 from django.db.models.fields import CharField
 from django.db.models.functions import Coalesce
 from django.db.models.query import Prefetch, QuerySet
+from django.template.loader import render_to_string
 from django.utils import translation
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -26,31 +29,58 @@ class PaymentSerializer(serializers.ModelSerializer):
     is_gift_dedicated = serializers.BooleanField(write_only=True)
     dedicated_gift_message = serializers.CharField(write_only=True, required=False)
     payment_dedication = DedicationInfoSerializer(many=True, read_only=True)
+    dedicated_name = serializers.CharField(write_only=True, required= False)
+    dedicated_email = serializers.EmailField(write_only=True, required= False)
+
     class Meta:
         model = Payment
         fields = ('id', 'amount', 'goal', 'status', 'is_dedicated', 'dedicated_message', 'is_gift_dedicated',
-                  'dedicated_gift_message', 'payment_dedication')
+                  'dedicated_gift_message', 'payment_dedication', 'dedicated_name', 'dedicated_email')
         read_only_fields = ('status', )
 
     def create(self, validated_data):
+        print(self)
+        dedicated_message = None 
+        dedicated_gift_message = None
+        dedicated_email= None
+        dedicated_name = None
+        
         is_dedicated = validated_data.pop('is_dedicated')
-        try:
+        if is_dedicated:
             dedicated_message = validated_data.pop('dedicated_message')
-        except KeyError:
-            dedicated_message = None
+            dedicated_email = validated_data.pop('dedicated_email')
+            dedicated_name = validated_data.pop('dedicated_name')
+        
         is_gift_dedicated = validated_data.pop('is_gift_dedicated')
-        try:
+        if is_gift_dedicated:
             dedicated_gift_message = validated_data.pop('dedicated_gift_message')
-        except KeyError:
-            dedicated_gift_message = None
+            dedicated_name = validated_data.pop('dedicated_name')
+            dedicated_email = validated_data.pop('dedicated_email')
+        
         payment_instance = Payment.objects.create(**validated_data, user=self.context['request'].user,
                                                   created_by=self.context['request'].user.id)
         if is_dedicated:
             DedicationInfo.objects.create(type="DEDICATED", payment=payment_instance, is_dedicated=True,
-                                          message=dedicated_message, created_by=self.context['request'].user.id)
+                                          message=dedicated_message, name=dedicated_name, email=dedicated_email, created_by=self.context['request'].user.id)
         if is_gift_dedicated:
             DedicationInfo.objects.create(type="GIFT", payment=payment_instance, is_dedicated=True,
-                                          message=dedicated_gift_message, created_by=self.context['request'].user.id)
+                                          message=dedicated_gift_message, name=dedicated_name, email=dedicated_email, created_by=self.context['request'].user.id)
+        
+        profile = Profile.objects.get(user=self.context['request'].user)
+        username = profile.username
+        email = dedicated_email
+        name = dedicated_name
+        subject = "A goal has been dedicated to you"
+        html_message = render_to_string('dedication_info.html', {'username':username, 'dedicated_name' : name})
+        
+        send_mail(
+            subject=subject,
+            message=None,
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            html_message=html_message
+        )
+    
         return payment_instance
 
 
