@@ -35,7 +35,7 @@ class UserRegSerializer(serializers.ModelSerializer):
         user.is_active = False
         user.save()
         email_list = validated_data['email']
-        subject = "verification code"
+        subject = "Account Verification"
         code = user.verification_id
         verification_link = 'https://mvp.doneeapp.com/verifyuser/id={}'.format(code)
         html_message = render_to_string('verification_email.html', {'verification_link':verification_link })
