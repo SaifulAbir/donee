@@ -11,6 +11,7 @@ from Donee.settings import MEDIA_URL
 from goal.serializers import GoalCommentCreateSerializer, PopularGoalSerializer, SearchSerializer, \
     DashboardGoalCountSerializer, DashboardGoalListSerializer, PaidGoalListSerializer, PaidGoalSerializer
 from goal.models import SDGS, Goal, GoalSDGS, Like, Comment, Setting
+from notification.models import LiveNotification
 from payment.models import Payment
 from goal.models import SDGS, Goal, GoalSDGS, GoalSave,Like,Comment
 from user.models import User, Profile
@@ -146,6 +147,11 @@ class GoalLikeAPIView(CreateAPIView):
                     goal_obj = goal
                     goal_obj.total_like_count -=1
                     goal_obj.save()
+
+                    # Notification
+                    text = '@{} liked your goal'.format(user.username)
+                    LiveNotification.objects.create(text=text, type='GOAL_LIKE',
+                                                    from_user=user, to_user=goal_obj.profile.user)
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":False,}, status=status.HTTP_200_OK)
                 if check_like.exists() and check_like.first().is_like == False:
                     obj = check_like.first()
@@ -154,6 +160,11 @@ class GoalLikeAPIView(CreateAPIView):
                     goal_obj = goal
                     goal_obj.total_like_count +=1
                     goal_obj.save()
+
+                    # Notification
+                    text = '@{} liked your goal'.format(user.username)
+                    LiveNotification.objects.create(text=text, type='GOAL_LIKE',
+                                                    from_user=user, to_user=goal_obj.profile.user)
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_200_OK)
                 else:
                     if check_profile.exists():
@@ -163,6 +174,11 @@ class GoalLikeAPIView(CreateAPIView):
                         goal_obj.save()
                         likeobj =  Like(user = user,goal = goal,is_like = True,created_by =user.username)
                         likeobj.save()
+
+                        # Notification
+                        text = '@{} liked your goal'.format(user.username)
+                        LiveNotification.objects.create(text=text, type='GOAL_LIKE',
+                                                        from_user=user, to_user=goal_obj.profile.user)
                         return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_201_CREATED)
                     else:
                         goal_obj = goal
@@ -170,6 +186,11 @@ class GoalLikeAPIView(CreateAPIView):
                         goal_obj.save()
                         likeobj= Like(user = user,goal = goal,is_like = True,created_by =user.username)
                         likeobj.save()
+
+                        # Notification
+                        text = '@{} liked your goal'.format(user.username)
+                        LiveNotification.objects.create(text=text, type='GOAL_LIKE',
+                                                        from_user=user, to_user=goal_obj.profile.user)
                         return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":True,}, status=status.HTTP_201_CREATED)
                 # return Response(serializer.data, status=status.HTTP_201_CREATED)
             
@@ -201,6 +222,11 @@ class GoalCreateCommentAPI(CreateAPIView):
                         goal_obj = goal
                         goal_obj.total_comment_count +=1
                         goal_obj.save()
+
+                        # Notification
+                        text = '@{} commented in your goal'.format(user.username)
+                        LiveNotification.objects.create(text=text, type='GOAL_COMMENT',
+                                                        from_user=user, to_user=goal_obj.profile.user)
                         return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"text":self.request.data["text"]}, status=status.HTTP_201_CREATED)
                     else:
                         comment_obj = Comment(user = user,goal = goal,text=self.request.data['text'],created_by =user.username)
@@ -208,6 +234,11 @@ class GoalCreateCommentAPI(CreateAPIView):
                         goal_obj = goal
                         goal_obj.total_comment_count +=1
                         goal_obj.save()
+
+                        # Notification
+                        text = '@{} commented in your goal'.format(user.username)
+                        LiveNotification.objects.create(text=text, type='GOAL_COMMENT',
+                                                        from_user=user, to_user=goal_obj.profile.user)
                         return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"text":self.request.data["text"]}, status=status.HTTP_201_CREATED)
                 except Goal.DoesNotExist:
                      raise ValidationError({"error":"goal not exist!"})

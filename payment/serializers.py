@@ -9,7 +9,7 @@ from django.utils import translation
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-
+from notification.models import LiveNotification
 from .models import *
 from .utils import paypal_token, payment
 
@@ -96,6 +96,12 @@ class TransactionSerializer(serializers.ModelSerializer):
                                                           previous_paid_amount=goal_obj.first().paid_amount,
                                                           created_by=self.context['request'].user.id)
         payment_obj.update(status="PAID")
+
+        # Notification
+        text = '${} amount of donation received for the goal {}'.format(
+            paid_amount, goal_obj.first().title)
+        LiveNotification.objects.create(text=text, type='DONATION',
+                                        from_user=payment_obj.user, to_user=goal_obj.first().profile.user)
 
         # Total donation by user
         user = User.objects.filter(id=self.context['request'].user.id)
@@ -232,6 +238,12 @@ class CashoutSerializer(serializers.ModelSerializer):
                 for each_distribution in distribution:
                     CashoutDistribution.objects.create(distribution=each_distribution, cashout=cashout_instance,
                                                        status="PENDING", created_by=self.context['request'].user)
+
+                # Notification
+                ngo_profile = Profile.objects.get(id=profile.ngo_profile_id)
+                text = '@{} requested for ${} amount for cash out. Waiting for your approval.'.format(profile.user.username, amount["available_amount"])
+                LiveNotification.objects.create(text=text, type='DONEE_CASHOUT_REQUEST',
+                                                from_user=profile.user, to_user=ngo_profile.user)
             elif profile.profile_type=="NGO":
                 amount = Distribution.objects.filter(Q(transaction__payment__goal=goal) & Q(ngo_cashout_status="INITIAL")).aggregate(
                     available_amount=Coalesce(Sum(
@@ -300,6 +312,11 @@ class CashoutUserUpdateSerializer(serializers.ModelSerializer):
             validated_data.update({"ngo_remark" : remark })
             cashout_distribution = CashoutDistribution.objects.filter(cashout_id=self.instance.id)
             cashout_distribution.update(status = 'REJECTED_BY_NGO')
+
+            # Notification
+            text = '@{} has rejected your cash out request'.format(self.context['request'].user.username)
+            LiveNotification.objects.create(text=text, type='DONEE_CASHOUT_REJECT',
+                                            from_user=self.context['request'].user, to_user=self.instance.user)
             for ngo_cash in cashout_distribution:
                 cashout = Cashout.objects.filter(Q(id=ngo_cash.cashout_id) & Q(profile__profile_type="NGO"))
                 if cashout:
@@ -346,6 +363,11 @@ class CashoutUserUpdateSerializer(serializers.ModelSerializer):
         elif validated_data['status'] == "ACCEPTED":
             cashout_distribution = CashoutDistribution.objects.filter(cashout_id=self.instance.id )
             cashout_distribution.update(status = 'ACCEPTED')
+
+            # Notification
+            text = '@{} has accepted your cash out request'.format(self.context['request'].user.username)
+            LiveNotification.objects.create(text=text, type='DONEE_CASHOUT_ACCEPT',
+                                            from_user=self.context['request'].user, to_user=self.instance.user)
 
             for ngo_cash in cashout_distribution:
                 cashout = Cashout.objects.filter(Q(id=ngo_cash.cashout_id) & Q(profile__profile_type="NGO"))

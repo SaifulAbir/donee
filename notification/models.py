@@ -12,7 +12,6 @@ class LiveNotification(DoneeModel):
         ('DONEE_GOAL_CREATION', 'Donee Goal Creation'),
         ('DONEE_INVITATION_ACCEPT', 'Donee Invitation Accept'),
         ('DONEE_GOAL_APPROVE', 'Donee Goal Approve'),
-        ('DONEE_GOAL_APPROVE', 'Donee Goal Approve'),
         ('DONATION', 'Donation'),
         ('GOAL_LIKE', 'Goal Like'),
         ('GOAL_COMMENT', 'Goal Comment'),
