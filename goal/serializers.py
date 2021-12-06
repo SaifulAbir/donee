@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from notification.models import LiveNotification
 from payment.models import Payment
 from user.models import ProfileFollow
 from user.serializers import ProfileSerializer, SavedGoalSerializer, UserSerializer
@@ -273,6 +275,12 @@ class GoalSerializer(serializers.ModelSerializer):
                                             ngo_amount=ngo_amount,
                                             platform_amount=platform_amount,
                                             total_amount=total_amount)
+
+            ngo_profile = Profile.objects.get(id=validated_data['profile'].ngo_profile_id)
+            text = 'Approve the goal {} created by one of your donee {}'.format(
+                goal_instance.title, validated_data['profile'].username)
+            LiveNotification.objects.create(text=text, type='DONEE_GOAL_CREATION',
+                                            from_user=validated_data['profile'].user, to_user=ngo_profile.user)
         if sdgs:
             for sdgs_obj in sdgs:
                 GoalSDGS.objects.create(sdgs=sdgs_obj, goal=goal_instance,

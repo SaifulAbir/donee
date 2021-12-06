@@ -10,6 +10,8 @@ from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAP
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
+
+from notification.models import LiveNotification
 from payment.models import Payment
 from user.models import NgoUser, NgoUserRole, User, Profile, Country,Notification,ProfileFollow,UserFollow
 from goal.models import Goal, GoalSave
@@ -245,6 +247,11 @@ class UserFollowProfileAPI(CreateAPIView):
                     print(user.total_following_count)
                     follow_profile_obj.save()
                     user_obj.save()
+
+                    # Notification
+                    text = '@{} is following you'.format(user.username)
+                    LiveNotification.objects.create(text=text, type='PROFILE_FOLLOW',
+                                                    from_user=user, to_user=follow_profile.user)
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":True,}, status=status.HTTP_200_OK)
 
             
@@ -258,6 +265,11 @@ class UserFollowProfileAPI(CreateAPIView):
                     user_obj.save()
                     followobj= ProfileFollow(user = user,follow_profile = follow_profile,is_followed = True,created_by =user.username)
                     followobj.save()
+
+                    # Notification
+                    text = '@{} is following you'.format(user.username)
+                    LiveNotification.objects.create(text=text, type='PROFILE_FOLLOW',
+                                                    from_user=user, to_user=follow_profile.user)
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":True,}, status=status.HTTP_201_CREATED)
             else:
                 raise ValidationError({"follow_profile":'must provide integer user id!'})
