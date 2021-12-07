@@ -41,6 +41,6 @@ class LiveNotification(DoneeModel):
 @receiver(post_save, sender=LiveNotification)
 def notification_post_save(sender, instance, *args, **kwargs):
     from notification.serializers import LiveNotificationSerializer
-    url = "http://3.1.80.219/api/send-notification/"
+    url = "https://socket.doneeapp.com/api/send-notification/"
     payload = {"notification": json.dumps(LiveNotificationSerializer(instance, many=False).data)}
     requests.post(url, data=payload)
