@@ -296,9 +296,23 @@ class GoalSerializer(serializers.ModelSerializer):
 
 class SingleCatagorySerializer(serializers.ModelSerializer):
     image = serializers.ImageField(source='goal.image',read_only=True)
+    short_description = serializers.CharField(source='goal.short_description',read_only=True)
+    buying_item = serializers.CharField(source='goal.buying_item',read_only=True)
+    online_source_url = serializers.URLField(source='goal.online_source_url',read_only=True)
+    total_amount = serializers.IntegerField(source='goal.total_amount',read_only=True)
+    status = serializers.CharField(source='goal.status',read_only=True)
+    total_like_count = serializers.IntegerField(source='goal.total_like_count',read_only=True)
+    total_comment_count = serializers.IntegerField(source='goal.total_comment_count',read_only=True)
     ngo_username = serializers.SerializerMethodField()
     profile_username = serializers.CharField(source='goal.profile',read_only=True)
+    profile_user_username = serializers.CharField(source='goal.profile.user.username',read_only=True)
+    profile_type = serializers.CharField(source='goal.profile.profile_type',read_only=True)
     profile_image = serializers.ImageField(source="goal.profile.image",read_only=True)
+    is_followed = serializers.SerializerMethodField('_get_is_followed')
+    is_liked = serializers.SerializerMethodField()
+    is_saved = serializers.SerializerMethodField()
+    goal_media = serializers.SerializerMethodField('_get_goal_media')
+
 
     class Meta:
         model = GoalSDGS
@@ -319,6 +333,47 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
         rep['total_like_count'] = instance.goal.total_like_count
         rep['total_comment_count'] = instance.goal.total_comment_count
         return rep
+
+
+    def get_is_liked(self,obj):
+        if self.context['request'].user.is_anonymous :
+            return False
+        else:
+            likes = Like.objects.filter(goal = obj,is_like = True,user=self.context['request'].user.id)
+            if likes.exists():
+                return True
+            else:
+                return False
+
+    def get_is_saved(self,obj):
+        if self.context['request'].user.is_anonymous :
+            return False
+        else:
+            saves = GoalSave.objects.filter(goal = obj,is_saved = True,user=self.context['request'].user.id)
+            if saves.exists():
+                return True
+            else:
+                return False
+
+    def _get_is_followed(self, obj):
+        
+        if self.context['request'].user.is_anonymous :
+            return False
+        
+        else: 
+            query=ProfileFollow.objects.filter(follow_profile=obj.profile.id,is_followed=True,user=self.context['request'].user.id)
+            if query:
+                return True
+            else:
+                return False
+
+    def _get_goal_media(self, obj):
+        list=[]
+        media= Media.objects.filter(goal=obj.goal)
+        
+        for med in media:
+            list.append({'id':med.id,'type':med.type, 'file':med.file, 'status':med.status})
+            return list
 
 
 class DashboardGoalCountSerializer(serializers.ModelSerializer):
