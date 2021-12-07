@@ -791,11 +791,12 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
     today_income = serializers.SerializerMethodField('_get_today_collected')
     today_income_percentage = serializers.SerializerMethodField('_get_today_percentage')
     monthly_income = serializers.SerializerMethodField('_get_monthly_income')
+    recent_transaction = serializers.SerializerMethodField('_get_recent_transaction')
 
 
     class Meta:
         model = Profile
-        fields = ['total_income','today_income','today_income_percentage','monthly_income']
+        fields = ['total_income','today_income','today_income_percentage','monthly_income','recent_transaction']
 
 
     def _get_total_collected(self, obj):
@@ -815,6 +816,49 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
                     total_donee_wallet+=wallet.amount
 
         return total_ngo_wallet+total_donee_wallet
+
+    def _get_recent_transaction(self, obj):
+        total_donations = 0
+        list=[]
+        payment1= 0
+        payment2=0
+        today = datetime.date.today()
+        query=Profile.objects.filter(ngo_profile_id=obj.id)
+        ngo_goal_query=Goal.objects.filter(profile=obj)
+
+        for ngo_goal in ngo_goal_query:
+            ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__date=today)
+            if ngo_donation_query:
+
+                for don in ngo_donation_query:
+                    ngo_distribution= Distribution.objects.get(transaction=don)
+                    payment1=ngo_distribution.total_amount
+                    donor =ngo_distribution.transaction.payment.user.username
+                    donee =ngo_distribution.transaction.payment.goal.profile.username
+                    transaction_time=ngo_distribution.transaction.payment_updated_at
+    
+                    list.append({'amount':payment1,'donor':donor,'donee':donee,'transaction_time':transaction_time})
+
+
+        for donee_obj in query:
+            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
+
+            if donee_obj_goal_query:
+                for donee_goal in donee_obj_goal_query:
+                    donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).order_by('-payment_updated_at')
+
+                    if donee_donation_query:
+                        for dona in donee_donation_query:
+                            donee_distribution= Distribution.objects.get(transaction=dona)
+                            payment2=donee_distribution.donee_amount
+                            donor =donee_distribution.transaction.payment.user.full_name
+                            donee =donee_distribution.transaction.payment.goal.profile.full_name
+                            transaction_time=donee_distribution.transaction.payment_updated_at
+
+                            list.append({'amount':payment2,'donor':donor,'donee':donee, 'transaction_time':transaction_time})
+        
+        return list
+
 
 
     def _get_today_collected(self, obj):
