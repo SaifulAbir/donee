@@ -16,6 +16,8 @@ from rest_framework.response import Response
 from django.conf import settings
 from django.template.loader import render_to_string
 
+from .utils import get_current_host
+
 
 class UserRegSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
@@ -37,7 +39,7 @@ class UserRegSerializer(serializers.ModelSerializer):
         email_list = validated_data['email']
         subject = "Account Verification"
         code = user.verification_id
-        verification_link = 'https://mvp.doneeapp.com/verifyuser/id={}'.format(code)
+        verification_link = '{}/verifyuser/id={}'.format(get_current_host(self.context.get("request")), code)
         html_message = render_to_string('verification_email.html', {'verification_link':verification_link })
         
         send_mail(
