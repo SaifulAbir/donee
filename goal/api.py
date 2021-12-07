@@ -149,7 +149,7 @@ class GoalLikeAPIView(CreateAPIView):
                     goal_obj.save()
 
                     # Notification
-                    text = '@{} liked your goal'.format(user.username)
+                    text = '@{} unliked your goal'.format(user.username)
                     LiveNotification.objects.create(text=text, type='GOAL_LIKE',
                                                     from_user=user, to_user=goal_obj.profile.user)
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"goal":self.request.data["goal"],"is_like":False,}, status=status.HTTP_200_OK)
