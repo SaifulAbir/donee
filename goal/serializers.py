@@ -235,7 +235,7 @@ class GoalSerializer(serializers.ModelSerializer):
         return likes
 
     def get_is_liked(self,obj):
-        if self.context['request'].user.is_anonymous :
+        if self.context['request'].user.is_anonymous:
             return False
         else:
             likes = Like.objects.filter(goal = obj,is_like = True,user=self.context['request'].user.id)
@@ -311,7 +311,7 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
     is_followed = serializers.SerializerMethodField('_get_is_followed')
     is_liked = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
-    goal_media = serializers.SerializerMethodField('_get_goal_media')
+    goal_media = MediaSerializer(source='goal.goal_media', many=True, read_only=True)
 
 
     class Meta:
@@ -366,14 +366,6 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
                 return True
             else:
                 return False
-
-    def _get_goal_media(self, obj):
-        list=[]
-        media= Media.objects.filter(goal=obj.goal)
-        
-        for med in media:
-            list.append({'id':med.id,'type':med.type, 'file':med.file, 'status':med.status})
-            return list
 
 
 class DashboardGoalCountSerializer(serializers.ModelSerializer):
