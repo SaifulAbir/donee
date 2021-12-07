@@ -904,10 +904,13 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
                     total_donee_wallet+=wallet.amount
 
         total_collected=total_ngo_wallet+total_donee_wallet
+        if total_collected:
+            today_percentage=(today_collected*100)/total_collected
+            return today_percentage
+        
+        else:
+            return 0
 
-        today_percentage=(today_collected*100)/total_collected
-
-        return today_percentage
 
 
     def _get_monthly_income(self, obj):
@@ -1322,10 +1325,14 @@ class DashboardDonorSerializer(serializers.ModelSerializer):
         
         total_donor_country_count_list = list(map(sum, zip_longest(ngo_donor_country_count_list, donee_donor_country_count_list, fillvalue=0)))
         total_donors = sum(total_donor_country_count_list)
-        donor_country_count_percentage_list = [percentage_donors/total_donors * 100 for percentage_donors in total_donor_country_count_list]
-        donor_country_count_percentage_round_list = ['%.2f' % elem for elem in donor_country_count_percentage_list]
+        if total_donors:
+            donor_country_count_percentage_list = [percentage_donors/total_donors * 100 for percentage_donors in total_donor_country_count_list]
+            donor_country_count_percentage_round_list = ['%.2f' % elem for elem in donor_country_count_percentage_list]
+            return donor_country_count_percentage_round_list, country_name_list
+        else:
+            return [0],country_name_list
+
         
-        return donor_country_count_percentage_round_list, country_name_list
 
     def _get_recent_activity(self,obj):
         ngo_donor_list=[]
