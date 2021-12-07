@@ -8,3 +8,11 @@ class LiveNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = LiveNotification
         fields = ['id', 'text', 'type', 'from_user', 'to_user', 'created_at']
+
+class LiveNotificationUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = LiveNotification
+        fields = ['id', 'is_read']
+        
+

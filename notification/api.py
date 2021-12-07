@@ -1,6 +1,7 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, UpdateAPIView
+from rest_framework.views import APIView
 from notification.models import LiveNotification
-from notification.serializers import LiveNotificationSerializer
+from notification.serializers import LiveNotificationSerializer, LiveNotificationUpdateSerializer
 
 
 class LiveNotificationListAPI(ListAPIView):
@@ -8,3 +9,7 @@ class LiveNotificationListAPI(ListAPIView):
 
     def get_queryset(self):
         return LiveNotification.objects.filter(to_user=self.request.user)
+
+class LiveNotificationUpdateAPI(UpdateAPIView):
+    queryset=LiveNotification.objects.all()
+    serializer_class=LiveNotificationUpdateSerializer
