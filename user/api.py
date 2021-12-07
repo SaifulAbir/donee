@@ -152,7 +152,7 @@ class inNgoDoneeListAPIView(ListAPIView):
 
 
 class CountryListAPI(ListAPIView):
-    queryset = Country.objects.filter()
+    queryset = Country.objects.all().order_by('name')
     serializer_class = CountrySerializer
 
 
