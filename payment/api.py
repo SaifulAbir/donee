@@ -14,27 +14,6 @@ from django.core.mail import EmailMessage, send_mail
 class PaymentCreateAPIView(CreateAPIView):
     serializer_class = PaymentSerializer
 
-    # def post(self, request, *args, **kwargs):
-    #     dedication_serializer = PaymentSerializer(data=request.data)
-    #     if dedication_serializer.is_valid():
-    #         profile = Profile.objects.get(user=self.request.user)
-    #         username = profile.username
-    #         email = request.POST.getlist('dedicated_email')
-    #         name = request.POST.get('dedicated_name')
-    #         subject = "A goal has been dedicated to you"
-    #         html_message = render_to_string('dedication_info.html', {'username':username, 'dedicated_name' : name})
-            
-    #         send_mail(
-    #             subject=subject,
-    #             message=None,
-    #             from_email=settings.EMAIL_HOST_USER,
-    #             recipient_list=email,
-    #             html_message=html_message
-    #         )
-    #         return Response({'message': 'Email sent successfully!'})
-    #     return Response({'message': dedication_serializer.errors})
-
-
 class TransactionCreateAPIView(CreateAPIView):
     serializer_class = TransactionSerializer
 
@@ -99,17 +78,6 @@ class CashoutAccountListAPIView(ListAPIView):
 class CashoutAccountUpdateAPIView(UpdateAPIView):
     serializer_class = CashoutAccountUpdateSerializer
     queryset = CashoutAccountInfo.objects.all()
-
-
-def send_email():
-        email = EmailMessage(
-            'Title',
-            (DedicationInfoSerializer.name, DedicationInfoSerializer.email),
-            'my-email',
-            ['my-receive-email']
-        )
-        
-        email.send()
 
 
 class DedicationInfoAPIView(APIView):
