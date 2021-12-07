@@ -39,7 +39,12 @@ class UserRegSerializer(serializers.ModelSerializer):
         email_list = validated_data['email']
         subject = "Account Verification"
         code = user.verification_id
-        verification_link = '{}/verifyuser/id={}'.format(get_current_host(self.context.get("request")), code)
+        current_host = get_current_host(self.context.get("request"))
+        if current_host == 'https://sandbox.doneeapp.com/':
+            current_host = "https://mvp.doneeapp.com/"
+        else:
+            current_host = "https://doneeapp.com/"
+        verification_link = '{}verifyuser/id={}'.format(current_host, code)
         html_message = render_to_string('verification_email.html', {'verification_link':verification_link })
         
         send_mail(
