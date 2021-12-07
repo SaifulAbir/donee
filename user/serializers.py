@@ -844,8 +844,8 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
                         for dona in donee_donation_query:
                             donee_distribution= Distribution.objects.get(transaction=dona)
                             payment2=donee_distribution.donee_amount
-                            donor =donee_distribution.transaction.payment.user.username
-                            donee =donee_distribution.transaction.payment.goal.profile.username
+                            donor =donee_distribution.transaction.payment.user.full_name
+                            donee =donee_distribution.transaction.payment.goal.profile.full_name
                             transaction_time=donee_distribution.transaction.payment_updated_at
 
                             list.append({'amount':payment2,'donor':donor,'donee':donee, 'transaction_time':transaction_time})
