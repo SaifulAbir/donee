@@ -3,6 +3,7 @@ from .api import *
 
 urlpatterns = [
     path('sdgs-list/', SDGSListAPI.as_view()),
+    path('live-notification-list/', LiveNotificationListAPI.as_view()),
     path('create-goal/', GoalCreateAPIView.as_view()),
     path('goal-list/', GoalListAPI.as_view()),
     path('popular-goals/', PopularGoalAPI.as_view()),

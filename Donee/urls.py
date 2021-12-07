@@ -40,6 +40,7 @@ urlpatterns = [
     path('api/',include('user.urls')),
     path('api/',include('goal.urls')),
     path('api/',include('payment.urls')),
+    path('api/',include('notification.urls')),
     path('v1/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('v2/docs/', include_docs_urls(title="API for Donee", permission_classes=[])),
 ]
