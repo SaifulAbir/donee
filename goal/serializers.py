@@ -368,11 +368,11 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
                 return False
 
     def _get_goal_media(self, obj):
-        list={}
+        list=[]
         media= Media.objects.filter(goal=obj.goal)
-    
-        for i in media:
-            list={'id':i.id,'type':i.type, 'file':i.file, 'status':i.status}
+        
+        for med in media:
+            list.append({'id':med.id,'type':med.type, 'file':med.file, 'status':med.status})
             return list
 
 
