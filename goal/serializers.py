@@ -304,6 +304,7 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
     total_like_count = serializers.IntegerField(source='goal.total_like_count',read_only=True)
     total_comment_count = serializers.IntegerField(source='goal.total_comment_count',read_only=True)
     ngo_username = serializers.SerializerMethodField()
+    profile_id = serializers.IntegerField(source='goal.profile.id',read_only=True)
     profile_username = serializers.CharField(source='goal.profile',read_only=True)
     profile_user_username = serializers.CharField(source='goal.profile.user.username',read_only=True)
     profile_type = serializers.CharField(source='goal.profile.profile_type',read_only=True)
@@ -339,7 +340,7 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
         if self.context['request'].user.is_anonymous :
             return False
         else:
-            likes = Like.objects.filter(goal = obj,is_like = True,user=self.context['request'].user.id)
+            likes = Like.objects.filter(goal = obj.goal,is_like = True,user=self.context['request'].user.id)
             if likes.exists():
                 return True
             else:
@@ -349,7 +350,7 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
         if self.context['request'].user.is_anonymous :
             return False
         else:
-            saves = GoalSave.objects.filter(goal = obj,is_saved = True,user=self.context['request'].user.id)
+            saves = GoalSave.objects.filter(goal = obj.goal,is_saved = True,user=self.context['request'].user.id)
             if saves.exists():
                 return True
             else:
@@ -361,7 +362,7 @@ class SingleCatagorySerializer(serializers.ModelSerializer):
             return False
         
         else: 
-            query=ProfileFollow.objects.filter(follow_profile=obj.profile.id,is_followed=True,user=self.context['request'].user.id)
+            query=ProfileFollow.objects.filter(follow_profile=obj.goal.profile.id,is_followed=True,user=self.context['request'].user.id)
             if query:
                 return True
             else:
