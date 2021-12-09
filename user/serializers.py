@@ -662,11 +662,14 @@ class DashboardAppSerializer(serializers.ModelSerializer):
         for ngo_goal in ngo_goal_query:
             ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__gte=thirty_days_ago)
             if ngo_donation_query:
+                try:
+                    for don in ngo_donation_query:
+                        ngo_distribution= Distribution.objects.get(transaction=don)
 
-                for don in ngo_donation_query:
-                    ngo_distribution= Distribution.objects.get(transaction=don)
-                    payment1=ngo_distribution.ngo_amount
-                    ngo_donations+=payment1
+                        payment1=ngo_distribution.ngo_amount
+                        ngo_donations+=payment1
+                except:
+                    ngo_donations=0
 
         for donee_obj in query:
             donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
@@ -676,16 +679,21 @@ class DashboardAppSerializer(serializers.ModelSerializer):
                     donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).filter(payment_updated_at__gte=thirty_days_ago)
 
                     if donee_donation_query:
-                        for dona in donee_donation_query:
-                            donee_distribution= Distribution.objects.get(transaction=dona)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            donee_donations+=total_amount
+                        try:
+                            for dona in donee_donation_query:
+                                donee_distribution= Distribution.objects.get(transaction=dona)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                donee_donations+=total_amount
+                        except:
+                            donee_donations=0
+
         total_donations = ngo_donations + donee_donations
         return total_donations
 
     def _get_today_collected(self, obj):
+        print(obj.id)
         total_donations = 0
         donee_donations = 0
         ngo_donations = 0
@@ -698,15 +706,16 @@ class DashboardAppSerializer(serializers.ModelSerializer):
         ngo_goal_query=Goal.objects.filter(profile=obj)
 
 
-
         for ngo_goal in ngo_goal_query:
             ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__date=today)
             if ngo_donation_query:
-
-                for don in ngo_donation_query:
-                    ngo_distribution= Distribution.objects.get(transaction=don)
-                    payment1=ngo_distribution.ngo_amount
-                    ngo_donations+=payment1
+                try:
+                    for don in ngo_donation_query:
+                        ngo_distribution= Distribution.objects.get(transaction=don)
+                        payment1=ngo_distribution.ngo_amount
+                        ngo_donations+=payment1
+                except:
+                        ngo_donations=0
 
         for donee_obj in query:
             donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
@@ -716,12 +725,16 @@ class DashboardAppSerializer(serializers.ModelSerializer):
                     donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).filter(payment_updated_at__date=today)
 
                     if donee_donation_query:
-                        for dona in donee_donation_query:
-                            donee_distribution= Distribution.objects.get(transaction=dona)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            donee_donations+=total_amount
+                        try:
+                            for dona in donee_donation_query:
+                                donee_distribution= Distribution.objects.get(transaction=dona)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                donee_donations+=total_amount
+                        except:
+                            donee_donations=0
+                            
         total_donations = ngo_donations + donee_donations
         return total_donations
 
@@ -834,39 +847,42 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
         today = datetime.date.today()
         query=Profile.objects.filter(ngo_profile_id=obj.id)
         ngo_goal_query=Goal.objects.filter(profile=obj)
-
-        for ngo_goal in ngo_goal_query:
-            ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__date=today)
-            if ngo_donation_query:
-
-                for don in ngo_donation_query:
-                    ngo_distribution= Distribution.objects.get(transaction=don)
-                    payment1=ngo_distribution.total_amount
-                    donor =ngo_distribution.transaction.payment.user.username
-                    donee =ngo_distribution.transaction.payment.goal.profile.username
-                    transaction_time=ngo_distribution.transaction.payment_updated_at
-    
-                    list.append({'amount':payment1,'donor':donor,'donee':donee,'transaction_time':transaction_time})
-
-
-        for donee_obj in query:
-            donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
-
-            if donee_obj_goal_query:
-                for donee_goal in donee_obj_goal_query:
-                    donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).order_by('-payment_updated_at')
-
-                    if donee_donation_query:
-                        for dona in donee_donation_query:
-                            donee_distribution= Distribution.objects.get(transaction=dona)
-                            payment2=donee_distribution.donee_amount
-                            donor =donee_distribution.transaction.payment.user.full_name
-                            donee =donee_distribution.transaction.payment.goal.profile.full_name
-                            transaction_time=donee_distribution.transaction.payment_updated_at
-
-                            list.append({'amount':payment2,'donor':donor,'donee':donee, 'transaction_time':transaction_time})
+        try:
+            for ngo_goal in ngo_goal_query:
+                ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__date=today)
+                if ngo_donation_query:
+                    
+                    for don in ngo_donation_query:
+                        ngo_distribution= Distribution.objects.get(transaction=don)
+                        payment1=ngo_distribution.total_amount
+                        donor =ngo_distribution.transaction.payment.user.username
+                        donee =ngo_distribution.transaction.payment.goal.profile.username
+                        transaction_time=ngo_distribution.transaction.payment_updated_at
         
-        return list
+                        list.append({'amount':payment1,'donor':donor,'donee':donee,'transaction_time':transaction_time})
+
+
+            for donee_obj in query:
+                donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
+
+                if donee_obj_goal_query:
+                    for donee_goal in donee_obj_goal_query:
+                        donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).order_by('-payment_updated_at')
+
+                        if donee_donation_query:
+                            for dona in donee_donation_query:
+                                donee_distribution= Distribution.objects.get(transaction=dona)
+                                payment2=donee_distribution.donee_amount
+                                donor =donee_distribution.transaction.payment.user.full_name
+                                donee =donee_distribution.transaction.payment.goal.profile.full_name
+                                transaction_time=donee_distribution.transaction.payment_updated_at
+
+                                list.append({'amount':payment2,'donor':donor,'donee':donee, 'transaction_time':transaction_time})
+            
+            return list
+
+        except:
+            return []
 
 
 
@@ -887,26 +903,30 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
         for ngo_goal in ngo_goal_query:
             ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__date=today)
             if ngo_donation_query:
-
-                for don in ngo_donation_query:
-                    ngo_distribution= Distribution.objects.get(transaction=don)
-                    payment1=ngo_distribution.ngo_amount
-                    ngo_donations+=payment1
+                try:
+                    for don in ngo_donation_query:
+                        ngo_distribution= Distribution.objects.get(transaction=don)
+                        payment1=ngo_distribution.ngo_amount
+                        ngo_donations+=payment1
+                except:
+                    ngo_donations=0
 
         for donee_obj in query:
             donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
+            try:
+                if donee_obj_goal_query:
+                    for donee_goal in donee_obj_goal_query:
+                        donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).filter(payment_updated_at__date=today)
 
-            if donee_obj_goal_query:
-                for donee_goal in donee_obj_goal_query:
-                    donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).filter(payment_updated_at__date=today)
-
-                    if donee_donation_query:
-                        for dona in donee_donation_query:
-                            donee_distribution= Distribution.objects.get(transaction=dona)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            donee_donations+=total_amount
+                        if donee_donation_query:
+                            for dona in donee_donation_query:
+                                donee_distribution= Distribution.objects.get(transaction=dona)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                donee_donations+=total_amount
+            except:
+                donee_donations=0
         total_donations = ngo_donations + donee_donations
         return total_donations
 
@@ -931,11 +951,14 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
         for ngo_goal in ngo_goal_query:
             ngo_donation_query=Transaction.objects.filter(payment__goal=ngo_goal).filter(payment_updated_at__date=today)
             if ngo_donation_query:
+                try:
+                    for don in ngo_donation_query:
+                        ngo_distribution= Distribution.objects.get(transaction=don)
+                        payment1=ngo_distribution.ngo_amount
+                        ngo_donations+=payment1
 
-                for don in ngo_donation_query:
-                    ngo_distribution= Distribution.objects.get(transaction=don)
-                    payment1=ngo_distribution.ngo_amount
-                    ngo_donations+=payment1
+                except:
+                    ngo_donations=0
 
         for donee_obj in query:
             donee_obj_goal_query=Goal.objects.filter(profile=donee_obj)
@@ -943,14 +966,16 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
             if donee_obj_goal_query:
                 for donee_goal in donee_obj_goal_query:
                     donee_donation_query=Transaction.objects.filter(payment__goal=donee_goal).filter(payment_updated_at__date=today)
-
-                    if donee_donation_query:
-                        for dona in donee_donation_query:
-                            donee_distribution= Distribution.objects.get(transaction=dona)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            donee_donations+=total_amount
+                    try:
+                        if donee_donation_query:
+                            for dona in donee_donation_query:
+                                donee_distribution= Distribution.objects.get(transaction=dona)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                donee_donations+=total_amount
+                    except:
+                        donee_donations=0
         today_collected = ngo_donations + donee_donations
 
         if ngo_wallet_query:
@@ -1009,66 +1034,101 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
                 for don in ngo_donation_query:
                     ngo_year=don.payment_updated_at.year
                     ngo_month=don.payment_updated_at.month
+                    try:
+                        if ngo_year==current_year and ngo_month==1:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            jan+=payment1
+                    except:
+                        jan=0
+                    
+                    try:
+                        if ngo_year==current_year and ngo_month==2:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            feb+=payment1
+                    except:
+                        feb=0
 
-                    if ngo_year==current_year and ngo_month==1:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        jan+=payment1
+                    try:
+                        if ngo_year==current_year and ngo_month==3:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            mar+=payment1
+                    except:
+                        mar=0
 
-                    if ngo_year==current_year and ngo_month==2:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        feb+=payment1
+                    try:
+                        if ngo_year==current_year and ngo_month==4:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            apr+=payment1
+                    except:
+                        apr=0
 
-                    if ngo_year==current_year and ngo_month==3:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        mar+=payment1
+                    try:
+                        if ngo_year==current_year and ngo_month==5:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            may+=payment1
+                    except:
+                        may=0
 
-                    if ngo_year==current_year and ngo_month==4:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        apr+=payment1
+                    try:
+                        if ngo_year==current_year and ngo_month==6:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            jun+=payment1
+                    except:
+                        jun=0
 
-                    if ngo_year==current_year and ngo_month==5:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        may+=payment1
+                    try:
+                        if ngo_year==current_year and ngo_month==7:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            jul+=payment1
+                    except:
+                        jul=0
 
-                    if ngo_year==current_year and ngo_month==6:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        jun+=payment1
+                    try:
+                        if ngo_year==current_year and ngo_month==8:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            aug+=payment1
+                    except:
+                        aug=0
 
-                    if ngo_year==current_year and ngo_month==7:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        jul+=payment1
+                    try:
+                        if ngo_year==current_year and ngo_month==9:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            sep+=payment1
+                    except:
+                        sep=0
 
-                    if ngo_year==current_year and ngo_month==8:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        aug+=payment1
+                    try:
+                        if ngo_year==current_year and ngo_month==10:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            octo+=payment1
+                    except:
+                        octo=0
 
-                    if ngo_year==current_year and ngo_month==9:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        sep+=payment1
+                    try:
+                        if ngo_year==current_year and ngo_month==11:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            nov+=payment1
+                    except:
+                        nov=0
 
-                    if ngo_year==current_year and ngo_month==10:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        octo+=payment1
-
-                    if ngo_year==current_year and ngo_month==11:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        nov+=payment1
-
-                    if ngo_year==current_year and ngo_month==12:
-                        ngo_distribution= Distribution.objects.get(transaction=don)
-                        payment1=ngo_distribution.ngo_amount
-                        dec+=payment1
+                    try:
+                        if ngo_year==current_year and ngo_month==12:
+                            ngo_distribution= Distribution.objects.get(transaction=don)
+                            payment1=ngo_distribution.ngo_amount
+                            dec+=payment1
+                    except:
+                        dec=0
 
 
         for donee_obj in query:
@@ -1080,90 +1140,125 @@ class DashboardMyWalletSerializer(serializers.ModelSerializer):
                     for don in donee_donation_query:
                         donee_year=don.payment_updated_at.year
                         donee_month=don.payment_updated_at.month
+                        try:
+                            if donee_year==current_year and donee_month==1:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                jan1+=total_amount
+                        except:
+                            jan1=0
 
-                        if donee_year==current_year and donee_month==1:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            jan1+=total_amount
+                        try:
+                            if donee_year==current_year and donee_month==2:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                feb1+=total_amount
+                        except:
+                            feb1=0
 
-                        if donee_year==current_year and donee_month==2:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            feb1+=total_amount
+                        try:
+                            if donee_year==current_year and donee_month==3:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                mar1+=total_amount
+                        except:
+                            mar1=0
 
-                        if donee_year==current_year and donee_month==3:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            mar1+=total_amount
+                        try:
+                            if donee_year==current_year and donee_month==4:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                apr1+=total_amount
+                        except:
+                            apr1=0
+                        
+                        try:
+                            if donee_year==current_year and donee_month==5:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                may1+=total_amount
+                        except:
+                            may1=0
 
-                        if donee_year==current_year and donee_month==4:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            apr1+=total_amount
+                        try:
+                            if donee_year==current_year and donee_month==6:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                jun1+=total_amount
+                        except:
+                            jun1=0
 
-                        if donee_year==current_year and donee_month==5:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            may1+=total_amount
+                        try:
+                            if donee_year==current_year and donee_month==7:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                jul1+=total_amount
+                        except:
+                            jul1=0
 
-                        if donee_year==current_year and donee_month==6:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            jun1+=total_amount
+                        try:
+                            if donee_year==current_year and donee_month==8:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                aug1+=total_amount
+                        except:
+                            aug1=0
 
-                        if donee_year==current_year and donee_month==7:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            jul1+=total_amount
+                        try:
+                            if donee_year==current_year and donee_month==9:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                sep1+=total_amount
+                        except:
+                            sep1=0
 
-                        if donee_year==current_year and donee_month==8:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            aug1+=total_amount
+                        try:
+                            if donee_year==current_year and donee_month==10:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                octo1+=total_amount
+                        except:
+                            octo1=0
 
-                        if donee_year==current_year and donee_month==9:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            sep1+=total_amount
+                        try:
+                            if donee_year==current_year and donee_month==11:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                nov1+=total_amount
+                        except:
+                            nov1=0
 
-                        if donee_year==current_year and donee_month==10:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            octo1+=total_amount
-
-                        if donee_year==current_year and donee_month==11:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            nov1+=total_amount
-
-                        if donee_year==current_year and donee_month==12:
-                            donee_distribution= Distribution.objects.get(transaction=don)
-                            payment2=donee_distribution.donee_amount
-                            payment3=donee_distribution.ngo_amount
-                            total_amount=payment2+payment3
-                            dec1+=total_amount
+                        try:
+                            if donee_year==current_year and donee_month==12:
+                                donee_distribution= Distribution.objects.get(transaction=don)
+                                payment2=donee_distribution.donee_amount
+                                payment3=donee_distribution.ngo_amount
+                                total_amount=payment2+payment3
+                                dec1+=total_amount
+                        except:
+                            dec1=0
 
         data_list=[jan+jan1,feb+feb1,mar+mar1,apr+apr1,may+may1,jun+jun1,jul+jul1,aug+aug1,sep+sep1,octo+octo1,nov+nov1,dec+dec1]
         date=["01/01/2020","02/01/2020","03/01/2020","04/01/2020","05/01/2020","06/01/2020","07/01/2020","08/01/2020","09/01/2020","10/01/2020","11/01/2020","12/01/2020"]
