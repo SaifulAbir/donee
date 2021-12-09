@@ -128,6 +128,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         payment_obj.update(status="PAID")
 
         # Notification
+        print(goal_obj.first().profile)
+        print(goal_obj.first().profile.user)
         text = '${} amount of donation received for the goal {}'.format(
             paid_amount, goal_obj.first().title)
         LiveNotification.objects.create(text=text, type='DONATION',
