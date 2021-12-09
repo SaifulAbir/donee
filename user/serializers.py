@@ -310,7 +310,7 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
         model = Profile
         fields = '__all__'
         extra_fields = ['donee_notification', 'account_activity', 'donee_activity', 'achieved_goals', 'new_followers',
-                        'NGO_role_assign', 'sdgs', 'total_donor', 'total_completed_goals']
+                        'NGO_role_assign', 'sdgs', 'total_donor', 'total_completed_goals', 'certification_incorporation']
         read_only_fields = ('user', 'plan_id', 'view_count', 'is_approved', 'invitation_id', 'profile_wallet', 'total_donee_count', 'total_goal_count')
 
     def _get_total_goal_count(self, obj):
