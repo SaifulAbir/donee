@@ -350,7 +350,11 @@ class DashboardAppAPIView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return Profile.objects.get(user=self.request.user)
+        try:
+            return Profile.objects.get(user=self.request.user)
+        except:
+            return Response({'message': 'profile is not found'})
+    
 
 
 class UserSearchAPIView(ListAPIView):
@@ -396,7 +400,10 @@ class DashboardMyWalletAPIView(RetrieveAPIView):
     serializer_class = DashboardMyWalletSerializer
 
     def get_object(self):
-        return Profile.objects.get(user=self.request.user)
+        try:
+            return Profile.objects.get(user=self.request.user)
+        except:
+            return Response({'message': 'profile is not found'})
 
 
 class DashboardDonorsAPIView(RetrieveAPIView):
