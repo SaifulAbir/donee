@@ -20,7 +20,8 @@ from user.serializers import DashboardDonorSerializer, NgoUserCreateSerializer, 
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
-    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer, DashboardMyWalletSerializer, IdActiveSerializer
+    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer, DashboardMyWalletSerializer, IdActiveSerializer, \
+        CountryCodeSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -417,8 +418,13 @@ class IdActiveAPIView(APIView):
         query_user.save()
         return Response({'message': 'id is active now'})
 
+class CountryCodeAPIView(APIView):
+    serializer_class = CountryCodeSerializer
 
-
-
+    def get(self, *args, **kwargs):
+        id =kwargs.get('pk')
+        country_obj =Country.objects.get(id=id)
+        serializer=CountryCodeSerializer(country_obj, many=False)
+        return Response(serializer.data)
 
     

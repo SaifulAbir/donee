@@ -13,6 +13,7 @@ import string
 
 class Country(models.Model):
     name = models.CharField(max_length=255)
+    country_code = models.CharField(max_length=25)
 
     class Meta:
         db_table = 'countries'

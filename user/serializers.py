@@ -1430,7 +1430,10 @@ class IdActiveSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
 
-
+class CountryCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ('name', 'country_code')
 
 
         
