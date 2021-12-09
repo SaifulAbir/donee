@@ -288,6 +288,7 @@ class DoneeAndNGOProfileSerializer(serializers.ModelSerializer):
 
 class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     from goal.serializers import ProfileGoalSerializer
+    certification_incorporation = serializers.ListField(child=serializers.FileField(), write_only=True)
     total_donee_count = serializers.SerializerMethodField('_get_total_donee_count')
     total_goal_count = serializers.SerializerMethodField('_get_total_goal_count')
     donee_notification = serializers.BooleanField(write_only=True)
@@ -357,6 +358,7 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
         achieved_goals = validated_data.pop('achieved_goals')
         new_followers = validated_data.pop('new_followers')
         NGO_role_assign = validated_data.pop('NGO_role_assign')
+        certification_incorporation = validated_data.pop('certification_incorporation')
         sdgs = validated_data.pop('sdgs')
         profile_instance = Profile.objects.create(**validated_data, user=self.context['request'].user)
         if sdgs:
@@ -375,6 +377,13 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
             ngo_profile = Profile.objects.get(id=profile_instance.ngo_profile_id)
             text = 'Donee @{} has accepted your request and has been added in this platform under your NGO @{}'.format(profile_instance.username, ngo_profile)
             LiveNotification.objects.create(text=text, type='DONEE_INVITATION_ACCEPT', from_user=profile_instance.user, to_user=ngo_profile.user)
+
+        if certification_incorporation:
+            for certification_incorporation_file in certification_incorporation:
+                file_type = certification_incorporation_file.content_type.split('/')[0]
+                CertificationIncorporation.objects.create(profile=profile_instance, file=certification_incorporation_file,
+                                     created_by=self.context['request'].user.id)
+
         return profile_instance
 
     def update(self, instance, validated_data):

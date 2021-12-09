@@ -11,6 +11,7 @@ from Donee.models import DoneeModel
 import random
 import string
 
+
 class Country(models.Model):
     name = models.CharField(max_length=255)
     country_code = models.CharField(max_length=25)
@@ -168,7 +169,14 @@ class Profile(models.Model):
            
     
 
+class CertificationIncorporation(DoneeModel):
+    profile = models.ForeignKey(Profile, on_delete=models.PROTECT, null=True, db_column='profile', related_name='profile_certification')
+    file = models.FileField(upload_to='certification_of_incorporation')
 
+    class Meta:
+        verbose_name = 'Certification of incorporation'
+        verbose_name_plural = 'Certification of incorporation'
+        db_table = 'Certification_of_incorporation'
 
 class Notification(DoneeModel):
     donee_notification = models.BooleanField(default=False)
@@ -268,3 +276,4 @@ class NgoUser(DoneeModel):
     
     def __str__(self) :
         return self.profile.username
+
