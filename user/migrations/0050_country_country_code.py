@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='country',
             name='country_code',
-            field=models.CharField(default=1, max_length=25),
+            field=models.CharField(default='', max_length=25),
             preserve_default=False,
         ),
     ]
