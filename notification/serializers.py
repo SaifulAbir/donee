@@ -16,3 +16,4 @@ class LiveNotificationUpdateSerializer(serializers.ModelSerializer):
         fields = ['id', 'is_read']
         
 
+
