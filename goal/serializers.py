@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from notification.models import LiveNotification
@@ -291,6 +292,17 @@ class GoalSerializer(serializers.ModelSerializer):
                 Media.objects.create(goal=goal_instance, type=file_type, file=media_file, status="COMPLETE",
                                      created_by=self.context['request'].user.id)
         return goal_instance
+
+    def update(self, instance, validated_data):
+        media = validated_data.pop('media')
+        if media:
+            Media.objects.filter(goal=instance).delete()
+            for media_file in media:
+                file_type = media_file.content_type.split('/')[0]
+                Media.objects.create(goal=instance, type=file_type, file=media_file, status="COMPLETE",
+                                     created_by=self.context['request'].user.id)
+        validated_data.update({"modified_by": self.context['request'].user, "modified_at": timezone.now()})
+        return super().update(instance, validated_data)
 
 
 

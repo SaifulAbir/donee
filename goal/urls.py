@@ -10,6 +10,7 @@ urlpatterns = [
     path('search/', SearchAPIView.as_view()),
     path('single-catagory/<int:id>', SingleCatagoryView.as_view()),
     path('retrieve-goal/<str:slug>/', GoalRetrieveUpdateAPIView.as_view()),
+    path('update-goal/<str:slug>/', GoalRetrieveUpdateAPIView.as_view()),
     path('goal-like/', GoalLikeAPIView.as_view()),
     path('dashboard/goal-count/', DashboardGoalCountAPIView.as_view()),
     path('dashboard/goal-list/', DashboardGoalListAPIView.as_view()),
