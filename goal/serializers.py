@@ -299,7 +299,7 @@ class GoalSerializer(serializers.ModelSerializer):
         except KeyError:
             media = None
         if media:
-            Media.objects.filter(goal=instance).delete()
+            # Media.objects.filter(goal=instance).delete()
             for media_file in media:
                 file_type = media_file.content_type.split('/')[0]
                 Media.objects.create(goal=instance, type=file_type, file=media_file, status="COMPLETE",
