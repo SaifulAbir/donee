@@ -294,7 +294,10 @@ class GoalSerializer(serializers.ModelSerializer):
         return goal_instance
 
     def update(self, instance, validated_data):
-        media = validated_data.pop('media')
+        try:
+            media = validated_data.pop('media')
+        except KeyError:
+            media = None
         if media:
             Media.objects.filter(goal=instance).delete()
             for media_file in media:
