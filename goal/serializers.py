@@ -19,7 +19,7 @@ class GoalSDGSSerializer(serializers.ModelSerializer):
     title = serializers.CharField(source="sdgs.title")
     class Meta:
         model = GoalSDGS
-        fields = ('title', )
+        fields = ('sdgs','title',)
 
 
 class GoalPaymentSerializer(serializers.ModelSerializer):
