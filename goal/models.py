@@ -1,7 +1,7 @@
 from django.db import models
 from Donee.models import DoneeModel
 from django.db.models.signals import pre_save
-from .utils import unique_slug_generator
+from .utils import unique_slug_generator, compress_image
 from user.models import Profile,User
 
 
@@ -37,6 +37,7 @@ class Goal(DoneeModel):
     buying_item = models.CharField(max_length=200)
     online_source_url =models.URLField(max_length=400, null=True, blank=True)
     image = models.ImageField(upload_to='images/goal_images')
+    compressed_image = models.ImageField(upload_to='images/goal_compressed_images', null=True)
     unit_cost = models.DecimalField(max_digits=19, decimal_places=2)
     total_unit = models.IntegerField(default=1)
     pgw_amount = models.DecimalField(max_digits=19, decimal_places=2)
@@ -61,6 +62,8 @@ class Goal(DoneeModel):
         return self.title
 
     def save(self,*args, **kwargs):
+        if not self.id:
+            self.compressed_image = compress_image(self.image)
         super(Goal,self).save(*args, **kwargs)
         a = Setting.objects.first()
         if self.pgw_percentage == 0:
