@@ -376,7 +376,7 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
         if profile_instance.ngo_profile_id:
             ngo_profile = Profile.objects.get(id=profile_instance.ngo_profile_id)
             text = 'Donee @{} has accepted your request and has been added in this platform under your NGO @{}'.format(profile_instance.username, ngo_profile)
-            LiveNotification.objects.create(text=text, type='DONEE_INVITATION_ACCEPT', from_user=profile_instance.user, to_user=ngo_profile.user)
+            LiveNotification.objects.create(text=text, type='DONEE_INVITATION_ACCEPT', identifier=profile_instance.id, from_user=profile_instance.user, to_user=ngo_profile.user)
 
         if certification_incorporation:
             for certification_incorporation_file in certification_incorporation:

@@ -130,7 +130,7 @@ class TransactionSerializer(serializers.ModelSerializer):
         # Notification
         text = '${} amount of donation received for the goal {}'.format(
             paid_amount, goal_obj.first().title)
-        LiveNotification.objects.create(text=text, type='DONATION',
+        LiveNotification.objects.create(text=text, type='DONATION', identifier=goal_obj.first().slug,
                                         from_user=payment_obj.first().user, to_user=goal_obj.first().profile.user)
 
         # Total donation by user
@@ -272,7 +272,7 @@ class CashoutSerializer(serializers.ModelSerializer):
                 # Notification
                 ngo_profile = Profile.objects.get(id=profile.ngo_profile_id)
                 text = '@{} requested for ${} amount for cash out. Waiting for your approval.'.format(profile.user.username, amount["available_amount"])
-                LiveNotification.objects.create(text=text, type='DONEE_CASHOUT_REQUEST',
+                LiveNotification.objects.create(text=text, type='DONEE_CASHOUT_REQUEST', identifier=goal.slug,
                                                 from_user=profile.user, to_user=ngo_profile.user)
             elif profile.profile_type=="NGO":
                 amount = Distribution.objects.filter(Q(transaction__payment__goal=goal) & Q(ngo_cashout_status="INITIAL")).aggregate(

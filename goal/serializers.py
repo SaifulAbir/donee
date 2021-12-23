@@ -48,7 +48,7 @@ class GoalListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
         fields = ['id', 'title','slug', 'short_description', 'buying_item', 'online_source_url', 'image', 'goal_media',
-                  'total_amount', 'profile', 'status','is_liked','total_like_count','total_comment_count','is_saved','is_followed']
+                  'total_amount', 'compressed_image', 'profile', 'status','is_liked','total_like_count','total_comment_count','is_saved','is_followed']
 
     def get_is_liked(self,obj):
         if self.context['request'].user.is_anonymous :
@@ -203,10 +203,10 @@ class GoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
         fields = ['id', 'title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
-                  'unit_cost', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
+                  'unit_cost', 'compressed_image', 'total_unit', 'total_amount', 'profile','profile_username','ngo_username',
                   'profile_image','status', 'pgw_amount', 'paid_amount', 'donor_count', "goal_payment",
                   'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media','goal_likes','total_like_count','is_liked','goal_comment','total_comment_count','is_saved','is_followed']
-        read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'slug', 'ngo_amount',
+        read_only_fields = ('ngo_username','total_amount', 'status', 'pgw_amount', 'slug', 'ngo_amount', 'compressed_image',
                             'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',
                             'profile_username','profile_image','total_like_count','total_comment_count', 'payment_count')
 
@@ -280,7 +280,7 @@ class GoalSerializer(serializers.ModelSerializer):
             ngo_profile = Profile.objects.get(id=validated_data['profile'].ngo_profile_id)
             text = 'Approve the goal {} created by one of your donee {}'.format(
                 goal_instance.title, validated_data['profile'].username)
-            LiveNotification.objects.create(text=text, type='DONEE_GOAL_CREATION',
+            LiveNotification.objects.create(text=text, type='DONEE_GOAL_CREATION', identifier=goal_instance.slug,
                                             from_user=validated_data['profile'].user, to_user=ngo_profile.user)
         if sdgs:
             for sdgs_obj in sdgs:
@@ -292,6 +292,24 @@ class GoalSerializer(serializers.ModelSerializer):
                 Media.objects.create(goal=goal_instance, type=file_type, file=media_file, status="COMPLETE",
                                      created_by=self.context['request'].user.id)
         return goal_instance
+
+
+class GoalUpdateSerializer(serializers.ModelSerializer):
+    sdgs = serializers.PrimaryKeyRelatedField(queryset=SDGS.objects.all(), many=True, write_only=True)
+    media = serializers.ListField(child=serializers.FileField(), write_only=True)
+    goal_sdgs = GoalSDGSSerializer(many=True, read_only=True)
+    goal_media = MediaSerializer(many=True, read_only=True)
+    profile_username = serializers.CharField(source="profile.username", read_only=True)
+
+    class Meta:
+        model = Goal
+        fields = ['id', 'title', 'short_description', 'full_description', 'buying_item', 'online_source_url', 'image', 'slug',
+                  'compressed_image', 'profile', 'profile_username',
+                  'status', 'pgw_amount', 'paid_amount',
+                  'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media',]
+        read_only_fields = ('status', 'pgw_amount', 'paid_amount', 'slug', 'ngo_amount', 'compressed_image',
+                            'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',
+                            'profile_username')
 
     def update(self, instance, validated_data):
         try:
@@ -311,6 +329,7 @@ class GoalSerializer(serializers.ModelSerializer):
 
 class SingleCatagorySerializer(serializers.ModelSerializer):
     image = serializers.ImageField(source='goal.image',read_only=True)
+    compressed_image = serializers.ImageField(source='goal.compressed_image',read_only=True)
     short_description = serializers.CharField(source='goal.short_description',read_only=True)
     buying_item = serializers.CharField(source='goal.buying_item',read_only=True)
     online_source_url = serializers.URLField(source='goal.online_source_url',read_only=True)

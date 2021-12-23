@@ -7,7 +7,7 @@ class LiveNotificationSerializer(serializers.ModelSerializer):
     from_user = UserSerializer()
     class Meta:
         model = LiveNotification
-        fields = ['id', 'text', 'type', 'from_user', 'to_user', 'is_read', 'created_at']
+        fields = ['id', 'text', 'type', 'from_user', 'to_user', 'is_read', 'identifier', 'created_at']
 
 class LiveNotificationUpdateSerializer(serializers.ModelSerializer):
 

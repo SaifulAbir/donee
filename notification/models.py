@@ -26,6 +26,7 @@ class LiveNotification(DoneeModel):
     text = models.CharField(max_length=500)
     type = models.CharField(max_length=100, choices=NOTIFICATION_TYPES)
     is_read = models.BooleanField(default=False)
+    identifier = models.CharField(max_length=255)
     from_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="from_user_notification")
     to_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="to_user_notification")
 
