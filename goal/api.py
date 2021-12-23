@@ -61,7 +61,6 @@ class GoalRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 
 class GoalUpdateAPIView(RetrieveUpdateAPIView):
-    permission_classes = (AllowAny,)
     serializer_class = GoalUpdateSerializer
     lookup_field = 'slug'
     lookup_url_kwarg = "slug"

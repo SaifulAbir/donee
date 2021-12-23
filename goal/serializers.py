@@ -307,7 +307,7 @@ class GoalUpdateSerializer(serializers.ModelSerializer):
                   'compressed_image', 'profile', 'profile_username',
                   'status', 'pgw_amount', 'paid_amount',
                   'ngo_amount', 'platform_amount', 'sdgs', 'media', 'goal_sdgs', 'goal_media',]
-        read_only_fields = ('status', 'pgw_amount', 'paid_amount', 'slug', 'ngo_amount', 'compressed_image',
+        read_only_fields = ('status', 'pgw_amount', 'paid_amount', 'slug', 'ngo_amount', 'compressed_image', 'profile',
                             'platform_amount','slug','pgw_percentage','ngo_percentage','platform_percentage',
                             'profile_username')
 
