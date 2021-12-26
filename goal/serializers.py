@@ -322,7 +322,7 @@ class GoalUpdateSerializer(serializers.ModelSerializer):
                 file_type = media_file.content_type.split('/')[0]
                 Media.objects.create(goal=instance, type=file_type, file=media_file, status="COMPLETE",
                                      created_by=self.context['request'].user.id)
-        validated_data.update({"modified_by": self.context['request'].user, "modified_at": timezone.now()})
+        validated_data.update({"modified_by": self.context['request'].user.id, "modified_at": timezone.now()})
         return super().update(instance, validated_data)
 
 
