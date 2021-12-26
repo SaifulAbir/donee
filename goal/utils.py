@@ -29,14 +29,11 @@ def unique_slug_generator(instance, new_slug = None):
 def compress_image(uploaded_image):
 	image_temproary = Image.open(uploaded_image)
 	outputIOStream = BytesIO()
-	# imageTemproaryResized = image_temproary.resize( (1020,573) )
 	rgb_img = image_temproary.convert('RGB')
+	# Resize/modify the image
+	rgb_img = rgb_img.resize((400, 400))
 	rgb_img.save(outputIOStream , format='JPEG', quality=40, optimize=True)
-	img_size = outputIOStream.tell()
 	outputIOStream.seek(0)
 	uploadedImage = InMemoryUploadedFile(outputIOStream, 'ImageField', "%s.jpg" % uploaded_image.name.split('.')[0],
 										 'image/jpeg', sys.getsizeof(outputIOStream), None)
-	if img_size <= 300000:
-		return uploadedImage
-	else:
-		compress_image(uploadedImage)
+	return uploadedImage
