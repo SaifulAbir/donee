@@ -36,6 +36,8 @@ def compress_image(uploaded_image):
 	uploadedImage = InMemoryUploadedFile(outputIOStream, 'ImageField', "%s.jpg" % uploaded_image.name.split('.')[0],
 										 'image/jpeg', sys.getsizeof(outputIOStream), None)
 	if outputIOStream.tell() <= 300000:
+		print(outputIOStream.tell())
+		print('yes')
 		return uploadedImage
 	else:
 		compress_image(uploadedImage)
