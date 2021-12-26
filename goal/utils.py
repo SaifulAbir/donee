@@ -31,7 +31,7 @@ def compress_image(uploaded_image):
 	outputIOStream = BytesIO()
 	rgb_img = image_temproary.convert('RGB')
 	# Resize/modify the image
-	rgb_img = rgb_img.resize((400, 400))
+	rgb_img = rgb_img.resize((800, 400))
 	rgb_img.save(outputIOStream , format='JPEG', quality=40, optimize=True)
 	outputIOStream.seek(0)
 	uploadedImage = InMemoryUploadedFile(outputIOStream, 'ImageField', "%s.jpg" % uploaded_image.name.split('.')[0],
