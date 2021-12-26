@@ -4,6 +4,7 @@ import sys
 from io import BytesIO
 from PIL import Image
 from slugify import slugify
+from django.core.files import File
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
@@ -27,10 +28,11 @@ def unique_slug_generator(instance, new_slug = None):
 
 
 def compress_image(uploaded_image):
-	image_temproary = Image.open(uploaded_image)
-	outputIoStream = BytesIO()
-	# imageTemproaryResized = image_temproary.resize( (1020,573) )
-	image_temproary.save(outputIoStream , format='JPEG', quality=60)
-	outputIoStream.seek(0)
-	uploadedImage = InMemoryUploadedFile(outputIoStream,'ImageField', "%s.jpg" % uploaded_image.name.split('.')[0], 'image/jpeg', sys.getsizeof(outputIoStream), None)
-	return uploadedImage
+	img = Image.open(uploaded_image)
+	# create a BytesIO object
+	img_io = BytesIO()
+	# save image to BytesIO object
+	img.save(img_io, 'JPEG', quality=70)
+	# create a django-friendly Files object
+	new_image = File(img_io, name=uploaded_image.name)
+	return new_image
