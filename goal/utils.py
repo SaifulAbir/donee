@@ -32,12 +32,11 @@ def compress_image(uploaded_image):
 	# imageTemproaryResized = image_temproary.resize( (1020,573) )
 	rgb_img = image_temproary.convert('RGB')
 	rgb_img.save(outputIOStream , format='JPEG', quality=40, optimize=True)
+	img_size = outputIOStream.tell()
 	outputIOStream.seek(0)
 	uploadedImage = InMemoryUploadedFile(outputIOStream, 'ImageField', "%s.jpg" % uploaded_image.name.split('.')[0],
 										 'image/jpeg', sys.getsizeof(outputIOStream), None)
-	if outputIOStream.tell() <= 300000:
-		print(outputIOStream.tell())
-		print('yes')
+	if img_size <= 300000:
 		return uploadedImage
 	else:
 		compress_image(uploadedImage)
