@@ -252,7 +252,7 @@ class UserFollowProfileAPI(CreateAPIView):
                     # Notification
                     text = '@{} is following you'.format(user.username)
                     LiveNotification.objects.create(text=text, type='PROFILE_FOLLOW',
-                                                    identifier= follow_profile_obj.id,
+                                                    identifier= user_obj.id,
                                                     from_user=user, to_user=follow_profile.user)
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":True,}, status=status.HTTP_200_OK)
 
@@ -270,7 +270,7 @@ class UserFollowProfileAPI(CreateAPIView):
 
                     # Notification
                     text = '@{} is following you'.format(user.username)
-                    LiveNotification.objects.create(text=text, type='PROFILE_FOLLOW', identifier= follow_profile_obj.id,
+                    LiveNotification.objects.create(text=text, type='PROFILE_FOLLOW', identifier= user_obj.id,
                                                     from_user=user, to_user=follow_profile.user)
                     return Response({"id":self.request.user.id,"username":self.request.user.username,"follow_profile":self.request.data["follow_profile"],"is_followed":True,}, status=status.HTTP_201_CREATED)
             else:
