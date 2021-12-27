@@ -288,7 +288,7 @@ class DoneeAndNGOProfileSerializer(serializers.ModelSerializer):
 
 class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
     from goal.serializers import ProfileGoalSerializer
-    certification_incorporation = serializers.ListField(child=serializers.FileField(), write_only=True)
+    certification_incorporation = serializers.ListField(child=serializers.FileField(), write_only=True, required=False)
     total_donee_count = serializers.SerializerMethodField('_get_total_donee_count')
     total_goal_count = serializers.SerializerMethodField('_get_total_goal_count')
     donee_notification = serializers.BooleanField(write_only=True)
