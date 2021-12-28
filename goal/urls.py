@@ -8,6 +8,7 @@ urlpatterns = [
     path('popular-goals/', PopularGoalAPI.as_view()),
     path('supported-goals/', SupportedGoalAPI.as_view()),
     path('search/', SearchAPIView.as_view()),
+    path('destroy-media/<int:pk>/', GoalMediaDeleteAPIView.as_view()),
     path('single-catagory/<int:id>', SingleCatagoryView.as_view()),
     path('retrieve-goal/<str:slug>/', GoalRetrieveUpdateAPIView.as_view()),
     path('update-goal/<str:slug>/', GoalUpdateAPIView.as_view()),

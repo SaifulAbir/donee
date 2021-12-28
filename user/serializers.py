@@ -358,7 +358,10 @@ class DoneeAndNgoProfileCreateUpdateSerializer(serializers.ModelSerializer):
         achieved_goals = validated_data.pop('achieved_goals')
         new_followers = validated_data.pop('new_followers')
         NGO_role_assign = validated_data.pop('NGO_role_assign')
-        certification_incorporation = validated_data.pop('certification_incorporation')
+        try:
+            certification_incorporation = validated_data.pop('certification_incorporation')
+        except KeyError:
+            certification_incorporation = None
         sdgs = validated_data.pop('sdgs')
         profile_instance = Profile.objects.create(**validated_data, user=self.context['request'].user)
         if sdgs:

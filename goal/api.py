@@ -3,15 +3,15 @@ from django.db.models import Q, Count, Value, F, CharField, Prefetch, Subquery, 
     IntegerField, Sum, DecimalField
 from django.db.models.functions import Concat, text, Coalesce
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, DestroyAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from Donee.pagination import CustomPagination
 from Donee.settings import MEDIA_URL
 from goal.serializers import GoalCommentCreateSerializer, PopularGoalSerializer, SearchSerializer, \
     DashboardGoalCountSerializer, DashboardGoalListSerializer, PaidGoalListSerializer, PaidGoalSerializer, \
-    GoalUpdateSerializer
-from goal.models import SDGS, Goal, GoalSDGS, Like, Comment, Setting
+    GoalUpdateSerializer, MediaSerializer
+from goal.models import SDGS, Goal, GoalSDGS, Like, Comment, Setting, Media
 from notification.models import LiveNotification
 from payment.models import Payment
 from goal.models import SDGS, Goal, GoalSDGS, GoalSave,Like,Comment
@@ -439,6 +439,14 @@ class GetPercentagesAPIView(ListAPIView):
             return percentages
         else:
             raise ValidationError({"percentages":'there is no percentage'})
+
+
+class GoalMediaDeleteAPIView(DestroyAPIView):
+    serializer_class = MediaSerializer
+
+    def get_queryset(self):
+        queryset = Media.objects.filter(id=self.kwargs['pk'])
+        return queryset
 
 
     
