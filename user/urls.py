@@ -1,9 +1,12 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from .api import DashboardDonorsAPIView, NgoUserCreateAPIView, NgoUserListAPIView, NgoUserRoleUpdateAPIView, NgoUserUpdateStatusAPIView, RoleListAPIView, UserUpdateAPIView, DoneeAndNgoProfileCreateAPIView, DoneeAndNgoProfileUpdateAPIView, CountryListAPI, \
+from .api import DashboardDonorsAPIView, NgoUserCreateAPIView, NgoUserListAPIView, NgoUserRoleUpdateAPIView, \
+    NgoUserUpdateStatusAPIView, RoleListAPIView, UserUpdateAPIView, DoneeAndNgoProfileCreateAPIView, \
+    DoneeAndNgoProfileUpdateAPIView, CountryListAPI, \
     CustomTokenObtainPairView, DonorProfileAPIView, DoneeAndNGOProfileAPIView, UserFollowUserAPI, UserFollowProfileAPI, \
     SendInvitationLink, DashboardAppAPIView, inNgoDoneeInfoAPIView, inNgoDoneeListAPIView, DoneeStatusUpdateAPIView, \
-    EndorsedGoalsInNgoAPIView, SocialSignupAPIView, UserSearchAPIView, DashboardMyWalletAPIView, IdActiveAPIView, CountryCodeAPIView
+    EndorsedGoalsInNgoAPIView, SocialSignupAPIView, UserSearchAPIView, DashboardMyWalletAPIView, IdActiveAPIView, \
+    CountryCodeAPIView, PlatformDashboardAPIView
 from .views import *
 from django.views.decorators.csrf import csrf_exempt
 
@@ -27,6 +30,7 @@ urlpatterns = [
     path('donee-status/', DoneeStatusUpdateAPIView.as_view()),
     path('send-invitation-link/', SendInvitationLink.as_view()),
     path('dashboard/app/', DashboardAppAPIView.as_view()),
+    path('platform/dashboard/', PlatformDashboardAPIView.as_view()),
     path('ngo-endorsed-goals/', EndorsedGoalsInNgoAPIView.as_view()),
     path('social-signup/', SocialSignupAPIView.as_view()),
     path('search-user/', UserSearchAPIView.as_view()),

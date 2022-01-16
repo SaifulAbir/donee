@@ -730,6 +730,15 @@ class DashboardAppSerializer(serializers.ModelSerializer):
         return total_donations
 
 
+class PlatformDashboardSerializer(serializers.Serializer):
+    total_active_goals = serializers.CharField()
+    total_completed_goals = serializers.CharField()
+    total_donee = serializers.CharField()
+    total_ngo = serializers.CharField()
+    total_collected = serializers.CharField()
+    total_donation = serializers.CharField()
+    total_raised_in_last_30_days = serializers.CharField()
+
 
 class InvitationSerializer(serializers.Serializer):
     emails = serializers.ListField(child=serializers.EmailField(), write_only=True)

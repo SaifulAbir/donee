@@ -1,6 +1,7 @@
+import datetime
 from django.conf import settings
 from django.core.mail import send_mail
-from django.db.models import Count, Q, F
+from django.db.models import Count, Q, F, Sum
 from django.db.models import query
 from django.db.models.functions import Concat
 from django.db.models.query import Prefetch, QuerySet
@@ -10,18 +11,19 @@ from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView, ListAP
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
-
 from notification.models import LiveNotification
-from payment.models import Payment
+from payment.models import Payment, Wallet, Transaction
 from user.models import NgoUser, NgoUserRole, User, Profile, Country,Notification,ProfileFollow,UserFollow
 from goal.models import Goal, GoalSave
-from user.serializers import DashboardDonorSerializer, NgoUserCreateSerializer, NgoUserListSerializer, NgoUserRoleUpdateSerializer, \
+from user.serializers import DashboardDonorSerializer, NgoUserCreateSerializer, NgoUserListSerializer, \
+    NgoUserRoleUpdateSerializer, \
     NgoUserStatusUpdateSerializer, RoleListSerializer, UserProfileUpdateSerializer, \
     DoneeAndNgoProfileCreateUpdateSerializer, CountrySerializer, CustomTokenObtainPairSerializer, \
     DonorProfileSerializer, DoneeAndNGOProfileSerializer, UserFollowUserSerializer, UserFollowProfileSerializer, \
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
-    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer, DashboardMyWalletSerializer, IdActiveSerializer, \
-        CountryCodeSerializer
+    DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer, \
+    DashboardMyWalletSerializer, IdActiveSerializer, \
+    CountryCodeSerializer, PlatformDashboardSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -434,5 +436,56 @@ class CountryCodeAPIView(APIView):
         country_obj =Country.objects.get(id=id)
         serializer=CountryCodeSerializer(country_obj, many=False)
         return Response(serializer.data)
+
+
+class PlatformDashboardAPIView(APIView):
+
+    def get(self, request):
+        goals = Goal.objects.all()
+        profiles = Profile.objects.all()
+        wallet = Wallet.objects.all()
+        total_donation = Transaction.objects.count()
+        thirty_days_ago = datetime.date.today() - datetime.timedelta(days=30)
+
+        total_active_goals = goals.aggregate(
+            total_active_goals=Count(
+                'id',
+                filter=Q(status='ACTIVE')
+            ),
+        )
+        total_completed_goals = goals.aggregate(
+            total_completed_goals=Count(
+                'id',
+                filter=Q(status='COMPLETED')
+            ),
+        )
+        total_donee = profiles.aggregate(
+            total_donee=Count(
+                'id',
+                filter=Q(profile_type='DONEE')
+            ),
+        )
+        total_ngo = profiles.aggregate(
+            total_ngo=Count(
+                'id',
+                filter=Q(profile_type='NGO')
+            ),
+        )
+
+        total_collected = wallet.aggregate(
+            total_collected=Sum(
+                'amount',
+                filter=Q(type='NGO') | Q(type='DONEE')
+            ),
+        )
+
+        total_raised_in_last_30_days = Transaction.objects.filter(payment_updated_at__gte=thirty_days_ago).aggregate(
+            total_raised_in_last_30_days=Sum('paid_amount')
+        )
+
+        dashboard_count = {**total_active_goals, **total_completed_goals, **total_donee, **total_ngo, **total_collected,
+                     "total_donation": total_donation, **total_raised_in_last_30_days}
+        serializer = PlatformDashboardSerializer(dashboard_count, many=False)
+        return Response({"dashboard_count": serializer.data})
 
     
