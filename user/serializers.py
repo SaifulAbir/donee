@@ -420,6 +420,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         except User.user_profile.RelatedObjectDoesNotExist:
             user_profile = None
         data.update({'is_account_created': self.user.is_modified, 'user_profile': user_profile, 'user_id': self.user.id,
+                     'is_superuser': self.user.is_superuser, 'is_staff': self.user.is_staff,
                      'lifetime': int(refresh.access_token.lifetime.total_seconds())})
         # and everything else you want to send in the response
         return data
