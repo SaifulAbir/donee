@@ -14,6 +14,7 @@ urlpatterns = [
     path('update-goal/<str:slug>/', GoalUpdateAPIView.as_view()),
     path('goal-like/', GoalLikeAPIView.as_view()),
     path('dashboard/goal-count/', DashboardGoalCountAPIView.as_view()),
+    path('platform/dashboard/goal/', PlatformDashboardGoalAPIView.as_view()),
     path('dashboard/goal-list/', DashboardGoalListAPIView.as_view()),
     path('goal-comment/', GoalCreateCommentAPI.as_view()),
     path('goal-save/', GoalSaveAPI.as_view()),

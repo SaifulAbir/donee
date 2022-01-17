@@ -359,6 +359,46 @@ class DashboardGoalCountAPIView(APIView):
         return Response({"goal_count": serializer.data})
 
 
+class PlatformDashboardGoalAPIView(APIView):
+
+    def get(self, request):
+        goals = Goal.objects.all()
+        active_goals = goals.aggregate(
+            active_goals=Count(
+                'id',
+                filter=Q(status='ACTIVE')
+            ),
+        )
+        completed_goals = goals.aggregate(
+            completed_goals=Count(
+                'id',
+                filter=Q(status='COMPLETED')
+            ),
+        )
+        pending_goals = goals.aggregate(
+            pending_goals=Count(
+                'id',
+                filter=Q(status='PENDING')
+            ),
+        )
+        rejected_goals = goals.aggregate(
+            rejected_goals=Count(
+                'id',
+                filter=Q(status='REJECTED')
+            ),
+        )
+
+        try:
+            average_goal_conversion_rate = (completed_goals["completed_goals"]/(active_goals["active_goals"]+completed_goals["completed_goals"]))*100
+        except ZeroDivisionError:
+            average_goal_conversion_rate = 0
+
+        goal_count = {**active_goals, **completed_goals, **pending_goals, **rejected_goals, "average_goal_conversion_rate": average_goal_conversion_rate}
+        serializer = DashboardGoalCountSerializer(goal_count, many=False)
+        goal_serializer = DashboardGoalListSerializer(goals, many=True)
+        return Response({"goal_count": serializer.data, "goal_list": goal_serializer.data})
+
+
 class DashboardGoalListAPIView(ListAPIView):
     serializer_class = DashboardGoalListSerializer
 
