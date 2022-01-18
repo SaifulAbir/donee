@@ -524,6 +524,15 @@ class InNgoDoneeListSerializer(serializers.ModelSerializer):
         return total_donee_wallet
 
 
+class DashboardDoneeListSerializer(serializers.ModelSerializer):
+    total_raised = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_goal = serializers.IntegerField()
+
+    class Meta:
+        model = Profile
+        fields = ['id', 'image', 'total_goal', 'full_name', 'is_active', 'total_raised']
+
+
 class DashboardAppSerializer(serializers.ModelSerializer):
     from goal.serializers import ProfileGoalSerializer
     total_donee_count = serializers.SerializerMethodField('_get_total_donee_count')
@@ -1457,6 +1466,11 @@ class CountryCodeSerializer(serializers.ModelSerializer):
         model = Country
         fields = ('name', 'country_code')
 
+
+class DashboardDoneeInfoSerializer(serializers.Serializer):
+    total_donee = serializers.CharField()
+    total_active_donee = serializers.CharField()
+    total_inactive_donee = serializers.CharField()
 
         
         

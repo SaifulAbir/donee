@@ -23,7 +23,7 @@ from user.serializers import DashboardDonorSerializer, NgoUserCreateSerializer, 
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
     DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer, \
     DashboardMyWalletSerializer, IdActiveSerializer, \
-    CountryCodeSerializer, PlatformDashboardSerializer
+    CountryCodeSerializer, PlatformDashboardSerializer, DashboardDoneeInfoSerializer, DashboardDoneeListSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -487,5 +487,39 @@ class PlatformDashboardAPIView(APIView):
                      "total_donation": total_donation, **total_raised_in_last_30_days}
         serializer = PlatformDashboardSerializer(dashboard_count, many=False)
         return Response({"dashboard_count": serializer.data})
+
+
+class PlatformDashboardDoneeAPIView(APIView):
+
+    def get(self, request):
+        profiles = Profile.objects.filter(profile_type="DONEE").annotate(
+            total_goal = Count('profile_goal'), total_raised = Sum('profile_goal__paid_amount'))
+        # thirty_days_ago = datetime.date.today() - datetime.timedelta(days=90)
+        # payments = Payment.objects.filter(goal__profile__profile_type="DONEE",
+        #                               payment_transaction__payment_updated_at__gte=thirty_days_ago).\
+        #     annotate(total_paid_amount=Sum('payment_transaction__paid_amount')).order_by('-total_paid_amount').first()
+        # print(payments.goal.profile)
+        total_donee = profiles.aggregate(
+            total_donee=Count(
+                'id'
+            ),
+        )
+        total_active_donee = profiles.aggregate(
+            total_active_donee=Count(
+                'id',
+                filter=Q(is_active=True)
+            ),
+        )
+        total_inactive_donee = profiles.aggregate(
+            total_inactive_donee=Count(
+                'id',
+                filter=Q(is_active=False)
+            ),
+        )
+
+        donee_count = {**total_donee, **total_active_donee, **total_inactive_donee}
+        serializer = DashboardDoneeInfoSerializer(donee_count, many=False)
+        donee_serializer = DashboardDoneeListSerializer(profiles, many=True)
+        return Response({"donee_count": serializer.data, "donee_list": donee_serializer.data})
 
     
