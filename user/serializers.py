@@ -1472,6 +1472,13 @@ class DashboardDoneeInfoSerializer(serializers.Serializer):
     total_active_donee = serializers.CharField()
     total_inactive_donee = serializers.CharField()
 
+
+class PlatformDashboardDonorSerializer(serializers.Serializer):
+    total_donor = serializers.IntegerField()
+    total_donation = serializers.IntegerField()
+    total_raised = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_new_donor = serializers.IntegerField()
+
         
         
 

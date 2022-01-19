@@ -6,7 +6,7 @@ from .api import DashboardDonorsAPIView, NgoUserCreateAPIView, NgoUserListAPIVie
     CustomTokenObtainPairView, DonorProfileAPIView, DoneeAndNGOProfileAPIView, UserFollowUserAPI, UserFollowProfileAPI, \
     SendInvitationLink, DashboardAppAPIView, inNgoDoneeInfoAPIView, inNgoDoneeListAPIView, DoneeStatusUpdateAPIView, \
     EndorsedGoalsInNgoAPIView, SocialSignupAPIView, UserSearchAPIView, DashboardMyWalletAPIView, IdActiveAPIView, \
-    CountryCodeAPIView, PlatformDashboardAPIView, PlatformDashboardDoneeAPIView
+    CountryCodeAPIView, PlatformDashboardAPIView, PlatformDashboardDoneeAPIView, PlatformDashboardDonorAPIView
 from .views import *
 from django.views.decorators.csrf import csrf_exempt
 
@@ -27,7 +27,7 @@ urlpatterns = [
     path('profile-follow/', UserFollowProfileAPI.as_view()),
     path('dashboard/donee-count/', inNgoDoneeInfoAPIView.as_view()),
     path('dashboard/donee-list/', inNgoDoneeListAPIView.as_view()),
-    path('dashboard/donee/', PlatformDashboardDoneeAPIView.as_view()),
+    path('platform/dashboard/donee/', PlatformDashboardDoneeAPIView.as_view()),
     path('donee-status/', DoneeStatusUpdateAPIView.as_view()),
     path('send-invitation-link/', SendInvitationLink.as_view()),
     path('dashboard/app/', DashboardAppAPIView.as_view()),
@@ -43,6 +43,7 @@ urlpatterns = [
     path('verify-user/<str:verification>', IdActiveAPIView.as_view()),
     path('dashboard/my-wallet/', DashboardMyWalletAPIView.as_view()),
     path('dashboard/donors/',DashboardDonorsAPIView.as_view()),
+    path('platform/dashboard/donors/',PlatformDashboardDonorAPIView.as_view()),
     path('country-code/<int:pk>/',CountryCodeAPIView.as_view()),
 
 ]

@@ -23,7 +23,8 @@ from user.serializers import DashboardDonorSerializer, NgoUserCreateSerializer, 
     InvitationSerializer, InNgoDoneeInfoSerializer, InNgoDoneeListSerializer, \
     DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer, \
     DashboardMyWalletSerializer, IdActiveSerializer, \
-    CountryCodeSerializer, PlatformDashboardSerializer, DashboardDoneeInfoSerializer, DashboardDoneeListSerializer
+    CountryCodeSerializer, PlatformDashboardSerializer, DashboardDoneeInfoSerializer, DashboardDoneeListSerializer, \
+    PlatformDashboardDonorSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -521,5 +522,41 @@ class PlatformDashboardDoneeAPIView(APIView):
         serializer = DashboardDoneeInfoSerializer(donee_count, many=False)
         donee_serializer = DashboardDoneeListSerializer(profiles, many=True)
         return Response({"donee_count": serializer.data, "donee_list": donee_serializer.data})
+
+
+class PlatformDashboardDonorAPIView(APIView):
+
+    def get(self, request):
+        payments = Payment.objects.filter(status="PAID")
+        thirty_days_ago = datetime.date.today() - datetime.timedelta(days=30)
+
+        total_donor = payments.aggregate(
+            total_donor=Count(
+                'user',
+                distinct=True
+            ),
+        )
+        total_donation = payments.aggregate(
+            total_donation=Count(
+                'id',
+            ),
+        )
+        total_raised = payments.aggregate(
+            total_raised=Sum(
+                'payment_transaction__paid_amount',
+            ),
+        )
+        total_new_donor = payments.aggregate(
+            total_new_donor=Count(
+                'user',
+                filter=Q(payment_transaction__payment_updated_at__gte=thirty_days_ago),
+                distinct=True
+            ),
+        )
+
+        donor_info = {**total_donor, **total_donation, **total_raised, **total_new_donor}
+        serializer = PlatformDashboardDonorSerializer(donor_info, many=False)
+        return Response({"donor_info": serializer.data})
+
 
     
