@@ -24,7 +24,7 @@ from user.serializers import DashboardDonorSerializer, NgoUserCreateSerializer, 
     DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer, \
     DashboardMyWalletSerializer, IdActiveSerializer, \
     CountryCodeSerializer, PlatformDashboardSerializer, DashboardDoneeInfoSerializer, DashboardDoneeListSerializer, \
-    PlatformDashboardDonorSerializer
+    PlatformDashboardDonorSerializer, DashboardNGOInfoSerializer, PlatformDashboardWalletInfoSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -557,6 +557,83 @@ class PlatformDashboardDonorAPIView(APIView):
         donor_info = {**total_donor, **total_donation, **total_raised, **total_new_donor}
         serializer = PlatformDashboardDonorSerializer(donor_info, many=False)
         return Response({"donor_info": serializer.data})
+
+
+class PlatformDashboardNGOAPIView(APIView):
+
+    def get(self, request):
+        profiles = Profile.objects.filter(profile_type="NGO").annotate(
+            total_goal = Count('profile_goal'), total_raised = Sum('profile_goal__paid_amount'))
+        # thirty_days_ago = datetime.date.today() - datetime.timedelta(days=90)
+        # payments = Payment.objects.filter(goal__profile__profile_type="DONEE",
+        #                               payment_transaction__payment_updated_at__gte=thirty_days_ago).\
+        #     annotate(total_paid_amount=Sum('payment_transaction__paid_amount')).order_by('-total_paid_amount').first()
+        # print(payments.goal.profile)
+        total_ngo = profiles.aggregate(
+            total_ngo=Count(
+                'id'
+            ),
+        )
+        total_active_ngo = profiles.aggregate(
+            total_active_ngo=Count(
+                'id',
+                filter=Q(is_active=True)
+            ),
+        )
+        total_inactive_ngo = profiles.aggregate(
+            total_inactive_ngo=Count(
+                'id',
+                filter=Q(is_active=False)
+            ),
+        )
+
+        ngo_count = {**total_ngo, **total_active_ngo, **total_inactive_ngo}
+        serializer = DashboardNGOInfoSerializer(ngo_count, many=False)
+        ngo_serializer = DashboardDoneeListSerializer(profiles, many=True)
+        return Response({"ngo_info": serializer.data, "ngo_list": ngo_serializer.data})
+
+
+class PlatformDashboardWalletAPIView(APIView):
+
+    def get(self, request):
+        wallet = Wallet.objects.all()
+        # thirty_days_ago = datetime.date.today() - datetime.timedelta(days=90)
+        # payments = Payment.objects.filter(goal__profile__profile_type="DONEE",
+        #                               payment_transaction__payment_updated_at__gte=thirty_days_ago).\
+        #     annotate(total_paid_amount=Sum('payment_transaction__paid_amount')).order_by('-total_paid_amount').first()
+        # print(payments.goal.profile)
+        total_ngo_income = wallet.aggregate(
+            total_ngo_income=Sum(
+                'amount',
+                filter=Q(type="NGO")
+            ),
+        )
+
+        total_donee_income = wallet.aggregate(
+            total_donee_income=Sum(
+                'amount',
+                filter=Q(type="DONEE")
+            ),
+        )
+
+        total_pgw_income = wallet.aggregate(
+            total_pgw_income=Sum(
+                'amount',
+                filter=Q(type="PGW")
+            ),
+        )
+
+        total_platform_income = wallet.aggregate(
+            total_platform_income=Sum(
+                'amount',
+                filter=Q(type="PLATFORM")
+            ),
+        )
+
+        wallet_info = {**total_ngo_income, **total_donee_income, **total_pgw_income, **total_platform_income}
+        serializer = PlatformDashboardWalletInfoSerializer(wallet_info, many=False)
+        return Response({"wallet_info": serializer.data})
+
 
 
     

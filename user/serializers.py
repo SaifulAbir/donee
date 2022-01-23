@@ -1473,11 +1473,24 @@ class DashboardDoneeInfoSerializer(serializers.Serializer):
     total_inactive_donee = serializers.CharField()
 
 
+class DashboardNGOInfoSerializer(serializers.Serializer):
+    total_ngo = serializers.CharField()
+    total_active_ngo = serializers.CharField()
+    total_inactive_ngo = serializers.CharField()
+
+
 class PlatformDashboardDonorSerializer(serializers.Serializer):
     total_donor = serializers.IntegerField()
     total_donation = serializers.IntegerField()
     total_raised = serializers.DecimalField(max_digits=10, decimal_places=2)
     total_new_donor = serializers.IntegerField()
+
+
+class PlatformDashboardWalletInfoSerializer(serializers.Serializer):
+    total_ngo_income = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_donee_income = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_pgw_income = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_platform_income = serializers.DecimalField(max_digits=10, decimal_places=2)
 
         
         
