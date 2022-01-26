@@ -277,3 +277,32 @@ class NgoUser(DoneeModel):
     def __str__(self) :
         return self.profile.username
 
+
+class PlatformUserRole(DoneeModel):
+    ROLE_TYPES = (('ADMIN', 'Admin'),
+                  ('EDITOR', 'Editor'),
+                  ('DONEEINVITOR', 'DoneeInvitor'),
+                  ('ACCOUNTANT', 'Accountant')
+                  )
+    role_type = models.CharField(max_length=30, blank=False, null=False,
+                                 choices=ROLE_TYPES)
+
+    class Meta:
+        verbose_name = 'Platform User Role'
+        verbose_name_plural = 'Platform User Roles'
+        db_table = 'platform_user_roles'
+
+
+class PlatformUser(DoneeModel):
+    role = models.ForeignKey(PlatformUserRole, on_delete=models.PROTECT, related_name='role_platform_user')
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='platform_user')
+    is_active = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Platform User'
+        verbose_name_plural = 'Platform Users'
+        db_table = 'platform_users'
+
+    def __str__(self):
+        return self.user.username
+

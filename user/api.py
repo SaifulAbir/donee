@@ -1,7 +1,7 @@
 import datetime
 from django.conf import settings
 from django.core.mail import send_mail
-from django.db.models import Count, Q, F, Sum
+from django.db.models import Count, Q, F, Sum, Value, CharField, JSONField
 from django.db.models import query
 from django.db.models.functions import Concat
 from django.db.models.query import Prefetch, QuerySet
@@ -13,7 +13,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from notification.models import LiveNotification
 from payment.models import Payment, Wallet, Transaction
-from user.models import NgoUser, NgoUserRole, User, Profile, Country,Notification,ProfileFollow,UserFollow
+from user.models import NgoUser, NgoUserRole, User, Profile, Country, Notification, ProfileFollow, UserFollow, \
+    PlatformUserRole, PlatformUser
 from goal.models import Goal, GoalSave
 from user.serializers import DashboardDonorSerializer, NgoUserCreateSerializer, NgoUserListSerializer, \
     NgoUserRoleUpdateSerializer, \
@@ -24,7 +25,8 @@ from user.serializers import DashboardDonorSerializer, NgoUserCreateSerializer, 
     DashboardAppSerializer, EndorsedGoalsInNgoAPIViewSerializer, UserSocialRegSerializer, UserSearchAPIViewSerializer, \
     DashboardMyWalletSerializer, IdActiveSerializer, \
     CountryCodeSerializer, PlatformDashboardSerializer, DashboardDoneeInfoSerializer, DashboardDoneeListSerializer, \
-    PlatformDashboardDonorSerializer, DashboardNGOInfoSerializer, PlatformDashboardWalletInfoSerializer
+    PlatformDashboardDonorSerializer, DashboardNGOInfoSerializer, PlatformDashboardWalletInfoSerializer, \
+    PlatformRoleListSerializer, PlatformUserCreateSerializer, PlatformUserListSerializer, DoneeOfTheMonthSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -141,7 +143,18 @@ class inNgoDoneeInfoAPIView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return Profile.objects.get(user=self.request.user)
+        thirty_days_ago = datetime.date.today() - datetime.timedelta(days=30)
+        payments = Payment.objects.filter(goal__profile__profile_type="DONEE",
+                                          payment_transaction__payment_updated_at__gte=thirty_days_ago). \
+            annotate(total_paid_amount=Sum('payment_transaction__paid_amount')).order_by('-total_paid_amount').first()
+        if payments:
+            goal = Goal.objects.filter(profile=payments.goal.profile).count()
+            donee_of_the_month = {"profile": payments.goal.profile, "total_paid_amount": payments.total_paid_amount,
+                                  "total_goal": goal}
+        else:
+            donee_of_the_month = {}
+        donee_of_the_month = DoneeOfTheMonthSerializer(donee_of_the_month, many=False)
+        return Profile.objects.filter(user=self.request.user).annotate(donee_of_the_month = Value(donee_of_the_month.data, output_field=JSONField())).first()
 
 
 class inNgoDoneeListAPIView(ListAPIView):
@@ -380,8 +393,26 @@ class RoleListAPIView(ListAPIView):
     serializer_class = RoleListSerializer
 
 
+class PlatformRoleListAPIView(ListAPIView):
+    queryset = PlatformUserRole.objects.all()
+    serializer_class = PlatformRoleListSerializer
+
+
 class NgoUserCreateAPIView(CreateAPIView):
     serializer_class = NgoUserCreateSerializer
+
+
+class PlatformUserCreateAPIView(CreateAPIView):
+    serializer_class = PlatformUserCreateSerializer
+
+
+class PlatformUserListAPIView(ListAPIView):
+    serializer_class=PlatformUserListSerializer
+
+    def get_queryset(self):
+        platform_users = PlatformUser.objects.all()
+        return platform_users
+
 
 class NgoUserListAPIView(ListAPIView):
     serializer_class=NgoUserListSerializer
@@ -495,11 +526,15 @@ class PlatformDashboardDoneeAPIView(APIView):
     def get(self, request):
         profiles = Profile.objects.filter(profile_type="DONEE").annotate(
             total_goal = Count('profile_goal'), total_raised = Sum('profile_goal__paid_amount'))
-        # thirty_days_ago = datetime.date.today() - datetime.timedelta(days=90)
-        # payments = Payment.objects.filter(goal__profile__profile_type="DONEE",
-        #                               payment_transaction__payment_updated_at__gte=thirty_days_ago).\
-        #     annotate(total_paid_amount=Sum('payment_transaction__paid_amount')).order_by('-total_paid_amount').first()
-        # print(payments.goal.profile)
+        thirty_days_ago = datetime.date.today() - datetime.timedelta(days=30)
+        payments = Payment.objects.filter(goal__profile__profile_type="DONEE",
+                                      payment_transaction__payment_updated_at__gte=thirty_days_ago).\
+            annotate(total_paid_amount=Sum('payment_transaction__paid_amount')).order_by('-total_paid_amount').first()
+        if payments:
+            goal = Goal.objects.filter(profile=payments.goal.profile).count()
+            donee_of_the_month = {"profile": payments.goal.profile, "total_paid_amount": payments.total_paid_amount, "total_goal": goal}
+        else:
+            donee_of_the_month = {}
         total_donee = profiles.aggregate(
             total_donee=Count(
                 'id'
@@ -521,7 +556,8 @@ class PlatformDashboardDoneeAPIView(APIView):
         donee_count = {**total_donee, **total_active_donee, **total_inactive_donee}
         serializer = DashboardDoneeInfoSerializer(donee_count, many=False)
         donee_serializer = DashboardDoneeListSerializer(profiles, many=True)
-        return Response({"donee_count": serializer.data, "donee_list": donee_serializer.data})
+        donee_of_the_month = DoneeOfTheMonthSerializer(donee_of_the_month, many=False)
+        return Response({"donee_count": serializer.data, "donee_list": donee_serializer.data, "donee_of_the_month": donee_of_the_month.data})
 
 
 class PlatformDashboardDonorAPIView(APIView):

@@ -7,7 +7,8 @@ from .api import DashboardDonorsAPIView, NgoUserCreateAPIView, NgoUserListAPIVie
     SendInvitationLink, DashboardAppAPIView, inNgoDoneeInfoAPIView, inNgoDoneeListAPIView, DoneeStatusUpdateAPIView, \
     EndorsedGoalsInNgoAPIView, SocialSignupAPIView, UserSearchAPIView, DashboardMyWalletAPIView, IdActiveAPIView, \
     CountryCodeAPIView, PlatformDashboardAPIView, PlatformDashboardDoneeAPIView, PlatformDashboardDonorAPIView, \
-    PlatformDashboardNGOAPIView, PlatformDashboardWalletAPIView
+    PlatformDashboardNGOAPIView, PlatformDashboardWalletAPIView, PlatformRoleListAPIView, PlatformUserCreateAPIView, \
+    PlatformUserListAPIView
 from .views import *
 from django.views.decorators.csrf import csrf_exempt
 
@@ -38,8 +39,11 @@ urlpatterns = [
     path('social-signup/', SocialSignupAPIView.as_view()),
     path('search-user/', UserSearchAPIView.as_view()),
     path('role-list/',RoleListAPIView.as_view()),
+    path('platform-role-list/',PlatformRoleListAPIView.as_view()),
     path('ngo-user-create/',NgoUserCreateAPIView.as_view()),
+    path('platform-user-create/', PlatformUserCreateAPIView.as_view()),
     path('ngo-user-list/',NgoUserListAPIView.as_view()),
+    path('platform-user-list/',PlatformUserListAPIView.as_view()),
     path('ngo-user-role-update/<int:pk>/',NgoUserRoleUpdateAPIView.as_view()),
     path('ngo-user-status-update/<int:pk>/', NgoUserUpdateStatusAPIView.as_view()),
     path('verify-user/<str:verification>', IdActiveAPIView.as_view()),

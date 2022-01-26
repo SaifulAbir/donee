@@ -445,16 +445,27 @@ class UserFollowProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class DoneeOfTheMonthProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Profile
+        fields=('full_name', 'image')
+
+
+class DoneeOfTheMonthSerializer(serializers.Serializer):
+    profile = DoneeOfTheMonthProfileSerializer(required=False)
+    total_paid_amount = serializers.DecimalField(max_digits=10, decimal_places=2, required=False)
+    total_goal = serializers.IntegerField(required=False)
+
 
 class InNgoDoneeInfoSerializer(serializers.ModelSerializer):
     total_donee_count = serializers.SerializerMethodField('_get_total_donee_count')
     total_active_count = serializers.SerializerMethodField('_get_total_active_count')
     total_inactive_count = serializers.SerializerMethodField('_get_total_inactive_count')
-
+    donee_of_the_month = DoneeOfTheMonthSerializer()
 
     class Meta:
         model = Profile
-        fields = ['total_donee_count','total_active_count','total_inactive_count']
+        fields = ['total_donee_count','total_active_count','total_inactive_count', 'donee_of_the_month']
 
 
     def _get_total_active_count(self, obj):
@@ -780,6 +791,13 @@ class RoleListSerializer(serializers.ModelSerializer):
         fields = ('id', 'role_type')
 
 
+class PlatformRoleListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PlatformUserRole
+        fields = ('id', 'role_type')
+
+
 class NgoUserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = NgoUser
@@ -794,7 +812,31 @@ class NgoUserCreateSerializer(serializers.ModelSerializer):
 
         return ngo_user_instance
 
+
+class PlatformUserCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlatformUser
+        fields = ('role', 'user', 'is_active')
+        read_only_fields = ('is_active',)
+
+    def create(self, validated_data):
+
+        platform_user_instance = NgoUser.objects.create(**validated_data,is_active=True,
+                                    created_by=self.context['request'].user.id)
+
+        return platform_user_instance
+
+
 class NgoUserListSerializer(serializers.ModelSerializer):
+
+    user = NgoUserSerializer()
+    role = serializers.CharField(source="role.role_type")
+    class Meta:
+        model = PlatformUser
+        fields=('id', 'user', 'role', 'is_active')
+
+
+class PlatformUserListSerializer(serializers.ModelSerializer):
 
     user = NgoUserSerializer()
     role = serializers.CharField(source="role.role_type")
@@ -1491,6 +1533,9 @@ class PlatformDashboardWalletInfoSerializer(serializers.Serializer):
     total_donee_income = serializers.DecimalField(max_digits=10, decimal_places=2)
     total_pgw_income = serializers.DecimalField(max_digits=10, decimal_places=2)
     total_platform_income = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+
+
 
         
         
